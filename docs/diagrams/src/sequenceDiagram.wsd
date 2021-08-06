@@ -1,0 +1,63 @@
+@startuml Diagrama de Sequência
+title Executar Simulação
+autonumber 1.1.1
+
+Pesquisador -> Navegador: Solicitar a execução\n de uma simulação
+Navegador -> Experimentos: POST /rodada
+Experimentos -> Proveniência: salvarRodada(Versão)
+Proveniência -> PostgreSQL: novaRodada(Versão)
+PostgreSQL --> Proveniência: rodadaID
+Proveniência --> Experimentos: rodadaID
+Experimentos --> Navegador: rodadaID
+
+autonumber inc B
+Navegador -> Experimentos: GET /rodada/[rodadaID]
+Experimentos -> Proveniência: checarStatusRodada(rodadaID)
+Proveniência --> Experimentos: Status da Rodada
+Experimentos -> Proveniência: getConfiguração(rodadaID)
+Proveniência --> Experimentos: Configuração do Experimento
+Experimentos --> Navegador: Páginda de execução de Experimento (HTML e JS)
+Navegador -> Navegador: Renderizar Página
+Navegador -> Pesquisador: Exibir Página de Rodada(Em execução)
+
+autonumber inc B
+Navegador -> Experimentos: abrir conexão websocket
+Experimentos --> Navegador: conexão websocket estabelecida
+Experimentos --> AdaptadorMininetWifi: solicitar inicialização do experimento
+AdaptadorMininetWifi -> MininetWifi: inicializar experimento
+loop Até a Solicitação de encerrar Rodada
+    MininetWifi -> AdaptadorMininetWifi: resultado parcial
+    AdaptadorMininetWifi -> Experimentos: resultado parcial
+    Experimentos -> Proveniência: registraResultadoParcial()
+    Experimentos -> Navegador: Resultado Parcial (via webSocket)
+    Navegador -> Pesquisador: Exibir Resultado Parcial
+end
+
+autonumber inc A
+Pesquisador -> Navegador: Solicita finalização do experimento
+Navegador -> Experimentos: POST /encerrar-rodada/[rodadaID]
+Experimentos -> Proveniência: salvarResultado(Rodada)
+Proveniência -> PostgreSQL: novoResultado()
+PostgreSQL --> Proveniência: OK
+Proveniência --> Experimentos: OK
+Experimentos --> Navegador: OK
+
+autonumber inc B
+Navegador -> Experimentos: encerrar conexão websocket
+
+autonumber inc B
+Navegador -> Experimentos: GET /rodada/[rodadaID]
+Experimentos -> Proveniência: checarStatusRodada(rodadaID)
+Proveniência --> Experimentos: Status da Rodada
+Experimentos -> Proveniência: getConfiguração(rodadaID)
+Proveniência --> Experimentos: Configuração do Experimento
+Experimentos -> Proveniência: getResultado(rodadaID)
+Proveniência --> Experimentos: Resultado do Experimento
+Experimentos --> Navegador: Páginaa de vizualização de Experimento (HTML e JS)
+Navegador -> Navegador: Renderizar Página
+Navegador -> Pesquisador: Exibir Página de Rodada(Finalizada)
+
+
+
+
+@enduml
