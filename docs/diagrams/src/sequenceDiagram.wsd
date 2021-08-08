@@ -8,10 +8,9 @@ Experimentos -> Proveniência: salvarRodada(Versão)
 Proveniência -> PostgreSQL: novaRodada(Versão)
 PostgreSQL --> Proveniência: rodadaID
 Proveniência --> Experimentos: rodadaID
-Experimentos --> Navegador: rodadaID
 
 autonumber inc B
-Navegador -> Experimentos: GET /rodada/[rodadaID]
+Experimentos -> Experimentos: GET /rodada/[rodadaID]
 Experimentos -> Proveniência: checarStatusRodada(rodadaID)
 Proveniência --> Experimentos: Status da Rodada
 Experimentos -> Proveniência: getConfiguração(rodadaID)

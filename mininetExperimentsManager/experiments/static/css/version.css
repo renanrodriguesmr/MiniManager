@@ -1,0 +1,7 @@
+.action-buttons {
+    display: flex;
+}
+
+.execute {
+    margin-right: 20px;
+}

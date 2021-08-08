@@ -1,7 +1,17 @@
 {% extends "base.html" %}
+{% load static %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static 'css/version.css' %}">
+{% endblock %}
 
 {% block content %}
   <h1>Versão 1</h1>
-  <button type="button" class="btn btn-primary">Executar</button>
-  <button type="button" class="btn btn-primary">Comparar Rodadas</button>
+  <div class="action-buttons">
+    <form action="/rodada" method="post">
+      {% csrf_token %}
+      <button type="sumbit" class="execute btn btn-primary" name="version" value="1">Executar</button>
+    </form>
+    <button type="button" class="btn btn-primary">Comparar Rodadas</button>
+  </div>
 {% endblock %}
