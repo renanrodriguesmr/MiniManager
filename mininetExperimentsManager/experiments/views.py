@@ -1,9 +1,8 @@
+import threading
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from minineWifitIntegration import MininetWifiExp, WebSocketListener, ResultNotifier
-
-import threading
 
 def version(request):
     return render(request, 'version.html')

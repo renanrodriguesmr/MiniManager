@@ -1,3 +1,4 @@
+from asgiref.sync import async_to_sync
 class ResultNotifier():
     _observers = []
 
@@ -9,4 +10,4 @@ class ResultNotifier():
 
     def notify(self, subject):
         for observer in self._observers:
-            observer.update(subject)
+            async_to_sync(observer.update)(subject)

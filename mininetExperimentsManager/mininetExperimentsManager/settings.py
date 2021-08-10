@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'channels',
     'main.apps.MainConfig',
     'experiments.apps.ExperimentsConfig'
 ]
@@ -69,7 +70,14 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'mininetExperimentsManager.wsgi.application'
+# WSGI_APPLICATION = 'mininetExperimentsManager.wsgi.application'
+ASGI_APPLICATION = 'mininetExperimentsManager.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': "channels.layers.InMemoryChannelLayer",
+    }
+}
 
 
 # Database
