@@ -1,7 +1,66 @@
 {% extends "base.html" %}
 {% load static %}
 
+{% block head %}
+  <link rel="stylesheet" href="{% static 'css/round.css' %}">
+{% endblock %}
+
 {% block content %}
-  {% csrf_token %}
-  <h1>Rodada 1</h1>
+  <h1>Rodada 1 - Versão 1</h1>
+  <div class="action-buttons">
+    <form action="/rodada" method="post">
+      {% csrf_token %}
+      <button type="sumbit" class="btn btn-primary" name="version" value="1">Reiniciar</button>
+    </form>
+    <form action="/rodada" method="post">
+        {% csrf_token %}
+        <button type="button" class="btn btn-primary">Finalizar</button>
+    </form>
+  </div>
+  <div class="round-content">
+    <div class="round-result">
+        <div class="alert alert-primary" role="alert">
+            Executando
+        </div>
+        <table class="styled-table">
+          <thead>
+              <tr>
+                  <th>second</th>
+                  <th>name</th>
+                  <th>position</th>
+                  <th>rssi</th>
+                  <th>channel</th>
+                  <th>band</th>
+                  <th>ssid</th>
+                  <th>txpower</th>
+                  <th>associatedTo</th>
+                  <th>ip</th>
+              </tr>
+          </thead>
+          <tbody>
+            {% for key, value in result.items %}
+              {% for lineResult in value %}
+                <tr>
+                  <td>{{key}}</td>
+                  <td>{{lineResult.name}}</td>
+                  <td>{{lineResult.position}}</td>
+                  <td>{{lineResult.rssi}}</td>
+                  <td>{{lineResult.channel}}</td>
+                  <td>{{lineResult.band}}</td>
+                  <td>{{lineResult.ssid}}</td>
+                  <td>{{lineResult.txpower}}</td>
+                  <td>{{lineResult.associatedTo}}</td>
+                  <td>{{lineResult.ip}}</td>
+                </tr>
+              {% endfor %}
+            {% endfor %}
+          </tbody>
+        </table>
+    </div>
+    <div class="round-configuration">
+        <div class="alert alert-primary" role="alert">
+            Executando
+        </div>
+    </div>
+  </div>
 {% endblock %}
