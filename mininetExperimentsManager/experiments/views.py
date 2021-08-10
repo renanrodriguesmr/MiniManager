@@ -1,11 +1,9 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from datetime import datetime
-
+from minineWifitIntegration import MininetWifiExp, WebSocketListener, ResultNotifier
 
 import threading
-import time
 
 def version(request):
     return render(request, 'version.html')
@@ -13,27 +11,22 @@ def version(request):
 def round(request):
     if request.method == 'POST':
         return HttpResponseRedirect(reverse('round'))
-    
-    # t1 = threading.Thread(target=print_time, args=("Thread-1", 2, ))
-    # t2 = threading.Thread(target=print_time, args=("Thread-2", 4, ))
 
-    # t1.start()
-    # t2.start()
+    threading.Thread(target=run).start()
+
     args = {}
     args['result'] = getMockResult()
 
     return render(request, 'round.html', args)
 
-def print_time( threadName, delay):
-   count = 0
-   while count < 5:
-      time.sleep(delay)
-      count += 1
-      print ("%s: %s" % ( threadName, time.ctime(time.time()) ))
+def run():
+    wsListener = WebSocketListener()
+    notifier = ResultNotifier()
+    notifier.attach(wsListener)
+    mininetWifiExp = MininetWifiExp(notifier)
+    mininetWifiExp.run()
 
 def getMockResultLine(time,position,name,rssi,channel,band,ssid,txpower,associatedTo,ip):
-    #attrList=['time','position','name','rssi','channel','band','ssid','txpower','associatedTo','ip']
-    
     return { "time": time, "name": name, "position": position, "rssi": rssi, "channel": channel, "band": band, "ssid": ssid, "txpower": txpower, "associatedTo": associatedTo, "ip": ip }
 
 def getMockResult():
