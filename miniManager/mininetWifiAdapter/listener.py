@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from experiments import ExperimentConsumer
+from experimenter import ExperimentConsumer
 class ResultEventListener(ABC):
     @abstractmethod
     def update(self, subject):
