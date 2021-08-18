@@ -1,4 +1,10 @@
 from asgiref.sync import async_to_sync
+from abc import ABC, abstractmethod
+
+class IResultEventListener(ABC):
+    @abstractmethod
+    def update(self, subject):
+        pass
 class ResultNotifier():
     _observers = []
 

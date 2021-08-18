@@ -1,1 +1,1 @@
-from .consumers import ExperimentConsumer
+from .webSocketServer import WebSocketServer

@@ -1,10 +1,10 @@
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from channels.layers import get_channel_layer
 
-class ExperimentConsumer(AsyncJsonWebsocketConsumer):
+class WebSocketServer(AsyncJsonWebsocketConsumer):
     async def connect(self):
         self.room_name = self.scope['url_route']['kwargs']['round_id']
-        self.room_group_name = ExperimentConsumer.__getRoomGroupName(self.room_name)
+        self.room_group_name = WebSocketServer.__getRoomGroupName(self.room_name)
 
         await self.channel_layer.group_add(
             self.room_group_name,
@@ -27,7 +27,7 @@ class ExperimentConsumer(AsyncJsonWebsocketConsumer):
 
     async def sendUpdate(roundID, data):
         channelLayer = get_channel_layer()
-        roomGroupName = ExperimentConsumer.__getRoomGroupName(roundID)
+        roomGroupName = WebSocketServer.__getRoomGroupName(roundID)
         await channelLayer.group_send(roomGroupName, {
             "message": data,
             "type": "sendMessage",

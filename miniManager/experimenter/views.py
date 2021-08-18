@@ -1,26 +1,28 @@
 import threading
+from django.views import View
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from mininetWifiAdapter import MininetWifiExp, WebSocketListener, ResultNotifier
+from mininetWifiAdapter import MininetWifiExp, ResultNotifier
+from .listener import Listener
 
-def version(request):
-    return render(request, 'version.html')
+class VersionView(View):
+    def get(self, request):
+        return render(request, 'version.html')
 
-def round(request):
-    if request.method == 'POST':
+class RoundView(View):
+    def get(self, request):
+        threading.Thread(target=self.__run).start()
+        args = {}
+        #args['result'] = getMockResult()
+        return render(request, 'round.html', args)
+
+    def post(self, request):
         return HttpResponseRedirect(reverse('round'))
 
-    threading.Thread(target=run).start()
-
-    args = {}
-    #args['result'] = getMockResult()
-
-    return render(request, 'round.html', args)
-
-def run():
-    wsListener = WebSocketListener()
-    notifier = ResultNotifier()
-    notifier.attach(wsListener)
-    mininetWifiExp = MininetWifiExp(notifier)
-    mininetWifiExp.run()
+    def __run(self):
+        listener = Listener()
+        notifier = ResultNotifier()
+        notifier.attach(listener)
+        mininetWifiExp = MininetWifiExp(notifier)
+        mininetWifiExp.run()

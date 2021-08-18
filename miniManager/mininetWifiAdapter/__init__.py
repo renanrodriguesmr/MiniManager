@@ -1,3 +1,2 @@
-from .notifier import ResultNotifier
-from .listener import WebSocketListener
+from .notifier import ResultNotifier, IResultEventListener
 from .mininetWiFiExp import MininetWifiExp
