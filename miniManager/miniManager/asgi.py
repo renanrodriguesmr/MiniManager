@@ -1,5 +1,5 @@
 """
-ASGI config for mininetExperimentsManager project.
+ASGI config for miniManager project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 

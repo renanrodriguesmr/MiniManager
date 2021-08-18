@@ -37,23 +37,7 @@
                   <th>ip</th>
               </tr>
           </thead>
-          <tbody>
-            {% for key, value in result.items %}
-              {% for lineResult in value %}
-                <tr>
-                  <td>{{key}}</td>
-                  <td>{{lineResult.name}}</td>
-                  <td>{{lineResult.position}}</td>
-                  <td>{{lineResult.rssi}}</td>
-                  <td>{{lineResult.channel}}</td>
-                  <td>{{lineResult.band}}</td>
-                  <td>{{lineResult.ssid}}</td>
-                  <td>{{lineResult.txpower}}</td>
-                  <td>{{lineResult.associatedTo}}</td>
-                  <td>{{lineResult.ip}}</td>
-                </tr>
-              {% endfor %}
-            {% endfor %}
+          <tbody id="styled-table-content">
           </tbody>
         </table>
     </div>
