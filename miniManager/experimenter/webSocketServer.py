@@ -4,7 +4,7 @@ from channels.layers import get_channel_layer
 class WebSocketServer(AsyncJsonWebsocketConsumer):
     async def connect(self):
         self.room_name = self.scope['url_route']['kwargs']['round_id']
-        self.room_group_name = WebSocketServer.__getRoomGroupName(self.room_name)
+        self.room_group_name = self.__getRoomGroupName(self.room_name)
 
         await self.channel_layer.group_add(
             self.room_group_name,
@@ -22,12 +22,14 @@ class WebSocketServer(AsyncJsonWebsocketConsumer):
     async def sendMessage(self, data):
         await self.send_json({ "payload": data["message"] })
     
+    @staticmethod
     def __getRoomGroupName(roundID):
         return 'round_%s' % roundID
 
-    async def sendUpdate(roundID, data):
+    @classmethod
+    async def sendUpdate(cls, roundID, data):
         channelLayer = get_channel_layer()
-        roomGroupName = WebSocketServer.__getRoomGroupName(roundID)
+        roomGroupName = cls.__getRoomGroupName(roundID)
         await channelLayer.group_send(roomGroupName, {
             "message": data,
             "type": "sendMessage",

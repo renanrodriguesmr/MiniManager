@@ -5,6 +5,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from mininetWifiAdapter import MininetWifiExp, ResultNotifier
 from .listener import Listener
+from .experimentsQueue import ExperimentsQueue
 
 class VersionView(View):
     def get(self, request):
@@ -25,4 +26,9 @@ class RoundView(View):
         notifier = ResultNotifier()
         notifier.attach(listener)
         mininetWifiExp = MininetWifiExp(notifier)
-        mininetWifiExp.run()
+        queue = ExperimentsQueue.instance()
+        queue.add(mininetWifiExp)
+
+class FinishRoundView(View):
+    def post(self, request):
+        return HttpResponseRedirect(reverse('round'))

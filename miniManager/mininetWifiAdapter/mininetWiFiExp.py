@@ -6,12 +6,17 @@ class MininetWifiExp():
 
     def __init__(self, notifier):
         self.__notifier = notifier
+        self.active = True
 
     def run(self):
         mockResult = MininetWifiExp._getMockResult()
-        for key in mockResult:
-            self.__notifier.notify(mockResult[key])
-            time.sleep(MininetWifiExp.DELAY)
+        while self.active:
+            for key in mockResult:
+                self.__notifier.notify(mockResult[key])
+                time.sleep(MininetWifiExp.DELAY)
+
+    def finish(self):
+        self.active = False
 
     def _getMockResultLine(time,position,name,rssi,channel,band,ssid,txpower,associatedTo,ip):
         return { "time": time, "name": name, "position": position, "rssi": rssi, "channel": channel, "band": band, "ssid": ssid, "txpower": txpower, "associatedTo": associatedTo, "ip": ip }

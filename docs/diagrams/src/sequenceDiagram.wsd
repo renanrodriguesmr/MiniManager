@@ -27,7 +27,7 @@ AdaptadorMininetWifi -> MininetWifi: inicializar experimento
 loop Até a Solicitação de encerrar Rodada
     MininetWifi -> AdaptadorMininetWifi: resultado parcial
     AdaptadorMininetWifi -> Experimentos: resultado parcial
-    Experimentos -> Proveniência: registraResultadoParcial()
+    AdaptadorMininetWifi -> Proveniência: resultado parcial
     Experimentos -> Navegador: Resultado Parcial (via webSocket)
     Navegador -> Pesquisador: Exibir Resultado Parcial
 end

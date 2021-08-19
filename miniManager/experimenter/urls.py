@@ -1,10 +1,11 @@
 from django.urls import path, re_path
 from .webSocketServer import WebSocketServer
-from .views import VersionView, RoundView
+from .views import VersionView, RoundView, FinishRoundView
 
 urlpatterns = [
-    path('versao', VersionView.as_view()),
-    path('rodada', RoundView.as_view()),
+    path('version', VersionView.as_view(), name="version"),
+    path('round', RoundView.as_view(), name="round"),
+    path('finish_round', FinishRoundView.as_view()),
 ]
 
 websocket_urlpatterns = [
