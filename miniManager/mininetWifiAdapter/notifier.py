@@ -1,4 +1,4 @@
-from asgiref.sync import async_to_sync
+import asyncio
 from abc import ABC, abstractmethod
 
 class IResultEventListener(ABC):
@@ -16,4 +16,4 @@ class ResultNotifier():
 
     def notify(self, subject):
         for observer in self._observers:
-            async_to_sync(observer.update)(subject)
+            asyncio.run(observer.update(subject))
