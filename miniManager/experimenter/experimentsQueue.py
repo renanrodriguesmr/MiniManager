@@ -9,8 +9,9 @@ class ExperimentsQueue:
 
     def __init__(self):
         self.queue = Queue()
+        self._currentExperiment = None
 
-        t = threading.Thread(target=self.consume)
+        t = threading.Thread(target=self._consume)
         t.daemon = True
         t.start()
 
@@ -18,15 +19,19 @@ class ExperimentsQueue:
     def add(self, mininetWifiExp):
         self.queue.put(mininetWifiExp)
 
-    def consume(self):
+    def getCurrentExperiment(self):
+        return self._currentExperiment
+
+
+    def _consume(self):
         while True:
             if self.queue.empty():
+                self._currentExperiment = None
                 time.sleep(self.POLLINGPERIOD)
                 continue
 
-            mininetWifiExp = self.queue.get()
-            mininetWifiExp.run()
-
+            self._currentExperiment = self.queue.get()
+            self._currentExperiment.run()
 
     @classmethod
     def instance(cls):

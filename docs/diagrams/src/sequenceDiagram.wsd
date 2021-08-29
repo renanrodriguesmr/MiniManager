@@ -3,56 +3,62 @@ title Executar Simulação
 autonumber 1.1.1
 
 Pesquisador -> Navegador: Solicitar a execução\n de uma simulação
-Navegador -> Experimentos: POST /rodada
-Experimentos -> Proveniência: salvarRodada(Versão)
-Proveniência -> PostgreSQL: novaRodada(Versão)
-PostgreSQL --> Proveniência: rodadaID
-Proveniência --> Experimentos: rodadaID
+Navegador -> Experimenter: POST /rodada
+Experimenter -> ProvenanceCatcher: salvarRodada(Versão)
+ProvenanceCatcher -> Database: novaRodada(Versão)
+Database --> ProvenanceCatcher: rodadaID
+ProvenanceCatcher --> Experimenter: rodadaID
 
 autonumber inc B
-Experimentos -> Experimentos: GET /rodada/[rodadaID]
-Experimentos -> Proveniência: checarStatusRodada(rodadaID)
-Proveniência --> Experimentos: Status da Rodada
-Experimentos -> Proveniência: getConfiguração(rodadaID)
-Proveniência --> Experimentos: Configuração do Experimento
-Experimentos --> Navegador: Páginda de execução de Experimento (HTML e JS)
+Experimenter -> Experimenter: GET /rodada/[rodadaID]
+Experimenter -> ProvenanceCatcher: checarStatusRodada(rodadaID)
+ProvenanceCatcher --> Experimenter: Status da Rodada
+Experimenter -> ProvenanceCatcher: getConfiguração(rodadaID)
+ProvenanceCatcher --> Experimenter: Configuração do Experimento
+Experimenter -> Experimenter: colocar experimento na fila
+Experimenter --> Navegador: Páginda de execução de Experimento (HTML e JS)
 Navegador -> Navegador: Renderizar Página
 Navegador -> Pesquisador: Exibir Página de Rodada(Em execução)
 
 autonumber inc B
-Navegador -> Experimentos: abrir conexão websocket
-Experimentos --> Navegador: conexão websocket estabelecida
-Experimentos --> AdaptadorMininetWifi: solicitar inicialização do experimento
-AdaptadorMininetWifi -> MininetWifi: inicializar experimento
+Navegador -> Experimenter: abrir conexão websocket
+Experimenter --> Navegador: conexão websocket estabelecida
+note over Experimenter: Quando o experimento em questão estiver no topo da fila.
+Experimenter -> Experimenter: consumir fila de experimento
+Experimenter -> MininetWifiAdapter: solicitar inicialização do experimento
+MininetWifiAdapter -> MininetWifi: inicializar experimento
 loop Até a Solicitação de encerrar Rodada
-    MininetWifi -> AdaptadorMininetWifi: resultado parcial
-    AdaptadorMininetWifi -> Experimentos: resultado parcial
-    AdaptadorMininetWifi -> Proveniência: resultado parcial
-    Experimentos -> Navegador: Resultado Parcial (via webSocket)
+    MininetWifi -> MininetWifiAdapter: resultado parcial
+    MininetWifiAdapter -> Experimenter: resultado parcial
+    MininetWifiAdapter -> ProvenanceCatcher: resultado parcial
+    ProvenanceCatcher -> ProvenanceCatcher: armazenar resultado parcial
+    Experimenter -> Navegador: Resultado Parcial (via webSocket)
     Navegador -> Pesquisador: Exibir Resultado Parcial
 end
 
 autonumber inc A
 Pesquisador -> Navegador: Solicita finalização do experimento
-Navegador -> Experimentos: POST /encerrar-rodada/[rodadaID]
-Experimentos -> Proveniência: salvarResultado(Rodada)
-Proveniência -> PostgreSQL: novoResultado()
-PostgreSQL --> Proveniência: OK
-Proveniência --> Experimentos: OK
-Experimentos --> Navegador: OK
+Navegador -> Experimenter: POST /encerrar-rodada/[rodadaID]
+Experimenter -> MininetWifiAdapter: solicitar finalização do experimento
+MininetWifiAdapter --> Experimenter: experimento finalizado
+Experimenter -> ProvenanceCatcher: salvarResultado(Rodada)
+ProvenanceCatcher -> Database: novoResultado()
+Database --> ProvenanceCatcher: OK
+ProvenanceCatcher --> Experimenter: OK
+Experimenter --> Navegador: OK
 
 autonumber inc B
-Navegador -> Experimentos: encerrar conexão websocket
+Navegador -> Experimenter: encerrar conexão websocket
 
 autonumber inc B
-Navegador -> Experimentos: GET /rodada/[rodadaID]
-Experimentos -> Proveniência: checarStatusRodada(rodadaID)
-Proveniência --> Experimentos: Status da Rodada
-Experimentos -> Proveniência: getConfiguração(rodadaID)
-Proveniência --> Experimentos: Configuração do Experimento
-Experimentos -> Proveniência: getResultado(rodadaID)
-Proveniência --> Experimentos: Resultado do Experimento
-Experimentos --> Navegador: Páginaa de vizualização de Experimento (HTML e JS)
+Navegador -> Experimenter: GET /rodada/[rodadaID]
+Experimenter -> ProvenanceCatcher: checarStatusRodada(rodadaID)
+ProvenanceCatcher --> Experimenter: Status da Rodada
+Experimenter -> ProvenanceCatcher: getConfiguração(rodadaID)
+ProvenanceCatcher --> Experimenter: Configuração do Experimento
+Experimenter -> ProvenanceCatcher: getResultado(rodadaID)
+ProvenanceCatcher --> Experimenter: Resultado do Experimento
+Experimenter --> Navegador: Páginaa de vizualização de Experimento (HTML e JS)
 Navegador -> Navegador: Renderizar Página
 Navegador -> Pesquisador: Exibir Página de Rodada(Finalizada)
 

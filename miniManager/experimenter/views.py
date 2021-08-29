@@ -1,4 +1,3 @@
-import threading
 from django.views import View
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
@@ -13,7 +12,7 @@ class VersionView(View):
 
 class RoundView(View):
     def get(self, request):
-        threading.Thread(target=self.__run).start()
+        self.__run()
         args = {}
         #args['result'] = getMockResult()
         return render(request, 'round.html', args)
@@ -31,4 +30,8 @@ class RoundView(View):
 
 class FinishRoundView(View):
     def post(self, request):
-        return HttpResponseRedirect(reverse('round'))
+        queue = ExperimentsQueue.instance()
+        experiment = queue.getCurrentExperiment()
+        if experiment:
+            experiment.finish()
+        return HttpResponseRedirect(reverse('version'))
