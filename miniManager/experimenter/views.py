@@ -5,20 +5,30 @@ from django.urls import reverse
 from mininetWifiAdapter import MininetWifiExp, ResultNotifier
 from .listener import Listener
 from .experimentsQueue import ExperimentsQueue
+from .models import Round
 
 class VersionView(View):
     def get(self, request):
         return render(request, 'version.html')
 
 class RoundView(View):
-    def get(self, request):
+    def get(self, request, round_id):
+        print(round_id)
         self.__run()
         args = {}
         #args['result'] = getMockResult()
         return render(request, 'round.html', args)
 
     def post(self, request):
-        return HttpResponseRedirect(reverse('round'))
+        version = request.POST.get('version')
+        total = Round.objects.count() #TODO: filter by version
+        name = "{} - round {}".format(version, total + 1)
+        
+        round = Round(name=name)
+        round.save()
+
+        url = reverse('round', kwargs={ 'round_id': round.id })
+        return HttpResponseRedirect(url)
 
     def __run(self):
         listener = Listener()
