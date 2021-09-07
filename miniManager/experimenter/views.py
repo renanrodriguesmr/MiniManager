@@ -13,10 +13,16 @@ class VersionView(View):
 
 class RoundView(View):
     def get(self, request, round_id):
-        print(round_id)
-        self.__run()
+        round = Round.objects.get(id=round_id)
+
         args = {}
         #args['result'] = getMockResult()
+
+        if round.status == Round.STARTING:
+            round.status = Round.IN_PROGRESS
+            round.save()
+            self.__runExperiment()
+
         return render(request, 'round.html', args)
 
     def post(self, request):
@@ -30,7 +36,7 @@ class RoundView(View):
         url = reverse('round', kwargs={ 'round_id': round.id })
         return HttpResponseRedirect(url)
 
-    def __run(self):
+    def __runExperiment(self):
         listener = Listener()
         notifier = ResultNotifier()
         notifier.attach(listener)
