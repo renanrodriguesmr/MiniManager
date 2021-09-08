@@ -4,25 +4,32 @@ from subprocess import run
 import json
 import threading
 import time
+import jsonpickle
 class MininetWifiExp():
     RUN_CMD = 'sudo python mininetWifiAdapter/MininetScript.py'
     CLEAR_CMD= 'sudo mn -c'
     EXPERIMENT_TIMEOUT = 125
 
 
-    def __init__(self, notifier):
+    def __init__(self, notifier, configuration):
         self.__notifier = notifier
         self.__active = False
         self.__process = None
         self.__start = 0
+        self._configuration = configuration
 
     def run(self):
+        self.__serializeConfiguration()
         self.__active = True
         self.__process = popen_spawn.PopenSpawn(self.RUN_CMD)
         self.__start = time.time()
         
         while self.__shouldKeepRunning():
-            self.__process.expect(r'(\{\'partialResult\':\s+\[.*\]\})')
+            try:
+                self.__process.expect(r'(\{\'partialResult\':\s+\[.*\]\})')
+            except:
+                continue
+
             if self.__process is None:
                 break
             partialResultsB = self.__process.match.groups()[0]
@@ -30,6 +37,11 @@ class MininetWifiExp():
 
         self.finish()
 
+    def __serializeConfiguration(self):
+        with open('mininetWifiAdapter/config.json', 'w') as outfile:
+            jsonString = jsonpickle.encode(self._configuration)
+            json.dump(jsonString, outfile)
+            outfile.close()
 
     def __processPartialResult(self, partialResultsB):
         resultsString = partialResultsB.decode('utf-8').replace("\'", "\"")

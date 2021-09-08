@@ -4,17 +4,15 @@ autonumber 1.1.1
 
 Pesquisador -> Navegador: Solicitar a execução\n de uma simulação
 Navegador -> Experimenter: POST /rodada
-Experimenter -> ProvenanceCatcher: salvarRodada(Versão)
-ProvenanceCatcher -> Database: novaRodada(Versão)
+Experimenter -> Database: novaRodada(Versão)
 Database --> ProvenanceCatcher: rodadaID
 ProvenanceCatcher --> Experimenter: rodadaID
 
 autonumber inc B
 Experimenter -> Experimenter: GET /rodada/[rodadaID]
-Experimenter -> ProvenanceCatcher: checarStatusRodada(rodadaID)
-ProvenanceCatcher --> Experimenter: Status da Rodada
-Experimenter -> ProvenanceCatcher: getConfiguração(rodadaID)
-ProvenanceCatcher --> Experimenter: Configuração do Experimento
+Experimenter -> Experimenter: checarStatusRodada(rodadaID)
+Experimenter -> ExperimentsConfigurator: getConfiguração(rodadaID)
+ExperimentsConfigurator --> Experimenter: Configuração do Experimento
 Experimenter -> Experimenter: colocar experimento na fila
 Experimenter --> Navegador: Páginda de execução de Experimento (HTML e JS)
 Navegador -> Navegador: Renderizar Página

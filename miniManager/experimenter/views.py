@@ -3,6 +3,7 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from mininetWifiAdapter import MininetWifiExp, ResultNotifier
+from experimentsConfigurator import MockedConfiguration
 from .listener import Listener
 from .experimentsQueue import ExperimentsQueue
 from .models import Round
@@ -40,7 +41,11 @@ class RoundView(View):
         listener = Listener()
         notifier = ResultNotifier()
         notifier.attach(listener)
-        mininetWifiExp = MininetWifiExp(notifier)
+
+        mockedConfiguration = MockedConfiguration()
+        configuration = mockedConfiguration.getConfiguration()
+
+        mininetWifiExp = MininetWifiExp(notifier, configuration)
         queue = ExperimentsQueue.instance()
         queue.add(mininetWifiExp)
 

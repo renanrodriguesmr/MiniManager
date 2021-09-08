@@ -1,5 +1,6 @@
 import math
 import time
+import jsonpickle
 
 from mininet.node import Controller
 # from mininet.log import setLogLevel, info
@@ -12,6 +13,12 @@ from mn_wifi.wmediumdConnector import interference
 class MininetScript():
     def __init__(self):
         self.__delay = 1
+
+        with open('config.json', 'r') as outfile:
+            data = outfile.read()
+            self._configuration = jsonpickle.decode(data)
+            outfile.close()
+            print(self._configuration)
 
     def run(self):
         self.__start = time.time()

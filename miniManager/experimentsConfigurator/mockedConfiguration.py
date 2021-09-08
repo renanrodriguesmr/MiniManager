@@ -1,15 +1,8 @@
 from .entities import *
+import xmlschema
 
 class MockedConfiguration():
     def getConfiguration(self):
-
-        measure1 = Measure()
-        measure1.id = 1
-        measure1.name = 'name'
-        measure1.unit = ''
-        measurement1 = Measurement()
-        measurement1.frequency = 1
-        measurement1.measure = measure1
 
         measure2 = Measure()
         measure2.id = 2
@@ -67,14 +60,6 @@ class MockedConfiguration():
         measurement8.frequency = 1
         measurement8.measure = measure8
 
-        measure9 = Measure()
-        measure9.id = 9
-        measure9.name = 'time'
-        measure9.unit = ''
-        measurement9 = Measurement()
-        measurement9.frequency = 1
-        measurement9.measure = measure9
-
         measure10 = Measure()
         measure10.id = 10
         measure10.name = 'position'
@@ -94,7 +79,7 @@ class MockedConfiguration():
 
         configuration = Configuration()
         configuration.id = 1
-        configuration.medicao_schema = '' #TODO: addhere the medicao_schema
-        configuration.measurements = [measure1, measure2, measure3, measure4, measure5, measure6, measure7, measure8, measure9, measure10, measure11]
+        configuration.medicao_schema = xmlschema.XMLSchema('experimentsConfigurator/mockedXMLSchema.xsd')
+        configuration.measurements = [measure2, measure3, measure4, measure5, measure6, measure7, measure8, measure10, measure11]
 
         return configuration
