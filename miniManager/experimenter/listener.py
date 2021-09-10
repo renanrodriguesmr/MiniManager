@@ -1,6 +1,6 @@
 from mininetWifiAdapter import IResultEventListener
 from .webSocketServer import WebSocketServer
 
-class Listener(IResultEventListener):
+class ExperimentListener(IResultEventListener):
     async def update(self, subject):
-        await WebSocketServer.sendUpdate("1", subject)
+        await WebSocketServer.sendMessageToRoom("1", subject)

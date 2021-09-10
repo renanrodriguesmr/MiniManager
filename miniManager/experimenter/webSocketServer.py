@@ -27,7 +27,7 @@ class WebSocketServer(AsyncJsonWebsocketConsumer):
         return 'round_%s' % roundID
 
     @classmethod
-    async def sendUpdate(cls, roundID, data):
+    async def sendMessageToRoom(cls, roundID, data):
         channelLayer = get_channel_layer()
         roomGroupName = cls.__getRoomGroupName(roundID)
         await channelLayer.group_send(roomGroupName, {

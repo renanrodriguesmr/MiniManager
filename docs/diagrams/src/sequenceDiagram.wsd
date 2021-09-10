@@ -23,6 +23,7 @@ Navegador -> Experimenter: abrir conexão websocket
 Experimenter --> Navegador: conexão websocket estabelecida
 note over Experimenter: Quando o experimento em questão estiver no topo da fila.
 Experimenter -> Experimenter: consumir fila de experimento
+Experimenter -> ProvenanceCatcher: inicializar captura
 Experimenter -> MininetWifiAdapter: solicitar inicialização do experimento
 MininetWifiAdapter -> MininetWifi: inicializar experimento
 loop Até a Solicitação de encerrar Rodada

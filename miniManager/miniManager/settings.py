@@ -38,7 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'channels',
-    'experimenter.apps.ExperimenterConfig'
+    'experimenter.apps.ExperimenterConfig',
+    'provenanceCatcher.apps.ProvenancecatcherConfig',
+
 ]
 
 MIDDLEWARE = [
