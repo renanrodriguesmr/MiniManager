@@ -19,10 +19,14 @@ class RoundView(View):
         args = {}
         #args['result'] = getMockResult()
 
+        mockedConfiguration = MockedConfiguration()
+        configuration = mockedConfiguration.getConfiguration()
+        args['measurements'] = self.__getMeasurements(configuration)
+
         if round.status == Round.STARTING:
             round.status = Round.IN_PROGRESS
             round.save()
-            self.__runExperiment()
+            self.__runExperiment(configuration)
 
         return render(request, 'round.html', args)
 
@@ -37,17 +41,22 @@ class RoundView(View):
         url = reverse('round', kwargs={ 'round_id': round.id })
         return HttpResponseRedirect(url)
 
-    def __runExperiment(self):
+    def __runExperiment(self, configuration):
         listener = Listener()
         notifier = ResultNotifier()
         notifier.attach(listener)
 
-        mockedConfiguration = MockedConfiguration()
-        configuration = mockedConfiguration.getConfiguration()
-
         mininetWifiExp = MininetWifiExp(notifier, configuration)
         queue = ExperimentsQueue.instance()
         queue.add(mininetWifiExp)
+
+    def __getMeasurements(self, configuration):
+        measurements = []
+        for measurement in configuration.measurements:
+            measurements.append(measurement.measure.name)
+
+        measurements.sort()
+        return measurements
 
 class FinishRoundView(View):
     def post(self, request):

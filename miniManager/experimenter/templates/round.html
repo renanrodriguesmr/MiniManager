@@ -19,22 +19,14 @@
   </div>
   <div class="round-content">
     <div class="round-result">
-        <div class="alert alert-primary" role="alert">
-            Executando
-        </div>
         <table class="styled-table">
           <thead>
               <tr>
                   <th>time</th>
-                  <th>position</th>
-                  <th>associatedTo</th>
                   <th>name</th>
-                  <th>rssi</th>
-                  <th>channel</th>
-                  <th>band</th>
-                  <th>ssid</th>
-                  <th>txpower</th>
-                  <th>ip</th>
+                  {% for measurement in measurements %}
+                  <th>{{ measurement }}</th>
+                  {% endfor %}
               </tr>
           </thead>
           <tbody id="styled-table-content">
@@ -42,7 +34,7 @@
         </table>
     </div>
     <div class="round-configuration">
-        <div class="alert alert-primary" role="alert">
+        <div class="status-bar alert alert-primary" role="alert">
             Executando
         </div>
     </div>

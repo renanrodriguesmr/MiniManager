@@ -20,14 +20,6 @@ class MockedConfiguration():
         measurement3.period = 1
         measurement3.measure = measure3
 
-        measure4 = Measure()
-        measure4.id = 4
-        measure4.name = 'channel'
-        measure4.unit = ''
-        measurement4 = Measurement()
-        measurement4.period = 1
-        measurement4.measure = measure4
-
         measure5 = Measure()
         measure5.id = 5 
         measure5.name = 'band'
@@ -80,6 +72,6 @@ class MockedConfiguration():
         configuration = Configuration()
         configuration.id = 1
         #configuration.medicao_schema = xmlschema.XMLSchema('experimentsConfigurator/mockedXMLSchema.xsd')
-        configuration.measurements = [measurement2, measurement3, measurement4, measurement5, measurement6, measurement7, measurement8, measurement10, measurement11]
+        configuration.measurements = [measurement2, measurement3, measurement5, measurement6, measurement7, measurement8, measurement10, measurement11]
 
         return configuration

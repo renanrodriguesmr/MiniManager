@@ -49,7 +49,10 @@ class MininetWifiExp():
             resultObj = json.loads(result)
             partialResult.extend(resultObj["partialResult"])
 
-        t = threading.Thread(target=self.__notifier.notify, args=(partialResult,))
+        self.__generateNotification({"type": "UPDATE", "value": partialResult})
+
+    def __generateNotification(self, content):
+        t = threading.Thread(target=self.__notifier.notify, args=(content,))
         t.daemon = True
         t.start()
 
@@ -71,3 +74,4 @@ class MininetWifiExp():
             self.__process = None
         
         subprocess.run(self.CLEAR_CMD, shell=True)
+        self.__generateNotification({"type": "FINISH", "value": ""})
