@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block head %}
-  <link rel="stylesheet" href="{% static 'css/round.css' %}">
+  <link rel="stylesheet" href="{% static 'round.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -19,19 +19,22 @@
   </div>
   <div class="round-content">
     <div class="round-result">
-        <table class="styled-table">
-          <thead>
-              <tr>
-                  <th>time</th>
-                  <th>name</th>
-                  {% for measurement in measurements %}
-                  <th>{{ measurement }}</th>
-                  {% endfor %}
-              </tr>
-          </thead>
-          <tbody id="styled-table-content">
-          </tbody>
-        </table>
+      <div class="status-bar alert alert-primary" role="alert">
+        Executando
+      </div>
+      <table class="styled-table">
+        <thead>
+            <tr>
+                <th>time</th>
+                <th>name</th>
+                {% for measurement in measurements %}
+                <th>{{ measurement }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody id="styled-table-content">
+        </tbody>
+      </table>
     </div>
     <div class="round-configuration">
         <div class="status-bar alert alert-primary" role="alert">
@@ -39,5 +42,56 @@
         </div>
     </div>
   </div>
-  <script src="{% static 'js/round.js' %}"></script>
+  
+  <script>
+    const configuredMeasurements = {{ measurements | safe }}
+    const defaultMeasurements = ["time", "name"];
+    const measurementsArray = defaultMeasurements.concat(configuredMeasurements);
+
+    const chatSocket = new WebSocket('ws://' + window.location.host + '/ws/round/1/');
+
+    chatSocket.onmessage = (e) => {
+        const {type, value} = JSON.parse(e.data).payload;
+        if(type == "UPDATE"){
+            updateTable(value);
+        }
+
+        if(type == "FINISH"){
+            finishExperiment(value);
+        }
+    };
+
+    chatSocket.onclose = (e) => {
+        console.error('Chat socket closed unexpectedly');
+    };
+
+    const updateTable = (newRows) => {
+        for(row of newRows){
+            addElementToTable(row);
+        }
+    }
+
+    const generateColumn = (value) => {
+      const tdnode =  document.createElement("td");
+      const textnode = document.createTextNode(value);
+      tdnode.appendChild(textnode);
+      return tdnode;
+    }
+
+    const addElementToTable = (row) => {
+        const trnode = document.createElement("tr");
+        for(key of measurementsArray){
+          const value = (key in row) ? row[key] : "";
+          const tdnode = generateColumn(value);
+          trnode.appendChild(tdnode);
+        }
+
+        document.getElementById("styled-table-content").appendChild(trnode);
+    }
+
+    const finishExperiment = () => {
+        const element = document.getElementById("status-bar");
+        element.innerHTML = "Finalizado";
+    }
+  </script>
 {% endblock %}
