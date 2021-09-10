@@ -1,12 +1,11 @@
-from pexpect import popen_spawn
+from pexpect import popen_spawn, EOF
 from signal import SIGCHLD
-from subprocess import run
+import subprocess
 import json
 import threading
 import time
-import jsonpickle
 class MininetWifiExp():
-    RUN_CMD = 'sudo python mininetWifiAdapter/MininetScript.py'
+    RUN_CMD = 'sudo python3 -u mininetWifiAdapter/MininetScript.py'
     CLEAR_CMD= 'sudo mn -c'
     EXPERIMENT_TIMEOUT = 125
 
@@ -25,21 +24,19 @@ class MininetWifiExp():
         self.__start = time.time()
         
         while self.__shouldKeepRunning():
-            try:
-                self.__process.expect(r'(\{\'partialResult\':\s+\[.*\]\})')
-            except:
-                continue
-
             if self.__process is None:
                 break
-            partialResultsB = self.__process.match.groups()[0]
-            self.__processPartialResult(partialResultsB)
+
+            index = self.__process.expect([r'(\{\'partialResult\':\s+\[.*\]\})' , EOF])
+            if index == 0:
+                partialResultsB = self.__process.after
+                self.__processPartialResult(partialResultsB)
 
         self.finish()
 
     def __serializeConfiguration(self):
         with open('mininetWifiAdapter/config.json', 'w') as outfile:
-            jsonString = jsonpickle.encode(self._configuration)
+            jsonString = json.dumps(self._configuration, default=lambda o: o.__dict__)
             json.dump(jsonString, outfile)
             outfile.close()
 
@@ -73,4 +70,4 @@ class MininetWifiExp():
             self.__process.kill(SIGCHLD)
             self.__process = None
         
-        run(self.CLEAR_CMD, shell=True)
+        subprocess.run(self.CLEAR_CMD, shell=True)

@@ -1,6 +1,6 @@
 import math
 import time
-#import jsonpickle
+import json
 
 from mininet.node import Controller
 # from mininet.log import setLogLevel, info
@@ -14,11 +14,11 @@ class MininetScript():
     def __init__(self):
         self.__delay = 1
 
-        #with open('config.json', 'r') as outfile:
-            #data = outfile.read()
-            #self._configuration = jsonpickle.decode(data)
-            #outfile.close()
-            #print(self._configuration)
+        with open('mininetWifiAdapter/config.json', 'r') as outfile:
+            data = outfile.read()
+            jsonParsed = json.loads(data)
+            self._configuration = json.loads(jsonParsed)
+            outfile.close()
 
     def run(self):
         self.__start = time.time()
@@ -39,28 +39,57 @@ class MininetScript():
         c1.start()
         ap1.start([c1])
 
+        self._analyse(nodes)
+
+    def _analyse(self, nodes):
         while True:
-            self._monNode(nodes)
             time.sleep(self.__delay)
+            
+            currentTime = math.floor(time.time() - self.__start)
+            measurements = self._getValidMeasurements(currentTime)
+            if len(measurements) == 0:
+                continue
 
-    def _monNode(self, nwnode):
-        attrList=['name','rssi','channel','band','ssid','txpower','ip']
-        partialResult = []
-        for eachNode in nwnode:
-            measObj = {}
-            measObj["time"] = math.floor(time.time() - self.__start)
-            measObj["position"] = list(eachNode.position)
-            measObj["associatedTo"] = "None"
-            if eachNode.wintfs[0].associatedTo:
-                    measObj["associatedTo"] = eachNode.wintfs[0].associatedTo.node.wintfs[0].name
+            measurements.add("name")
 
-            for eachAttr in attrList:
-                var=getattr(eachNode.wintfs[0],eachAttr)
-                measObj[eachAttr] = var
+            self._collectMetrics(measurements, nodes, currentTime)
 
-            partialResult.append(measObj)
+    def _getValidMeasurements(self, currentTime):
+            measurements = set()
+            for measurement in self._configuration["measurements"]:
+                if (currentTime % measurement["period"]) == 0:
+                    measurements.add(measurement["measure"]["name"])
 
-        print({"partialResult" : partialResult})
+            return measurements
+
+    def _collectMetrics(self, measurements, nodes, currentTime):
+            partialResult = []
+            for eachNode in nodes:
+                measObj = {}
+                measObj["time"] = currentTime
+
+                for measurement in measurements:
+                    measObj[measurement] = self._getMetricFromNode(measurement, eachNode)
+
+                partialResult.append(measObj)
+
+            print({"partialResult": partialResult})
+
+
+    def _getMetricFromNode(self, measureName, node):
+        attrList={'name', 'rssi','channel','band','ssid','txpower','ip'}
+
+        if measureName in attrList:
+            return getattr(node.wintfs[0],measureName)
+
+        if measureName == "position":
+            return list(node.position)
+
+        #associatedTo
+        if node.wintfs[0].associatedTo:
+            return node.wintfs[0].associatedTo.node.wintfs[0].name
+
+        return "None"
 
 
 if __name__ == '__main__':
