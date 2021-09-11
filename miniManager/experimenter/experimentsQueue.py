@@ -5,7 +5,7 @@ import time
 class ExperimentsQueue:
 
     _instance = None
-    POLLINGPERIOD = 2
+    POLLING_PERIOD = 2
 
     def __init__(self):
         self.queue = Queue()
@@ -27,7 +27,7 @@ class ExperimentsQueue:
         while True:
             if self.queue.empty():
                 self._currentExperiment = None
-                time.sleep(self.POLLINGPERIOD)
+                time.sleep(self.POLLING_PERIOD)
                 continue
 
             self._currentExperiment = self.queue.get()

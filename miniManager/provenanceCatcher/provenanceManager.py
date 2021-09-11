@@ -12,5 +12,5 @@ class ProvenanceManager:
             cls._instance = cls()
         return cls._instance
 
-    def _saveResults():
+    def _saveResults(self):
         pass

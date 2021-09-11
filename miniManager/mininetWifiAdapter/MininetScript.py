@@ -11,18 +11,27 @@ from mn_wifi.wmediumdConnector import interference
 
 
 class MininetScript():
+    CONFIG_PATH = 'mininetWifiAdapter/config.json'
+
     def __init__(self):
         self.__delay = 1
+        self._configuration = self._loadConfiguration()
 
-        with open('mininetWifiAdapter/config.json', 'r') as outfile:
+    def _loadConfiguration(self):
+        try:
+            outfile = open(self.CONFIG_PATH, 'r')
             data = outfile.read()
-            jsonParsed = json.loads(data)
-            self._configuration = json.loads(jsonParsed)
             outfile.close()
+
+            jsonParsed = json.loads(data)
+            return json.loads(jsonParsed)
+        except:
+            print({"error": "error opening configurations"})
 
     def run(self):
         self.__start = time.time()
-        self._topology()
+        nodes = self._topology()
+        self._analyse(nodes)
 
     def _topology(self):
         net = Mininet_wifi(controller=Controller, link=wmediumd, wmediumd_mode=interference, noise_th=-91, fading_cof=3)
@@ -39,7 +48,7 @@ class MininetScript():
         c1.start()
         ap1.start([c1])
 
-        self._analyse(nodes)
+        return nodes
 
     def _analyse(self, nodes):
         while True:

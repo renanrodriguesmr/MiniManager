@@ -2,13 +2,16 @@ from pexpect import popen_spawn, EOF
 from signal import SIGCHLD
 import subprocess
 import json
-import threading
 import time
+from .outputHandler import PartialResultHandler, ErrorHandler, OutputHandler
 class MininetWifiExp():
     RUN_CMD = 'sudo python3 -u mininetWifiAdapter/MininetScript.py'
     CLEAR_CMD= 'sudo mn -c'
+    KILL_CMD = 'sudo kill -9'
     EXPERIMENT_TIMEOUT = 125
 
+    OUTPUT_PATTERNS = [r'(\{\'partialResult\':\s+\[.*\]\})' , r'(\{\'error\':\s+\'.*\'\})', EOF]
+    OUTPUT_STRATEGY_MAPPING = [PartialResultHandler, ErrorHandler, OutputHandler]
 
     def __init__(self, notifier, configuration):
         self.__notifier = notifier
@@ -27,12 +30,9 @@ class MininetWifiExp():
             if self.__process is None:
                 break
 
-            index = self.__process.expect([r'(\{\'partialResult\':\s+\[.*\]\})' , EOF])
-            if index == 0:
-                partialResultsB = self.__process.after
-                self.__processPartialResult(partialResultsB)
-
-        self.finish()
+            index = self.__process.expect(self.OUTPUT_PATTERNS)
+            outputHandler = self.OUTPUT_STRATEGY_MAPPING[index](self.__process.after, self.__notifier)
+            outputHandler.process()
 
     def __serializeConfiguration(self):
         with open('mininetWifiAdapter/config.json', 'w') as outfile:
@@ -40,21 +40,6 @@ class MininetWifiExp():
             json.dump(jsonString, outfile)
             outfile.close()
 
-    def __processPartialResult(self, partialResultsB):
-        resultsString = partialResultsB.decode('utf-8').replace("\'", "\"")
-        results = resultsString.split("\n")
-
-        partialResult = []
-        for result in results:
-            resultObj = json.loads(result)
-            partialResult.extend(resultObj["partialResult"])
-
-        self.__generateNotification({"type": "UPDATE", "value": partialResult})
-
-    def __generateNotification(self, content):
-        t = threading.Thread(target=self.__notifier.notify, args=(content,))
-        t.daemon = True
-        t.start()
 
     def __shouldKeepRunning(self):
         if not self.__active:
@@ -69,9 +54,8 @@ class MininetWifiExp():
         self.__start = 0
 
         if self.__process:
-            self.__process.stdout.close()
-            self.__process.kill(SIGCHLD)
-            self.__process = None
+            cmd = "{} {}".format(self.KILL_CMD, str(self.__process.pid + 2))
+            subprocess.run(cmd, shell=True)
         
         subprocess.run(self.CLEAR_CMD, shell=True)
-        self.__generateNotification({"type": "FINISH", "value": ""})
+        self.__notifier.notify({"type": "FINISH", "value": ""})
