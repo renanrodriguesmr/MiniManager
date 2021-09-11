@@ -4,11 +4,13 @@ import subprocess
 import json
 import time
 from .outputHandler import PartialResultHandler, ErrorHandler, OutputHandler
+from .constants import MininetConstants
 class MininetWifiExp():
     RUN_CMD = 'sudo python3 -u mininetWifiAdapter/MininetScript.py'
     CLEAR_CMD= 'sudo mn -c'
     KILL_CMD = 'sudo kill -9'
     EXPERIMENT_TIMEOUT = 125
+    PROCESS_OFFSET = 2
 
     OUTPUT_PATTERNS = [r'(\{\'partialResult\':\s+\[.*\]\})' , r'(\{\'error\':\s+\'.*\'\})', EOF]
     OUTPUT_STRATEGY_MAPPING = [PartialResultHandler, ErrorHandler, OutputHandler]
@@ -35,7 +37,7 @@ class MininetWifiExp():
             outputHandler.process()
 
     def __serializeConfiguration(self):
-        with open('mininetWifiAdapter/config.json', 'w') as outfile:
+        with open(MininetConstants.CONFIG_FILE_PATH, 'w') as outfile:
             jsonString = json.dumps(self._configuration, default=lambda o: o.__dict__)
             json.dump(jsonString, outfile)
             outfile.close()
@@ -54,8 +56,8 @@ class MininetWifiExp():
         self.__start = 0
 
         if self.__process:
-            cmd = "{} {}".format(self.KILL_CMD, str(self.__process.pid + 2))
+            cmd = "{} {}".format(self.KILL_CMD, str(self.__process.pid + self.PROCESS_OFFSET))
             subprocess.run(cmd, shell=True)
         
         subprocess.run(self.CLEAR_CMD, shell=True)
-        self.__notifier.notify({"type": "FINISH", "value": ""})
+        self.__notifier.notify({"type": MininetConstants.FINISH, "value": ""})

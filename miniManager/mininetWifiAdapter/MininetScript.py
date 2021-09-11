@@ -9,24 +9,25 @@ from mn_wifi.link import wmediumd
 from mn_wifi.net import Mininet_wifi
 from mn_wifi.wmediumdConnector import interference
 
+import constants
 
 class MininetScript():
-    CONFIG_PATH = 'mininetWifiAdapter/config.json'
+    ERROR_CONFIG = "error opening configurations"
+    DELAY = 1
 
     def __init__(self):
-        self.__delay = 1
         self._configuration = self._loadConfiguration()
 
     def _loadConfiguration(self):
         try:
-            outfile = open(self.CONFIG_PATH, 'r')
+            outfile = open(constants.MininetConstants.CONFIG_FILE_PATH, 'r')
             data = outfile.read()
             outfile.close()
 
             jsonParsed = json.loads(data)
             return json.loads(jsonParsed)
         except:
-            print({"error": "error opening configurations"})
+            print({constants.MininetConstants.ERROR_KEY: self.ERROR_CONFIG})
 
     def run(self):
         self.__start = time.time()
@@ -52,7 +53,7 @@ class MininetScript():
 
     def _analyse(self, nodes):
         while True:
-            time.sleep(self.__delay)
+            time.sleep(self.DELAY)
             
             currentTime = math.floor(time.time() - self.__start)
             measurements = self._getValidMeasurements(currentTime)
@@ -82,7 +83,7 @@ class MininetScript():
 
                 partialResult.append(measObj)
 
-            print({"partialResult": partialResult})
+            print({constants.MininetConstants.PARTIAL_RESULT_KEY: partialResult})
 
 
     def _getMetricFromNode(self, measureName, node):

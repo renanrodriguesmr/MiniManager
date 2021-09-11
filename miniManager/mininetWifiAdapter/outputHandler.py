@@ -1,5 +1,6 @@
 from threading import Thread
 import json
+from .constants import MininetConstants
 
 class OutputHandler:
     def __init__(self, content, notifier):
@@ -29,9 +30,9 @@ class PartialResultHandler(OutputHandler):
         results = self.content.split("\n")
         for result in results:
             resultObj = json.loads(result)
-            partialResult.extend(resultObj["partialResult"])
+            partialResult.extend(resultObj[MininetConstants.PARTIAL_RESULT_KEY])
 
-        self.notifier.notify({"type": "UPDATE", "value": partialResult})
+        self.notifier.notify({"type": MininetConstants.UPDATE, "value": partialResult})
 
 class ErrorHandler(OutputHandler):
     def __init__(self, content, notifier):
@@ -42,4 +43,4 @@ class ErrorHandler(OutputHandler):
         resultObj = json.loads(self.content)
         print(resultObj)
 
-        self.notifier.notify({"type": "ERROR", "value": resultObj})
+        self.notifier.notify({"type": MininetConstants.ERROR, "value": resultObj})
