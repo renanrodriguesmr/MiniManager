@@ -6,4 +6,3 @@ class Result(models.Model):
     round = models.OneToOneField(Round, models.CASCADE, unique=True)
     class Meta:
         db_table = "Result"
-

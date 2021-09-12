@@ -39,8 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'channels',
     'experimenter.apps.ExperimenterConfig',
-    'provenanceCatcher.apps.ProvenancecatcherConfig',
-
+    'provenanceCatcher.apps.ProvenancecatcherConfig'
 ]
 
 MIDDLEWARE = [

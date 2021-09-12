@@ -2,9 +2,11 @@ from django.views import View
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+
 from mininetWifiAdapter import MininetWifiExp, ResultNotifier
 from experimentsConfigurator import MockedConfiguration
-from provenanceCatcher import ProvenanceListener
+from provenanceCatcher import ProvenanceListener, ProvenanceManager
+
 from .listener import ExperimentListener
 from .experimentsQueue import ExperimentsQueue
 from .models import Round
@@ -26,6 +28,8 @@ class RoundView(View):
         if round.status == Round.STARTING:
             round.status = Round.IN_PROGRESS
             round.save()
+
+            self.__startCapture(round.id)
             self.__runExperiment(configuration)
 
         return render(request, 'round.html', args)
@@ -40,6 +44,10 @@ class RoundView(View):
 
         url = reverse('round', kwargs={ 'round_id': round.id })
         return HttpResponseRedirect(url)
+
+    def __startCapture(self, roundID):
+        provenanceCatcher = ProvenanceManager.instance()
+        provenanceCatcher.reset(roundID)
 
     def __runExperiment(self, configuration):
         experimentListener = ExperimentListener()

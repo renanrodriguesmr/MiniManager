@@ -3,13 +3,11 @@ from .provenanceManager import ProvenanceManager
 
 class ProvenanceListener(IResultEventListener):
     def __init__(self):
-        self._manager = ProvenanceManager.instance()
+        self.__manager = ProvenanceManager.instance()
 
-
-    async def update(self, subject):
+    def update(self, subject):
         if subject["type"] == "FINISH":
-            self._finishCapture()
-
+            self.__finishCapture()
     
-    def _finishCapture(self):
-        self._manager._saveResults()
+    def __finishCapture(self):
+        self.__manager.saveResults()

@@ -17,7 +17,7 @@ class ResultNotifier():
 
     def __notify(self, subject):
         for observer in self._observers:
-            asyncio.run(observer.update(subject))
+            observer.update(subject)
 
     def notify(self, subject):
         thread = Thread(target=self.__notify, args=(subject,))
