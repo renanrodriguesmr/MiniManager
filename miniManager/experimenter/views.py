@@ -29,7 +29,10 @@ class RoundView(View):
             round.status = Round.IN_PROGRESS
             round.save()
 
-            self.__startCapture(round.id)
+
+
+            self.__startCapture(round.id, configuration.medicao_schema)
+            configuration.medicao_schema = None
             self.__runExperiment(configuration)
 
         return render(request, 'round.html', args)
@@ -45,9 +48,9 @@ class RoundView(View):
         url = reverse('round', kwargs={ 'round_id': round.id })
         return HttpResponseRedirect(url)
 
-    def __startCapture(self, roundID):
+    def __startCapture(self, roundID, schema):
         provenanceCatcher = ProvenanceManager.instance()
-        provenanceCatcher.reset(roundID)
+        provenanceCatcher.reset(roundID, schema)
 
     def __runExperiment(self, configuration):
         experimentListener = ExperimentListener()

@@ -7,7 +7,7 @@ class ProvenanceListener(IResultEventListener):
 
     def update(self, subject):
         if subject["type"] == "FINISH":
-            self.__finishCapture()
-    
-    def __finishCapture(self):
-        self.__manager.saveResults()
+            self.__manager.saveResults()
+
+        if subject["type"] == "UPDATE":
+            self.__manager.addResult(subject)

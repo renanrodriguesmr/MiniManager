@@ -3,7 +3,7 @@ from signal import SIGCHLD
 import subprocess
 import json
 import time
-from .outputHandler import PartialResultHandler, ErrorHandler, OutputHandler
+from .outputHandler import PartialResultHandler, ErrorHandler, EOFHandler
 from .constants import MininetConstants
 class MininetWifiExp():
     RUN_CMD = 'sudo python3 -u mininetWifiAdapter/MininetScript.py'
@@ -12,8 +12,8 @@ class MininetWifiExp():
     EXPERIMENT_TIMEOUT = 125
     PROCESS_OFFSET = 2
 
-    OUTPUT_PATTERNS = [r'(\{\'partialResult\':\s+\[.*\]\})' , r'(\{\'error\':\s+\'.*\'\})', EOF]
-    OUTPUT_STRATEGY_MAPPING = [PartialResultHandler, ErrorHandler, OutputHandler]
+    OUTPUT_PATTERNS = [r'(\{\'partialResult\':\s+\[.*\],\s+\'time\':\s+[0-9]+\})' , r'(\{\'error\':\s+\'.*\'\})', EOF]
+    OUTPUT_STRATEGY_MAPPING = [PartialResultHandler, ErrorHandler, EOFHandler]
 
     def __init__(self, notifier, configuration):
         self.__notifier = notifier

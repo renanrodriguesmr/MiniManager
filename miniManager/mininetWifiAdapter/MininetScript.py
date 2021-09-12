@@ -83,7 +83,7 @@ class MininetScript():
 
                 partialResult.append(measObj)
 
-            print({constants.MininetConstants.PARTIAL_RESULT_KEY: partialResult})
+            print({constants.MininetConstants.PARTIAL_RESULT_KEY: partialResult, constants.MininetConstants.TIME_KEY: currentTime})
 
 
     def _getMetricFromNode(self, measureName, node):

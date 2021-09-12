@@ -5,42 +5,28 @@ from .constants import MininetConstants
 class OutputHandler:
     def __init__(self, content, notifier):
         self.notifier = notifier
-        self.content = content
+        self.eventType = "default"
+        self.formattedContent(content)
 
     def process(self):
+        self.notifier.notify({"type": self.eventType, "value": self.content})
+
+    def formattedContent(self, content):
+        content = content.decode('utf-8').replace("\'", "\"")
+        self.content = json.loads(content)
+
+
+class EOFHandler(OutputHandler):
+    def process(self):
         pass
-
-    def generateNotification(self, message):
-        thread = Thread(target=self.notifier.notify, args=(message,))
-        thread.daemon = True
-        thread.start()
-
-    def formattedContent(self):
-        self.content = self.content.decode('utf-8').replace("\'", "\"")
-
 
 class PartialResultHandler(OutputHandler):
     def __init__(self, content, notifier):
       super().__init__(content, notifier)
-      self.formattedContent()
+      self.eventType = MininetConstants.UPDATE
 
-    def process(self):
-        partialResult = []
-
-        results = self.content.split("\n")
-        for result in results:
-            resultObj = json.loads(result)
-            partialResult.extend(resultObj[MininetConstants.PARTIAL_RESULT_KEY])
-
-        self.notifier.notify({"type": MininetConstants.UPDATE, "value": partialResult})
 
 class ErrorHandler(OutputHandler):
     def __init__(self, content, notifier):
       super().__init__(content, notifier)
-      self.formattedContent()
-
-    def process(self):
-        resultObj = json.loads(self.content)
-        print(resultObj)
-
-        self.notifier.notify({"type": MininetConstants.ERROR, "value": resultObj})
+      self.eventType = MininetConstants.ERROR

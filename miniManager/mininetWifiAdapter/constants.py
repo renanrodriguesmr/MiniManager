@@ -5,5 +5,6 @@ class MininetConstants:
 
     PARTIAL_RESULT_KEY = "partialResult"
     ERROR_KEY = "partialResult"
+    TIME_KEY = "time"
 
     CONFIG_FILE_PATH = 'mininetWifiAdapter/config.json'

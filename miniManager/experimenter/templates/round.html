@@ -53,7 +53,7 @@
     chatSocket.onmessage = (e) => {
         const {type, value} = JSON.parse(e.data).payload;
         if(type == "UPDATE"){
-            updateTable(value);
+            updateTable(value.partialResult);
         }
 
         if(type == "FINISH"){
