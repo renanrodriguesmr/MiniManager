@@ -71,7 +71,7 @@ class MockedConfiguration():
 
         configuration = Configuration()
         configuration.id = 1
-        #configuration.medicao_schema = xmlschema.XMLSchema('experimentsConfigurator/mockedXMLSchema.xsd')
+        configuration.medicao_schema = xmlschema.XMLSchema('experimentsConfigurator/mockedXMLSchema.xsd')
         configuration.measurements = [measurement2, measurement3, measurement5, measurement6, measurement7, measurement8, measurement10, measurement11]
 
         return configuration

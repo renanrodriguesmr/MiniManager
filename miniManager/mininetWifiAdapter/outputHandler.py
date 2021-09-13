@@ -17,6 +17,9 @@ class OutputHandler:
 
 
 class EOFHandler(OutputHandler):
+    def __init__(self, content, notifier):
+        pass
+
     def process(self):
         pass
 
