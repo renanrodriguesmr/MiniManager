@@ -32,7 +32,9 @@ class MininetScript():
     def run(self):
         self.__start = time.time()
         nodes = self._topology()
-        self._analyse(nodes)
+        resultoGenerator = self._analyse(nodes)
+        for result in resultoGenerator:
+            print(result)
 
     def _topology(self):
         net = Mininet_wifi(controller=Controller, link=wmediumd, wmediumd_mode=interference, noise_th=-91, fading_cof=3)
@@ -43,28 +45,45 @@ class MininetScript():
         c1 = net.addController('c1')
         net.setPropagationModel(model="logDistance", exp=4)
         net.configureWifiNodes()
-        nodes = net.stations
+        #nodes = net.stations
         net.setMobilityModel(time=0, model='RandomDirection',max_x=90, max_y=90, seed=20)
         net.build()
         c1.start()
         ap1.start([c1])
+
+        nodes = {
+            "stations": net.stations,
+            "accessPoint": net.aps
+        }
 
         return nodes
 
     def _analyse(self, nodes):
         while True:
             time.sleep(self.DELAY)
-            
             currentTime = math.floor(time.time() - self.__start)
-            measurements = self._getValidMeasurements(currentTime)
+
+            measurements = self.__getValidMeasurements(currentTime)
             if len(measurements) == 0:
                 continue
-
             measurements.add("name")
 
-            self._collectMetrics(measurements, nodes, currentTime)
+            yield {
+                constants.MininetConstants.PARTIAL_RESULT_KEY: self.__collectMetrics(measurements, nodes["stations"], currentTime),
+                constants.MininetConstants.TIME_KEY: currentTime,
+                constants.MininetConstants.POSITIONS_KEY: self.__getPositions(nodes)
+            }
 
-    def _getValidMeasurements(self, currentTime):
+    def __getPositions(self, nodes):
+        positions = {}
+        for key in nodes:
+            for node in nodes[key]:
+                name = getattr(node.wintfs[0],"name")
+                positions[name] = list(node.position)
+
+        return positions
+
+    def __getValidMeasurements(self, currentTime):
             measurements = set()
             for measurement in self._configuration["measurements"]:
                 if (currentTime % measurement["period"]) == 0:
@@ -72,21 +91,21 @@ class MininetScript():
 
             return measurements
 
-    def _collectMetrics(self, measurements, nodes, currentTime):
+    def __collectMetrics(self, measurements, nodes, currentTime):
             partialResult = []
             for eachNode in nodes:
                 measObj = {}
                 measObj["time"] = currentTime
 
                 for measurement in measurements:
-                    measObj[measurement] = self._getMetricFromNode(measurement, eachNode)
+                    measObj[measurement] = self.__getMetricFromNode(measurement, eachNode)
 
                 partialResult.append(measObj)
 
-            print({constants.MininetConstants.PARTIAL_RESULT_KEY: partialResult, constants.MininetConstants.TIME_KEY: currentTime})
+            return partialResult
 
 
-    def _getMetricFromNode(self, measureName, node):
+    def __getMetricFromNode(self, measureName, node):
         attrList={'name', 'rssi','channel','band','ssid','txpower','ip'}
 
         if measureName in attrList:

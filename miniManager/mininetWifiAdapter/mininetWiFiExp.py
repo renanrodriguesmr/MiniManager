@@ -12,7 +12,11 @@ class MininetWifiExp():
     EXPERIMENT_TIMEOUT = 125
     PROCESS_OFFSET = 2
 
-    OUTPUT_PATTERNS = [r'(\{\'partialResult\':\s+\[.*\],\s+\'time\':\s+[0-9]+\})' , r'(\{\'error\':\s+\'.*\'\})', EOF]
+    OUTPUT_PATTERNS = [
+        r'(\{\'partialResult\':\s+\[.*\],\s+\'time\':\s+[0-9]+\,\s+\'positions\':\s+\{.*\}\})', 
+        r'(\{\'error\':\s+\'.*\'\})', 
+        EOF
+    ]
     OUTPUT_STRATEGY_MAPPING = [PartialResultHandler, ErrorHandler, EOFHandler]
 
     def __init__(self, notifier, configuration):
