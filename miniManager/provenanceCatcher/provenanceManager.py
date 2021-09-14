@@ -53,5 +53,7 @@ class ProvenanceManager:
         if not self.__schema.is_valid(tree):
             return
 
-        result = Result(round_id = self.__roundID)
+        xml = ET.tostring(tree.getroot()).decode('utf-8')
+
+        result = Result(round_id = self.__roundID, xml_content=xml)
         result.save()
