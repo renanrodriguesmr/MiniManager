@@ -5,7 +5,7 @@ from django.urls import reverse
 
 from mininetWifiAdapter import MininetWifiExp, ResultNotifier
 from experimentsConfigurator import MockedConfiguration
-from provenanceCatcher import ProvenanceListener
+from provenanceCatcher import ProvenanceListener, ProvenanceService
 
 from .listener import ExperimentListener
 from .experimentsQueue import ExperimentsQueue
@@ -20,18 +20,13 @@ class RoundView(View):
         round = Round.objects.get(id=round_id)
 
         args = {}
-
         mockedConfiguration = MockedConfiguration()
         configuration = mockedConfiguration.getConfiguration()
         args['measurements'] = self.__getMeasurements(configuration)
-        args['round'] = { "name": round.name, "id": round.id }
+        args['round'] = { "name": round.name, "id": round.id, "status": round.status }
 
-
-        if round.status == Round.STARTING:
-            round.status = Round.IN_PROGRESS
-            round.save()
-
-            self.__runExperiment(configuration, round.id)
+        if round.status == Round.DONE:
+            resultContent = ProvenanceService().getResultContentFromRound(round.id, configuration.medicao_schema)
 
         return render(request, 'round.html', args)
 
@@ -43,10 +38,14 @@ class RoundView(View):
         round = Round(name=name)
         round.save()
 
+        mockedConfiguration = MockedConfiguration()
+        configuration = mockedConfiguration.getConfiguration()
+        self.__enqueueExperiment(configuration, round.id)
+
         url = reverse('round', kwargs={ 'round_id': round.id })
         return HttpResponseRedirect(url)
 
-    def __runExperiment(self, configuration, roundID):
+    def __enqueueExperiment(self, configuration, roundID):
         experimentListener = ExperimentListener(roundID)
         provenanceListener = ProvenanceListener()
 

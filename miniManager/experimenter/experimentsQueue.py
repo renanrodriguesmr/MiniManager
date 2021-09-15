@@ -2,6 +2,7 @@ import threading
 from queue import Queue
 import time
 from provenanceCatcher import ProvenanceManager
+from .models import Round
 
 class ExperimentsQueue:
 
@@ -39,9 +40,16 @@ class ExperimentsQueue:
 
             self.__busy = True
             element = self.queue.get()
+            roundID = element["round"]
+            self.__updateRoundStatus(roundID)
+            self.__startCapture(roundID, element["medicao_schema"])
             self._currentExperiment = element["experiment"]
-            self.__startCapture(element["round"], element["medicao_schema"])
             self._currentExperiment.run()
+
+    def __updateRoundStatus(self, roundID):
+        round = Round.objects.get(id=roundID)
+        round.setToNextStatus()
+        round.save()
 
     def __startCapture(self, roundID, schema):
         provenanceCatcher = ProvenanceManager.instance()

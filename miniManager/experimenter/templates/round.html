@@ -46,19 +46,26 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
   <script>
-    // status bar
-    WAITING_TO_START = "Aguardando a inicialização...";
-    STARTING = "Iniciando...";
-    RUNNING = "Em andamento...";
-    FINISHED = "Finalizado";
+    // status message bar
+    const WAITING_TO_START = "Aguardando a inicialização...";
+    const STARTING = "Iniciando...";
+    const RUNNING = "Em andamento...";
+    const FINISHED = "Finalizado";
+
+    statusToMessageMapping = {
+      WAITING: WAITING_TO_START,
+      STARTING: STARTING,
+      IN_PROGRESS: RUNNING,
+      DONE: FINISHED
+    }
 
     const updateStatusBar = (message) => {
       const element = document.getElementById("status-bar");
       element.innerHTML = message;
     }
 
-    updateStatusBar(WAITING_TO_START)
-
+    const roundStatus = "{{round.status}}";
+    updateStatusBar(statusToMessageMapping[roundStatus])
 
     // process measurements
     const configuredMeasurements = {{ measurements | safe }}
@@ -107,6 +114,24 @@
       document.getElementById('myChart'),
       config
     );
+
+    const updateChat = (positions) => {
+      labels = Object.keys(positions)
+      datasets = []
+
+      for(const label of labels){
+        datasets.push({
+          label,
+          data: [{x: positions[label][0], y: positions[label][1]}],
+          borderColor: '#2196f3',
+          backgroundColor: '#2196f3',
+          pointRadius: 8
+        })
+      }
+
+      myChart.data = {labels, datasets};
+      myChart.update();
+    }
 
 
     // websocket
@@ -161,24 +186,6 @@
 
         table = document.getElementById("styled-table-content")
         table.insertBefore(trnode, table.firstChild);
-    }
-
-    const updateChat = (positions) => {
-      labels = Object.keys(positions)
-      datasets = []
-
-      for(const label of labels){
-        datasets.push({
-          label,
-          data: [{x: positions[label][0], y: positions[label][1]}],
-          borderColor: '#2196f3',
-          backgroundColor: '#2196f3',
-          pointRadius: 8
-        })
-      }
-
-      myChart.data = {labels, datasets};
-      myChart.update();
     }
   </script>
 {% endblock %}
