@@ -9,7 +9,7 @@
 
 .round-content {
     display: grid;
-    grid-template-columns: 55% 55%;
+    grid-template-columns: 60% 40%;
 }
 
 .round-result {
@@ -28,8 +28,7 @@
 
 .styled-table {
     border-collapse: collapse;
-    margin: 25px 0;
-    font-size: 0.9em;
+    font-size: 0.8em;
     font-family: sans-serif;
     width: 100%;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
@@ -43,7 +42,7 @@
 
 .styled-table th,
 .styled-table td {
-    padding: 12px 15px;
+    padding: 8px 10px;
 }
 
 .styled-table tbody tr {
@@ -56,4 +55,8 @@
 
 .styled-table tbody tr:last-of-type {
     border-bottom: 2px solid #009879;
+}
+
+.chart {
+    height: 650px !important;
 }
