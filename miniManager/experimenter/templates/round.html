@@ -47,32 +47,25 @@
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
   <script>
     // status message bar
-    const WAITING_TO_START = "Aguardando a inicialização...";
-    const STARTING = "Iniciando...";
-    const RUNNING = "Em andamento...";
-    const FINISHED = "Finalizado";
+    const STATUS = {
+      WAITING: "WAITING",
+      STARTING: "STARTING",
+      IN_PROGRESS: "IN_PROGRESS",
+      DONE: "DONE"
+    };
 
-    statusToMessageMapping = {
-      WAITING: WAITING_TO_START,
-      STARTING: STARTING,
-      IN_PROGRESS: RUNNING,
-      DONE: FINISHED
-    }
+    const STATUS_TO_MESSAGE = {};
+    STATUS_TO_MESSAGE[STATUS.WAITING] = "Aguardando a inicialização...";
+    STATUS_TO_MESSAGE[STATUS.STARTING] = "Iniciando...";
+    STATUS_TO_MESSAGE[STATUS.IN_PROGRESS] = "Em andamento...";
+    STATUS_TO_MESSAGE[STATUS.DONE] = "Finalizado";
 
     const updateStatusBar = (message) => {
       const element = document.getElementById("status-bar");
       element.innerHTML = message;
     }
 
-    const roundStatus = "{{round.status}}";
-    updateStatusBar(statusToMessageMapping[roundStatus])
-
-    // process measurements
-    const configuredMeasurements = {{ measurements | safe }}
-    const defaultMeasurements = ["time", "name"];
-    const measurementsArray = defaultMeasurements.concat(configuredMeasurements);
-
-    // create graph
+    // graph
     const config = {
       type: 'scatter',
       data: {
@@ -109,12 +102,6 @@
       },
     };
     
-    Chart.register(ChartDataLabels);
-    const myChart = new Chart(
-      document.getElementById('myChart'),
-      config
-    );
-
     const updateChat = (positions) => {
       labels = Object.keys(positions)
       datasets = []
@@ -133,33 +120,36 @@
       myChart.update();
     }
 
-
     // websocket
-    const roundID = {{ round.id }}
-    const url = `ws://${window.location.host}/ws/round/${roundID}/`;
-    const chatSocket = new WebSocket(url);
+    const openWSConnection = (roundID) => {
+      const url = `ws://${window.location.host}/ws/round/${roundID}/`;
+      const chatSocket = new WebSocket(url);
 
-    chatSocket.onmessage = (e) => {
-        const {type, value} = JSON.parse(e.data).payload;
-        let status = WAITING_TO_START;
+      chatSocket.onmessage = wsOnMessage;
+      chatSocket.onclose = wsOnClose;
+    }
+
+    const wsOnMessage = (e) => {
+      const {type, value} = JSON.parse(e.data).payload;
+        let status = STATUS_TO_MESSAGE[STATUS.WAITING];
         if(type == "START"){
-            status = STARTING;
+            status = STATUS_TO_MESSAGE[STATUS.STARTING];
         }
 
         if(type == "UPDATE"){
-            status = RUNNING;
+            status = STATUS_TO_MESSAGE[STATUS.IN_PROGRESS];
             updateTable(value.partialResult);
             updateChat(value.positions);
         }
 
         if(type == "FINISH"){
-          status = FINISHED;
+          status = STATUS_TO_MESSAGE[STATUS.DONE];
         }
 
         updateStatusBar(status);
-    };
+    }
 
-    chatSocket.onclose = (e) => {
+    const wsOnClose = (e) => {
         console.error('Chat socket closed unexpectedly');
     };
 
@@ -187,5 +177,25 @@
         table = document.getElementById("styled-table-content")
         table.insertBefore(trnode, table.firstChild);
     }
+  
+    
+    // ---- init -------
+    const roundStatus = "{{round.status}}";
+    const roundID = {{ round.id }};
+
+    updateStatusBar(STATUS_TO_MESSAGE[roundStatus]);
+
+    Chart.register(ChartDataLabels);
+    const myChart = new Chart(
+      document.getElementById('myChart'),
+      config
+    );
+
+    // process measurements
+    const configuredMeasurements = {{ measurements | safe }}
+    const defaultMeasurements = ["time", "name"];
+    const measurementsArray = defaultMeasurements.concat(configuredMeasurements);
+
+    openWSConnection(roundID)
   </script>
 {% endblock %}
