@@ -27,6 +27,7 @@ class MininetWifiExp():
         self._configuration = configuration
 
     def run(self):
+        self.__notifier.notify({"type": MininetConstants.START, "value": ""})
         self.__serializeConfiguration()
         self.__active = True
         self.__process = popen_spawn.PopenSpawn(self.RUN_CMD)

@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block content %}
-  <h1>{{ name }}</h1>
+  <h1>{{ round.name }}</h1>
   <div class="action-buttons">
     <form action="/rounds/" method="post">
       {% csrf_token %}
@@ -19,8 +19,8 @@
   </div>
   <div class="round-content">
     <div class="round-result">
-      <div class="status-bar alert alert-primary" role="alert">
-        Executando
+      <div id="status-bar" class="alert alert-primary" role="alert">
+        
       </div>
       <table class="styled-table">
         <thead>
@@ -46,6 +46,20 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
   <script>
+    // status bar
+    WAITING_TO_START = "Aguardando a inicialização...";
+    STARTING = "Iniciando...";
+    RUNNING = "Em andamento...";
+    FINISHED = "Finalizado";
+
+    const updateStatusBar = (message) => {
+      const element = document.getElementById("status-bar");
+      element.innerHTML = message;
+    }
+
+    updateStatusBar(WAITING_TO_START)
+
+
     // process measurements
     const configuredMeasurements = {{ measurements | safe }}
     const defaultMeasurements = ["time", "name"];
@@ -95,18 +109,28 @@
 
 
     // websocket
-    const chatSocket = new WebSocket('ws://' + window.location.host + '/ws/round/1/');
+    const roundID = {{ round.id }}
+    const url = `ws://${window.location.host}/ws/round/${roundID}/`;
+    const chatSocket = new WebSocket(url);
 
     chatSocket.onmessage = (e) => {
         const {type, value} = JSON.parse(e.data).payload;
+        let status = WAITING_TO_START;
+        if(type == "START"){
+            status = STARTING;
+        }
+
         if(type == "UPDATE"){
+            status = RUNNING;
             updateTable(value.partialResult);
             updateChat(value.positions);
         }
 
         if(type == "FINISH"){
-            finishExperiment(value);
+          status = FINISHED;
         }
+
+        updateStatusBar(status);
     };
 
     chatSocket.onclose = (e) => {
@@ -153,11 +177,6 @@
 
       myChart.data = {labels, datasets};
       myChart.update();
-    }
-    
-    const finishExperiment = () => {
-        const element = document.getElementById("status-bar");
-        element.innerHTML = "Finalizado";
     }
   </script>
 {% endblock %}

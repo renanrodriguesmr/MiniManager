@@ -5,7 +5,7 @@ from django.urls import reverse
 
 from mininetWifiAdapter import MininetWifiExp, ResultNotifier
 from experimentsConfigurator import MockedConfiguration
-from provenanceCatcher import ProvenanceListener, ProvenanceManager
+from provenanceCatcher import ProvenanceListener
 
 from .listener import ExperimentListener
 from .experimentsQueue import ExperimentsQueue
@@ -24,16 +24,14 @@ class RoundView(View):
         mockedConfiguration = MockedConfiguration()
         configuration = mockedConfiguration.getConfiguration()
         args['measurements'] = self.__getMeasurements(configuration)
-        args['name'] = round.name
+        args['round'] = { "name": round.name, "id": round.id }
 
 
         if round.status == Round.STARTING:
             round.status = Round.IN_PROGRESS
             round.save()
 
-            self.__startCapture(round.id, configuration.medicao_schema)
-            configuration.medicao_schema = None
-            self.__runExperiment(configuration)
+            self.__runExperiment(configuration, round.id)
 
         return render(request, 'round.html', args)
 
@@ -48,21 +46,19 @@ class RoundView(View):
         url = reverse('round', kwargs={ 'round_id': round.id })
         return HttpResponseRedirect(url)
 
-    def __startCapture(self, roundID, schema):
-        provenanceCatcher = ProvenanceManager.instance()
-        provenanceCatcher.reset(roundID, schema)
-
-    def __runExperiment(self, configuration):
-        experimentListener = ExperimentListener()
+    def __runExperiment(self, configuration, roundID):
+        experimentListener = ExperimentListener(roundID)
         provenanceListener = ProvenanceListener()
 
         notifier = ResultNotifier()
         notifier.attach(experimentListener)
         notifier.attach(provenanceListener)
 
+        schema = configuration.medicao_schema
+        configuration.medicao_schema = None
         mininetWifiExp = MininetWifiExp(notifier, configuration)
         queue = ExperimentsQueue.instance()
-        queue.add(mininetWifiExp)
+        queue.add(mininetWifiExp, roundID, schema)
 
     def __getMeasurements(self, configuration):
         measurements = []
