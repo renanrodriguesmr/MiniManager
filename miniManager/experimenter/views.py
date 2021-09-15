@@ -24,12 +24,12 @@ class RoundView(View):
         mockedConfiguration = MockedConfiguration()
         configuration = mockedConfiguration.getConfiguration()
         args['measurements'] = self.__getMeasurements(configuration)
+        args['name'] = round.name
+
 
         if round.status == Round.STARTING:
             round.status = Round.IN_PROGRESS
             round.save()
-
-
 
             self.__startCapture(round.id, configuration.medicao_schema)
             configuration.medicao_schema = None
@@ -40,7 +40,7 @@ class RoundView(View):
     def post(self, request):
         version = request.POST.get('version')
         total = Round.objects.count() #TODO: filter by version
-        name = "{} - round {}".format(version, total + 1)
+        name = "{} - rodada {}".format(version, total + 1)
         
         round = Round(name=name)
         round.save()

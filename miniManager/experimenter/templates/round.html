@@ -6,11 +6,11 @@
 {% endblock %}
 
 {% block content %}
-  <h1>Rodada 1 - Versão 1</h1>
+  <h1>{{ name }}</h1>
   <div class="action-buttons">
     <form action="/rounds/" method="post">
       {% csrf_token %}
-      <button type="sumbit" class="btn btn-primary" name="version" value="1">Reiniciar</button>
+      <button type="sumbit" class="btn btn-primary" name="version" value="versao 1">Reiniciar</button>
     </form>
     <form action="/finish_round" method="post">
         {% csrf_token %}

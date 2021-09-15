@@ -7,7 +7,9 @@ class IResultEventListener(ABC):
     def update(self, subject):
         pass
 class ResultNotifier():
-    _observers = []
+
+    def __init__(self):
+        self._observers = []
 
     def attach(self, observer):
         self._observers.append(observer)
