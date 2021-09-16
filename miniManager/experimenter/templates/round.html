@@ -3,15 +3,12 @@
 
 {% block head %}
   <link rel="stylesheet" href="{% static 'round.css' %}">
+  <link rel="stylesheet" href="{% static 'table.css' %}">
 {% endblock %}
 
 {% block content %}
   <h1>{{ round.name }}</h1>
   <div class="action-buttons">
-    <form action="/rounds/" method="post">
-      {% csrf_token %}
-      <button type="sumbit" class="btn btn-primary" name="version" value="versao 1">Reiniciar</button>
-    </form>
     <form action="/version" method="get">
       <button href="/version" class="btn btn-primary">Voltar</button>
     </form>

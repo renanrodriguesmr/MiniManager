@@ -1,5 +1,6 @@
 .action-buttons {
     display: flex;
+    margin-bottom: 5px;
 }
 
 .execute {

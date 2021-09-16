@@ -3,6 +3,7 @@
 
 {% block head %}
   <link rel="stylesheet" href="{% static 'version.css' %}">
+  <link rel="stylesheet" href="{% static 'table.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -14,4 +15,26 @@
     </form>
     <button type="button" class="btn btn-primary">Comparar Rodadas</button>
   </div>
+  <table class="styled-table">
+    <thead>
+        <tr>
+            <th>name</th>
+            <th>start</th>
+            <th>end</th>
+            <th>status</th>
+            <th>actions</th>
+        </tr>
+    </thead>
+    <tbody id="styled-table-content">
+      {% for round in rounds %}
+      <tr>
+        <td>{{ round.name }}</td>
+        <td>{{ round.start }}</td>
+        <td>{{ round.end }}</td>
+        <td>{{ round.status }}</td>
+        <td><a href="/round/{{round.id}}">OPEN</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 {% endblock %}

@@ -52,6 +52,7 @@ class MininetWifiExp():
         if not self.__active:
             return False
 
+        # timeout
         currentTime = time.time()
         duration = currentTime - self.__start
         return duration < self.EXPERIMENT_TIMEOUT

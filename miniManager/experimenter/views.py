@@ -14,7 +14,10 @@ from .models import Round
 
 class VersionView(View):
     def get(self, request):
-        return render(request, 'version.html')
+        rounds = Round.objects.all()
+        args = {}
+        args['rounds'] = rounds
+        return render(request, 'version.html', args)
 
 class RoundView(View):
     def get(self, request, round_id):
@@ -70,8 +73,7 @@ class FinishRoundView(View):
         queue = ExperimentsQueue.instance()
         queue.finishExperiment(roundID)
         
-        url = reverse('round', kwargs={ 'round_id': roundID })
-        return HttpResponseRedirect(url)
+        return HttpResponseRedirect(reverse('version'))
 
 @register.filter(name='dict_key')
 def dict_key(d, k):
