@@ -63,6 +63,9 @@ class MininetWifiExp():
         if self.__process:
             cmd = "{} {}".format(self.KILL_CMD, str(self.__process.pid + self.PROCESS_OFFSET))
             subprocess.run(cmd, shell=True)
-        
-        subprocess.run(self.CLEAR_CMD, shell=True)
+            subprocess.run(self.CLEAR_CMD, shell=True)
+            
         self.__notifier.notify({"type": MininetConstants.FINISH, "value": ""})
+
+    def addListener(self, listener):
+        self.__notifier.attach(listener)

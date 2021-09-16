@@ -14,16 +14,11 @@ class Round(models.Model):
     class Meta:
         db_table = "Round"
 
-    def setToNextStatus(self):
-        statusToNextMapping = {
-            self.WAITING: self.STARTING,
-            self.STARTING: self.IN_PROGRESS,
-            self.IN_PROGRESS: self.DONE,
-            self.DONE: self.DONE,
-        }
-
-        currentStatus = self.status
-        if currentStatus == self.IN_PROGRESS:
+    def __init__(self, *args, **kwargs):
+        super(Round, self).__init__(*args, **kwargs)
+        self.old_status = self.status
+    
+    def save(self, *args, **kwargs):
+        if self.status == self.DONE and self.old_status != self.DONE:
             self.end = now()
-        
-        self.status = statusToNextMapping[currentStatus]
+        super().save(*args, **kwargs)

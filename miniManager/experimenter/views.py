@@ -6,7 +6,7 @@ from django.template.defaultfilters import register
 
 from mininetWifiAdapter import MininetWifiExp, ResultNotifier
 from experimentsConfigurator import MockedConfiguration
-from provenanceCatcher import ProvenanceListener, ProvenanceService
+from provenanceCatcher import ProvenanceService
 
 from .listener import ExperimentListener
 from .experimentsQueue import ExperimentsQueue
@@ -48,11 +48,8 @@ class RoundView(View):
 
     def __enqueueExperiment(self, configuration, roundID):
         experimentListener = ExperimentListener(roundID)
-        provenanceListener = ProvenanceListener()
-
         notifier = ResultNotifier()
         notifier.attach(experimentListener)
-        notifier.attach(provenanceListener)
 
         schema = configuration.medicao_schema
         configuration.medicao_schema = None
@@ -69,11 +66,12 @@ class RoundView(View):
 
 class FinishRoundView(View):
     def post(self, request):
+        roundID = request.POST.get('round')
         queue = ExperimentsQueue.instance()
-        experiment = queue.getCurrentExperiment()
-        if experiment:
-            experiment.finish()
-        return HttpResponseRedirect(reverse('version'))
+        queue.finishExperiment(roundID)
+        
+        url = reverse('round', kwargs={ 'round_id': roundID })
+        return HttpResponseRedirect(url)
 
 @register.filter(name='dict_key')
 def dict_key(d, k):

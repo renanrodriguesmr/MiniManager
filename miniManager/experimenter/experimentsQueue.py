@@ -1,7 +1,7 @@
 import threading
 from queue import Queue
 import time
-from provenanceCatcher import ProvenanceManager
+from provenanceCatcher import ProvenanceManager, ProvenanceListener
 from .models import Round
 
 class ExperimentsQueue:
@@ -11,8 +11,8 @@ class ExperimentsQueue:
 
     def __init__(self):
         self.queue = Queue()
-        self._currentExperiment = None
         self.__busy = False
+        self.__roundToExperimentMap = {}
 
         t = threading.Thread(target=self._consume)
         t.daemon = True
@@ -20,10 +20,17 @@ class ExperimentsQueue:
 
 
     def add(self, mininetWifiExp, roundID, medicao_schema):
-        self.queue.put({ "experiment": mininetWifiExp, "round": roundID, "medicao_schema": medicao_schema })
+        self.__roundToExperimentMap[str(roundID)] = { "experiment": mininetWifiExp, "medicao_schema": medicao_schema }
+        self.queue.put(roundID)
 
-    def getCurrentExperiment(self):
-        return self._currentExperiment
+    def finishExperiment(self, roundID):
+        key = str(roundID)
+        if not (key in self.__roundToExperimentMap):
+            return
+        
+        experiment = self.__roundToExperimentMap[key]["experiment"]
+        experiment.finish()
+        del self.__roundToExperimentMap[key]
 
     def enable(self):
         self.__busy = False
@@ -31,24 +38,25 @@ class ExperimentsQueue:
     def _consume(self):
         while True:
             time.sleep(self.POLLING_PERIOD)
-            if self.__busy:
-                continue
-
-            if self.queue.empty():
-                self._currentExperiment = None
+            if self.__busy or self.queue.empty():
                 continue
 
             self.__busy = True
-            element = self.queue.get()
-            roundID = element["round"]
+            roundID = self.queue.get()
+            key = str(roundID)
+            if not (key in self.__roundToExperimentMap):
+                continue
+
+            element = self.__roundToExperimentMap[str(key)]
             self.__updateRoundStatus(roundID)
             self.__startCapture(roundID, element["medicao_schema"])
-            self._currentExperiment = element["experiment"]
-            self._currentExperiment.run()
+            experiment = element["experiment"]
+            experiment.addListener(ProvenanceListener())
+            element["experiment"].run()
 
     def __updateRoundStatus(self, roundID):
         round = Round.objects.get(id=roundID)
-        round.setToNextStatus()
+        round.status = Round.STARTING
         round.save()
 
     def __startCapture(self, roundID, schema):

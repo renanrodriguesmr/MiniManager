@@ -18,7 +18,7 @@
     {% if round.status != "DONE" %}
       <form action="/finish_round" method="post">
           {% csrf_token %}
-          <button type="sumbit" class="btn btn-primary">Finalizar</button>
+          <button type="sumbit" class="btn btn-primary" name="round" value="{{round.id}}">Finalizar</button>
       </form>
     {% endif %}
   </div>
