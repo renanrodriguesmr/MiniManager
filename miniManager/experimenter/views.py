@@ -2,6 +2,7 @@ from django.views import View
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+from django.template.defaultfilters import register
 
 from mininetWifiAdapter import MininetWifiExp, ResultNotifier
 from experimentsConfigurator import MockedConfiguration
@@ -26,7 +27,7 @@ class RoundView(View):
         args['round'] = { "name": round.name, "id": round.id, "status": round.status }
 
         if round.status == Round.DONE:
-            resultContent = ProvenanceService().getResultContentFromRound(round.id, configuration.medicao_schema)
+            args['results'] = ProvenanceService().getResultContentFromRound(round.id, configuration.medicao_schema)
 
         return render(request, 'round.html', args)
 
@@ -60,11 +61,10 @@ class RoundView(View):
         queue.add(mininetWifiExp, roundID, schema)
 
     def __getMeasurements(self, configuration):
-        measurements = []
+        measurements = ["time", "name"]
         for measurement in configuration.measurements:
             measurements.append(measurement.measure.name)
 
-        measurements.sort()
         return measurements
 
 class FinishRoundView(View):
@@ -74,3 +74,7 @@ class FinishRoundView(View):
         if experiment:
             experiment.finish()
         return HttpResponseRedirect(reverse('version'))
+
+@register.filter(name='dict_key')
+def dict_key(d, k):
+    return d[k]

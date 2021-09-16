@@ -12,10 +12,15 @@
       {% csrf_token %}
       <button type="sumbit" class="btn btn-primary" name="version" value="versao 1">Reiniciar</button>
     </form>
-    <form action="/finish_round" method="post">
-        {% csrf_token %}
-        <button type="sumbit" class="btn btn-primary">Finalizar</button>
+    <form action="/version" method="get">
+      <button href="/version" class="btn btn-primary">Voltar</button>
     </form>
+    {% if round.status != "DONE" %}
+      <form action="/finish_round" method="post">
+          {% csrf_token %}
+          <button type="sumbit" class="btn btn-primary">Finalizar</button>
+      </form>
+    {% endif %}
   </div>
   <div class="round-content">
     <div class="round-result">
@@ -25,14 +30,25 @@
       <table class="styled-table">
         <thead>
             <tr>
-                <th>time</th>
-                <th>name</th>
                 {% for measurement in measurements %}
                 <th>{{ measurement }}</th>
                 {% endfor %}
             </tr>
         </thead>
         <tbody id="styled-table-content">
+          {% for resultInstance in results %}
+            {% for result in resultInstance.station %}
+              <tr>
+                {% for measurement in measurements %}
+                  {% if measurement == "time" %}
+                    <td>{{ resultInstance.time }}</td>
+                  {% else %}
+                    <td>{{ result|dict_key:measurement }}</td>
+                  {% endif %}
+                {% endfor %}
+              </tr>
+            {% endfor %}
+          {% endfor %}
         </tbody>
       </table>
     </div>
@@ -192,10 +208,10 @@
     );
 
     // process measurements
-    const configuredMeasurements = {{ measurements | safe }}
-    const defaultMeasurements = ["time", "name"];
-    const measurementsArray = defaultMeasurements.concat(configuredMeasurements);
+    const measurementsArray = {{ measurements | safe }};
 
-    openWSConnection(roundID)
+    if(roundStatus != STATUS.DONE){
+      openWSConnection(roundID);
+    }
   </script>
 {% endblock %}
