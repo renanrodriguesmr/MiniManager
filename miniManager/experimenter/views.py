@@ -14,7 +14,7 @@ from .models import Round
 
 class VersionView(View):
     def get(self, request):
-        rounds = Round.objects.all()
+        rounds = Round.objects.order_by('-start')
         args = {}
         args['rounds'] = rounds
         return render(request, 'version.html', args)
@@ -78,3 +78,15 @@ class FinishRoundView(View):
 @register.filter(name='dict_key')
 def dict_key(d, k):
     return d[k]
+
+@register.filter(name='round_message')
+def round_message(status):
+    STATUS_TO_MESSAGE = {
+      "WAITING": "Em espera",
+      "STARTING": "Inicializando",
+      "IN_PROGRESS": "Executando",
+      "DONE": "Finalizado"
+    }
+
+    return STATUS_TO_MESSAGE[status]
+

@@ -18,20 +18,20 @@
   <table class="styled-table">
     <thead>
         <tr>
-            <th>name</th>
-            <th>start</th>
-            <th>end</th>
-            <th>status</th>
-            <th>actions</th>
+            <th>Nome</th>
+            <th>Início</th>
+            <th>Fim</th>
+            <th>Status</th>
+            <th>Ações</th>
         </tr>
     </thead>
     <tbody id="styled-table-content">
       {% for round in rounds %}
       <tr>
         <td>{{ round.name }}</td>
-        <td>{{ round.start }}</td>
-        <td>{{ round.end }}</td>
-        <td>{{ round.status }}</td>
+        <td>{{ round.start|date:"d/m/Y" }} - {{ round.start|time:"h:i:s" }}</td>
+        <td>{{ round.end|date:"d/m/Y" }} - {{ round.end|time:"h:i:s" }}</td>
+        <td>{{ round.status | round_message }}</td>
         <td><a href="/round/{{round.id}}">OPEN</a></td>
       </tr>
       {% endfor %}
