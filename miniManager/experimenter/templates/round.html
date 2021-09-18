@@ -15,7 +15,7 @@
     {% if round.status != "DONE" %}
       <form action="/finish_round" method="post">
           {% csrf_token %}
-          <button type="sumbit" class="btn btn-primary" name="round" value="{{round.id}}">Finalizar</button>
+          <button type="sumbit" id="finish-button" class="btn btn-primary" name="round" value="{{round.id}}">Finalizar</button>
       </form>
     {% endif %}
   </div>
@@ -155,6 +155,7 @@
 
         if(type == "FINISH"){
           status = STATUS_TO_MESSAGE[STATUS.DONE];
+          hiddenFinishButton();
         }
 
         updateStatusBar(status);
@@ -189,7 +190,10 @@
         table.insertBefore(trnode, table.firstChild);
     }
   
-    
+    hiddenFinishButton = () => {
+      document.getElementById("finish-button").style.visibility = "hidden";
+    }
+
     // ---- init -------
     const roundStatus = "{{round.status}}";
     const roundID = {{ round.id }};

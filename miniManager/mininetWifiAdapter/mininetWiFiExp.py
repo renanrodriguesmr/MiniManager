@@ -34,6 +34,9 @@ class MininetWifiExp():
         self.__start = time.time()
         
         while self.__shouldKeepRunning():
+            if self.__isTimeExpired():
+                self.finish()
+
             if self.__process is None:
                 break
 
@@ -47,15 +50,15 @@ class MininetWifiExp():
             json.dump(jsonString, outfile)
             outfile.close()
 
-
-    def __shouldKeepRunning(self):
-        if not self.__active:
-            return False
-
-        # timeout
+    def __isTimeExpired(self):
         currentTime = time.time()
         duration = currentTime - self.__start
-        return duration < self.EXPERIMENT_TIMEOUT
+        return duration > self.EXPERIMENT_TIMEOUT
+
+
+    def __shouldKeepRunning(self):
+        return self.__active
+
 
     def finish(self):
         self.__active = False
