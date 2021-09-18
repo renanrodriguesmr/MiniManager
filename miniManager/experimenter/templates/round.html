@@ -22,32 +22,34 @@
   <div class="round-content">
     <div class="round-result">
       <div id="status-bar" class="alert alert-primary" role="alert">Carregando...</div>
-      <table class="styled-table">
-        <thead>
-            <tr>
-                {% for measurement in measurements %}
-                <th>{{ measurement }}</th>
-                {% endfor %}
-            </tr>
-        </thead>
-        <tbody id="styled-table-content">
-          {% for resultInstance in results %}
-            {% for result in resultInstance.station %}
+      <div class="result">
+        <table class="styled-table">
+          <thead>
               <tr>
-                {% for measurement in measurements %}
-                  {% if measurement == "time" %}
-                    <td>{{ resultInstance.time }}</td>
-                  {% else %}
-                    <td>{{ result|dict_key:measurement }}</td>
-                  {% endif %}
-                {% endfor %}
+                  {% for measurement in measurements %}
+                  <th>{{ measurement }}</th>
+                  {% endfor %}
               </tr>
+          </thead>
+          <tbody id="styled-table-content">
+            {% for resultInstance in results %}
+              {% for result in resultInstance.station %}
+                <tr>
+                  {% for measurement in measurements %}
+                    {% if measurement == "time" %}
+                      <td>{{ resultInstance.time }}</td>
+                    {% else %}
+                      <td>{{ result|dict_key:measurement }}</td>
+                    {% endif %}
+                  {% endfor %}
+                </tr>
+              {% endfor %}
             {% endfor %}
-          {% endfor %}
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </div>
     </div>
-    <div class="round-configuration">
+    <div class="round-graph">
       <div>
         <canvas class="chart" id="myChart"></canvas>
       </div>

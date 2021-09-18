@@ -16,14 +16,13 @@
     padding-right: 5px;
 }
 
-.round-configuration {
-    padding-left: 5px;
+.result {
+    height: 70vh;
+    overflow: scroll;
 }
 
-.configuration {
-    height: 100px;
-    width: 100px;
-    margin: solid 1px;
+.round-graph {
+    padding-left: 5px;
 }
 
 .chart {
