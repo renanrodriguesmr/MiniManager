@@ -13,7 +13,7 @@ class MininetWifiExp():
     PROCESS_OFFSET = 2
 
     OUTPUT_PATTERNS = [
-        r'(\{\'partialResult\':\s+\[.*\],\s+\'time\':\s+[0-9]+\,\s+\'positions\':\s+\{.*\}\})', 
+        r'(\{\'partialResult\':\s+\[.*\],\s+\'time\':\s+[0-9]+\,\s+\'positions\':\s+\{(\'.+\':\s+\{\'type\':\s+\'.+\',\s+\'position\':\s+\[.*\]\})*\}\})', 
         r'(\{\'error\':\s+\'.*\'\})', 
         EOF
     ]

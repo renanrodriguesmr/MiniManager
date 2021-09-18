@@ -52,7 +52,7 @@ class MininetScript():
         ap1.start([c1])
 
         nodes = {
-            "stations": net.stations,
+            "station": net.stations,
             "accessPoint": net.aps
         }
 
@@ -69,7 +69,7 @@ class MininetScript():
             measurements.add("name")
 
             yield {
-                constants.MininetConstants.PARTIAL_RESULT_KEY: self.__collectMetrics(measurements, nodes["stations"], currentTime),
+                constants.MininetConstants.PARTIAL_RESULT_KEY: self.__collectMetrics(measurements, nodes["station"], currentTime),
                 constants.MininetConstants.TIME_KEY: currentTime,
                 constants.MininetConstants.POSITIONS_KEY: self.__getPositions(nodes)
             }
@@ -79,7 +79,7 @@ class MininetScript():
         for key in nodes:
             for node in nodes[key]:
                 name = getattr(node.wintfs[0],"name")
-                positions[name] = list(node.position)
+                positions[name] = {"type": key, "position": list(node.position)}
 
         return positions
 
