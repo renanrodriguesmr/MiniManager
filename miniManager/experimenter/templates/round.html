@@ -120,17 +120,29 @@
       datasets = []
 
       for(const label of labels){
+        const { position, type } = positions[label];
+        const { pointStyle, color } = getPointByType(type);
         datasets.push({
           label,
-          data: [{x: positions[label][0], y: positions[label][1]}],
-          borderColor: '#2196f3',
-          backgroundColor: '#2196f3',
-          pointRadius: 8
+          data: [{x: position[0], y: position[1]}],
+          borderColor: color,
+          backgroundColor: color,
+          pointRadius: 8,
+          pointStyle
         })
       }
 
       myChart.data = {labels, datasets};
       myChart.update();
+    }
+
+    const getPointByType = (type) => {
+      const map = {
+        station: {pointStyle: 'circle', color: '#2196f3'},
+        accessPoint: {pointStyle: 'triangle', color: '#000000'},
+      };
+
+      return map[type];
     }
 
     // websocket
