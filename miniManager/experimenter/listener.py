@@ -14,12 +14,12 @@ class ExperimentListener(IResultEventListener):
         run(self.__sendMessage(subject))
 
         if subject["type"] == "UPDATE" and self.__started == False:
-            ExperimentsQueue.instance().enable()
             self.__started = True
             self.__updateStatus(Round.IN_PROGRESS)
 
         if subject["type"] == "FINISH":
             self.__updateStatus(Round.DONE)
+            ExperimentsQueue.instance().experimentFinished(self.__roundID)
 
     def __updateStatus(self, status):
         round = Round.objects.get(id=self.__roundID)

@@ -7,12 +7,13 @@ from .models import Round
 class ExperimentsQueue:
 
     _instance = None
-    POLLING_PERIOD = 5
+    POLLING_PERIOD = 2
 
     def __init__(self):
         self.queue = Queue()
         self.__busy = False
         self.__roundToExperimentMap = {}
+        self.__currentRound = 0
 
         t = threading.Thread(target=self._consume)
         t.daemon = True
@@ -29,11 +30,12 @@ class ExperimentsQueue:
             return
         
         experiment = self.__roundToExperimentMap[key]["experiment"]
-        experiment.finish()
         del self.__roundToExperimentMap[key]
+        experiment.finish()
 
-    def enable(self):
-        self.__busy = False
+    def experimentFinished(self, roundID):
+        if roundID == self.__currentRound:
+            self.__busy = False
 
     def _consume(self):
         while True:
@@ -43,16 +45,19 @@ class ExperimentsQueue:
 
             self.__busy = True
             roundID = self.queue.get()
-            key = str(roundID)
-            if not (key in self.__roundToExperimentMap):
+            if not (str(roundID) in self.__roundToExperimentMap):
                 continue
 
-            element = self.__roundToExperimentMap[str(key)]
-            self.__updateRoundStatus(roundID)
-            self.__startCapture(roundID, element["medicao_schema"])
-            experiment = element["experiment"]
-            experiment.addListener(ProvenanceListener())
-            element["experiment"].run()
+            self.__startExperiment(roundID);
+
+    def __startExperiment(self, roundID):
+        self.__currentRound = roundID
+        element = self.__roundToExperimentMap[str(roundID)]
+        self.__updateRoundStatus(roundID)
+        self.__startCapture(roundID, element["medicao_schema"])
+        experiment = element["experiment"]
+        experiment.addListener(ProvenanceListener())
+        element["experiment"].run()
 
     def __updateRoundStatus(self, roundID):
         round = Round.objects.get(id=roundID)
