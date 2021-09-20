@@ -12,6 +12,16 @@
     grid-template-columns: 60% 40%;
 }
 
+.radio-frequency-table tbody {
+    overflow: scroll;
+    max-height: 400px;
+}
+
+.performance-table {
+    overflow: scroll;
+    max-height: 450px;
+}
+
 .round-result {
     padding-right: 5px;
 }

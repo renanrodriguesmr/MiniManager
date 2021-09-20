@@ -23,7 +23,7 @@
     <div class="round-result">
       <div id="status-bar" class="alert alert-primary" role="alert">Carregando...</div>
       <div class="result">
-        <table class="styled-table">
+        <table class="radio-frequency-table styled-table">
           <thead>
               <tr>
                   {% for measurement in radioFrequencyMeasurements %}
@@ -31,7 +31,7 @@
                   {% endfor %}
               </tr>
           </thead>
-          <tbody id="styled-table-content">
+          <tbody id="radio-frequency-table-content">
             {% for resultInstance in results %}
               {% for result in resultInstance.station %}
                 <tr>
@@ -52,6 +52,21 @@
     <div class="round-graph">
       <div>
         <canvas class="chart" id="myChart"></canvas>
+      </div>
+      <div class="performance-table">
+        <table class="styled-table">
+          <thead>
+            <tr>
+              <th>time</th>
+              <th>name</th>
+              <th>source</th>
+              <th>destination</th>
+              <th>value</th>
+            </tr>
+          </thead>
+          <tbody id="performance-table-content">
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -169,8 +184,9 @@
             status = STATUS_TO_MESSAGE[STATUS.IN_PROGRESS];
             console.log(value)
             for(const item of value){
-              updateTable(item.radioFrequency);
+              updateRadioFrequencyTable(item.radioFrequency);
               updateChat(item.positions);
+              updatePerformanceTable(item.performance, item.time)
             }
         }
 
@@ -186,13 +202,19 @@
         console.error('Chat socket closed unexpectedly');
     };
 
-    const updateTable = (newRows) => {
+    const updateRadioFrequencyTable = (newRows) => {
       if(!newRows || newRows == []){
         return;
       }
 
       for(row of newRows){
-          addElementToTable(row);
+        const values = [];
+        for(const key of measurementsArray){
+          const value = (key in row) ? row[key] : "";
+          values.push(value);
+        }
+
+        addElementToTable(values, "radio-frequency-table-content");
       }
     }
 
@@ -203,16 +225,29 @@
       return tdnode;
     }
 
-    const addElementToTable = (row) => {
+    const addElementToTable = (values, id) => {
         const trnode = document.createElement("tr");
-        for(key of measurementsArray){
-          const value = (key in row) ? row[key] : "";
+        for(value of values){
           const tdnode = generateColumn(value);
           trnode.appendChild(tdnode);
         }
 
-        table = document.getElementById("styled-table-content")
+        table = document.getElementById(id)
         table.insertBefore(trnode, table.firstChild);
+    }
+
+    const updatePerformanceTable = (newRow, time) => {
+      if(!newRow){
+        return;
+      }
+
+      text = ""
+      for(const value of newRow["value"]){
+        text += value + "\n"
+      }
+
+      values = [time, newRow["name"], newRow["source"], newRow["destination"], text]
+      addElementToTable(values, "performance-table-content");
     }
   
     hiddenFinishButton = () => {

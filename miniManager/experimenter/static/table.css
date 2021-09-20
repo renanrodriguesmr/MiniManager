@@ -17,11 +17,6 @@
     padding: 8px 10px;
 }
 
-.styled-table tbody {
-    overflow: scroll;
-    max-height: 400px;
-}
-
 .styled-table tbody tr {
     border-bottom: 1px solid #dddddd;
 }
