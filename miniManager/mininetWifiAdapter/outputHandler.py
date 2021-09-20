@@ -9,11 +9,17 @@ class OutputHandler:
         self.formattedContent(content)
 
     def process(self):
-        self.notifier.notify({"type": self.eventType, "value": self.content})
+        self.notifier.notify({"type": self.eventType, "value": self.contents})
 
     def formattedContent(self, content):
-        content = content.decode('utf-8').replace("\'", "\"")
-        self.content = json.loads(content)
+        splittedContent = content.decode('utf-8').replace("\'", "\"").split("\n")
+
+        self.contents = []
+        for c in splittedContent:
+            try:
+                self.contents.append(json.loads(c))
+            except:
+                print(c)
 
 
 class EOFHandler(OutputHandler):

@@ -26,7 +26,7 @@
         <table class="styled-table">
           <thead>
               <tr>
-                  {% for measurement in measurements %}
+                  {% for measurement in radioFrequencyMeasurements %}
                   <th>{{ measurement }}</th>
                   {% endfor %}
               </tr>
@@ -35,7 +35,7 @@
             {% for resultInstance in results %}
               {% for result in resultInstance.station %}
                 <tr>
-                  {% for measurement in measurements %}
+                  {% for measurement in radioFrequencyMeasurements %}
                     {% if measurement == "time" %}
                       <td>{{ resultInstance.time }}</td>
                     {% else %}
@@ -116,6 +116,10 @@
     };
     
     const updateChat = (positions) => {
+      if(!positions || positions == []){
+        return;
+      }
+
       labels = Object.keys(positions)
       datasets = []
 
@@ -163,8 +167,11 @@
 
         if(type == "UPDATE"){
             status = STATUS_TO_MESSAGE[STATUS.IN_PROGRESS];
-            updateTable(value.partialResult);
-            updateChat(value.positions);
+            console.log(value)
+            for(const item of value){
+              updateTable(item.radioFrequency);
+              updateChat(item.positions);
+            }
         }
 
         if(type == "FINISH"){
@@ -180,9 +187,13 @@
     };
 
     const updateTable = (newRows) => {
-        for(row of newRows){
-            addElementToTable(row);
-        }
+      if(!newRows || newRows == []){
+        return;
+      }
+
+      for(row of newRows){
+          addElementToTable(row);
+      }
     }
 
     const generateColumn = (value) => {
@@ -221,7 +232,7 @@
     );
 
     // process measurements
-    const measurementsArray = {{ measurements | safe }};
+    const measurementsArray = {{ radioFrequencyMeasurements | safe }};
 
     if(roundStatus != STATUS.DONE){
       openWSConnection(roundID);

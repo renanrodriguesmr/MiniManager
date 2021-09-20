@@ -25,6 +25,10 @@ class Measure():
     name = ''
     unit = ''
 
+class PerformanceMeasure(Measure):
+    source = ''
+    destination = ''
+
 class MobilityModel():
     established = False
     id = 0

@@ -13,12 +13,14 @@ class MininetWifiExp():
     PROCESS_OFFSET = 2
 
     OUTPUT_PATTERNS = [
-        r'(\{\'partialResult\':\s+\[.*\],\s+\'time\':\s+[0-9]+\,\s+\'positions\':\s+\{(\'.+\':\s+\{\'type\':\s+\'.+\',\s+\'position\':\s+\[.*\]\})*\}\})', 
+        r'(\{\'time\':\s+[0-9]+\,\s+\'positions\':\s+\{(\'.+\':\s+\{\'type\':\s+\'.+\',\s+\'position\':\s+\[.*\]\})*\}\})',
+        r'(\{\'time\':\s+[0-9]+\,\s+\'radioFrequency\':\s+\[(\{.*\}).*\]\})',
+        r'(\{\'time\':\s+[0-9]+\,\s+\'performance\':\s+\{.*\}\})',
         r'(\{\'error\':\s+\'.*\'\})', 
         EOF
     ]
-    OUTPUT_STRATEGY_MAPPING = [PartialResultHandler, ErrorHandler, EOFHandler]
-
+    OUTPUT_STRATEGY_MAPPING = [PartialResultHandler, PartialResultHandler, PartialResultHandler, ErrorHandler, EOFHandler]
+    
     def __init__(self, notifier, configuration):
         self.__notifier = notifier
         self.__active = False

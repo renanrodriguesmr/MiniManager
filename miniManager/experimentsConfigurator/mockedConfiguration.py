@@ -68,10 +68,28 @@ class MockedConfiguration():
         measurement11.period = 1
         measurement11.measure = measure11
 
+        measure12 = PerformanceMeasure()
+        measure12.id = 11
+        measure12.name = 'ping'
+        measure12.source = 'sta1'
+        measure12.destination = 'sta2'
+        measurement12 = Measurement()
+        measurement12.period = 3
+        measurement12.measure = measure12
+
+        measure13 = PerformanceMeasure()
+        measure13.id = 11
+        measure13.name = 'Iperf'
+        measure13.source = 'sta1'
+        measure13.destination = 'sta2'
+        measurement13 = Measurement()
+        measurement13.period = 3
+        measurement13.measure = measure13
+
 
         configuration = Configuration()
         configuration.id = 1
         configuration.medicao_schema = xmlschema.XMLSchema('experimentsConfigurator/mockedXMLSchema.xsd')
-        configuration.measurements = [measurement2, measurement3, measurement5, measurement6, measurement7, measurement8, measurement10, measurement11]
+        configuration.measurements = [measurement2, measurement3, measurement5, measurement6, measurement7, measurement8, measurement10, measurement11, measurement12, measurement13]
 
         return configuration

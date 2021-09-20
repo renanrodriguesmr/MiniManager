@@ -10,4 +10,5 @@ class ProvenanceListener(IResultEventListener):
             self.__manager.saveResults()
 
         if subject["type"] == "UPDATE":
-            self.__manager.addResult(subject["value"])
+            for content in subject["value"]:
+                self.__manager.addResult(content)

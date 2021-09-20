@@ -27,13 +27,15 @@ class ProvenanceManager:
 
     def addResult(self, content):
         #self.__resultsBuffer.append(content)
+        if not ("radioFrequency" in content):
+            return
 
         instant = ET.Element("instant")
         instant.set('time', str(content["time"]))
         self.__xml.append(instant)
 
-        partialResult = content["partialResult"]
-        for row in partialResult:
+        radioFrequency = content["radioFrequency"]
+        for row in radioFrequency:
             station = ET.Element("station")
             station.set('name', row["name"])
             instant.append(station)

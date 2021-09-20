@@ -26,7 +26,7 @@ class RoundView(View):
         args = {}
         mockedConfiguration = MockedConfiguration()
         configuration = mockedConfiguration.getConfiguration()
-        args['measurements'] = self.__getMeasurements(configuration)
+        args['radioFrequencyMeasurements'], args['performanceMeasurements'] = self.__getMeasurements(configuration)
         args['round'] = { "name": round.name, "id": round.id, "status": round.status }
 
         if round.status == Round.DONE:
@@ -61,11 +61,19 @@ class RoundView(View):
         queue.add(mininetWifiExp, roundID, schema)
 
     def __getMeasurements(self, configuration):
-        measurements = ["time", "name"]
-        for measurement in configuration.measurements:
-            measurements.append(measurement.measure.name)
+        RADIO_FREQUENCY_MEASURES = {'rssi','channel','band','ssid','txpower','ip', 'position', 'associatedto'}
+        PERFORMANCE_MEASURES = {'ping', 'Iperf'}
 
-        return measurements
+        radioFrequencyMeasurements = ["time", "name"]
+        performanceMeasurements = []
+        for measurement in configuration.measurements:
+            measureName = measurement.measure.name
+            if measureName in RADIO_FREQUENCY_MEASURES:
+                radioFrequencyMeasurements.append(measureName)
+            if measureName in PERFORMANCE_MEASURES:
+                performanceMeasurements.append(measureName)
+
+        return radioFrequencyMeasurements, performanceMeasurements
 
 class FinishRoundView(View):
     def post(self, request):
