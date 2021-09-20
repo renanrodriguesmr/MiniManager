@@ -30,7 +30,7 @@ class RoundView(View):
         args['round'] = { "name": round.name, "id": round.id, "status": round.status }
 
         if round.status == Round.DONE:
-            args['results'] = ProvenanceService().getResultContentFromRound(round.id, configuration.medicao_schema)
+            args['radioFrequency'], args['performance'] = ProvenanceService().getResultContentFromRound(round.id, configuration.medicao_schema)
 
         return render(request, 'round.html', args)
 

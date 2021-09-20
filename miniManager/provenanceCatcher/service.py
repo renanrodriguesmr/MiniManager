@@ -7,7 +7,7 @@ class ProvenanceService():
         try:
             result = Result.objects.get(round__pk=roundID)
             resultDict = schema.decode(result.xml_content, attr_prefix='')
-            return resultDict["instant"]
+            return resultDict["radioFrequency"]["instant"], resultDict["performance"]["instance"]
 
         except:
             resultDict = []

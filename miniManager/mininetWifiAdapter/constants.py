@@ -10,8 +10,8 @@ class MininetConstants:
     TIME_KEY = "time"
     POSITIONS_KEY = "positions"
 
-    #CONFIG_FILE_PATH = 'mininetWifiAdapter/config.json'
-    CONFIG_FILE_PATH = 'config.json'
+    CONFIG_FILE_PATH = 'mininetWifiAdapter/config.json'
+    #CONFIG_FILE_PATH = 'config.json'
 
     RADIO_FREQUENCY_MEASURES = {'name', 'rssi','channel','band','ssid','txpower','ip', 'position', 'associatedto'}
     PERFORMANCE_MEASURES = {'ping', 'Iperf'}

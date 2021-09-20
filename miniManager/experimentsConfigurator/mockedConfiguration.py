@@ -79,9 +79,9 @@ class MockedConfiguration():
 
         measure13 = PerformanceMeasure()
         measure13.id = 11
-        measure13.name = 'Iperf'
-        measure13.source = 'sta1'
-        measure13.destination = 'sta2'
+        measure13.name = 'ping'
+        measure13.source = 'sta2'
+        measure13.destination = 'sta3'
         measurement13 = Measurement()
         measurement13.period = 3
         measurement13.measure = measure13

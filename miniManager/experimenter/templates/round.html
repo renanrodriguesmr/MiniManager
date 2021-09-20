@@ -32,7 +32,7 @@
               </tr>
           </thead>
           <tbody id="radio-frequency-table-content">
-            {% for resultInstance in results %}
+            {% for resultInstance in radioFrequency %}
               {% for result in resultInstance.station %}
                 <tr>
                   {% for measurement in radioFrequencyMeasurements %}
@@ -58,13 +58,22 @@
           <thead>
             <tr>
               <th>time</th>
-              <th>name</th>
               <th>source</th>
               <th>destination</th>
+              <th>name</th>
               <th>value</th>
             </tr>
           </thead>
           <tbody id="performance-table-content">
+            {% for resultInstance in performance %}
+              <tr>
+                <td>{{ resultInstance.time }}</td>
+                <td>{{ resultInstance.source }}</td>
+                <td>{{ resultInstance.destination }}</td>
+                <td>{{ resultInstance.name }}</td>
+                <td>{{ resultInstance.value }}</td>
+              </tr>
+            {% endfor %}
           </tbody>
         </table>
       </div>
@@ -182,7 +191,6 @@
 
         if(type == "UPDATE"){
             status = STATUS_TO_MESSAGE[STATUS.IN_PROGRESS];
-            console.log(value)
             for(const item of value){
               updateRadioFrequencyTable(item.radioFrequency);
               updateChat(item.positions);
@@ -246,7 +254,7 @@
         text += value + "\n"
       }
 
-      values = [time, newRow["name"], newRow["source"], newRow["destination"], text]
+      values = [time, newRow["source"], newRow["destination"], newRow["name"], text]
       addElementToTable(values, "performance-table-content");
     }
   

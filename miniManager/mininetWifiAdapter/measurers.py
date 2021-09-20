@@ -119,10 +119,13 @@ class PerformanceMeasurer(IMeasurer):
         destinationName = measure["destination"]
 
         value = []
+        source = self.__net.get(sourceName)
+        destination = self.__net.get(destinationName)
         if name == "ping":
-            source = self.__net.get(sourceName)
-            destination = self.__net.get(destinationName)
             value = self.__ping(source, destination)
+
+        #if name == "Iperf":
+            #value = self.__iperf(source, destination)
 
         return {"name": name, "source": sourceName, "destination": destinationName, "value": value}
 
@@ -130,4 +133,10 @@ class PerformanceMeasurer(IMeasurer):
         pingResult = source.cmd('ping', '-c 10 -q', '-I ' + source.wintfs[0].ip, destination.wintfs[0].ip)
         splittedResult = pingResult.split('\r\n')
         return [splittedResult[3], splittedResult[4]]
+
+    def __iperf(self, source, destination):
+        iperfResult = source.cmd('iperf -d -c ' + destination.wintfs[0].ip)
+        #splittedResult = iperfResult.split('\r\n')
+        print(iperfResult)
+        return []
             

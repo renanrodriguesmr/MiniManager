@@ -8,8 +8,9 @@ class ProvenanceManager:
         self.__roundID = 0
         self.__schema = None
         #self.__resultsBuffer = []
-        self.__xml = ET.Element("result")
-        self.__xml.set('roundID', str(0))
+
+        self.__radioFrequency = ET.Element("radioFrequency")
+        self.__performance = ET.Element("performance")
 
     @classmethod
     def instance(cls):
@@ -19,22 +20,27 @@ class ProvenanceManager:
 
     def reset(self, roundID, schema):
         self.__roundID = roundID
-        #self.__resultsBuffer = []
-        self.__xml = ET.Element("result")
-        self.__xml.set('roundID', str(roundID))
         self.__schema = schema
+
+        #self.__resultsBuffer = []
+
+        self.__radioFrequency = ET.Element("radioFrequency")
+        self.__performance = ET.Element("performance")
 
 
     def addResult(self, content):
         #self.__resultsBuffer.append(content)
-        if not ("radioFrequency" in content):
-            return
+        if "radioFrequency" in content:
+            self.__addRadioFrequencyElement(content["time"], content["radioFrequency"])
 
+        if "performance" in content:
+            self.__addPerformanceElement(content["time"], content["performance"])
+
+    def __addRadioFrequencyElement(self, time, radioFrequency):
         instant = ET.Element("instant")
-        instant.set('time', str(content["time"]))
-        self.__xml.append(instant)
+        instant.set('time', str(time))
+        self.__radioFrequency.append(instant)
 
-        radioFrequency = content["radioFrequency"]
         for row in radioFrequency:
             station = ET.Element("station")
             station.set('name', row["name"])
@@ -47,11 +53,31 @@ class ProvenanceManager:
                 element = ET.SubElement(station, key)
                 element.text = str(row[key])
 
+    def __addPerformanceElement(self, time, performance):
+        instance = ET.Element("instance")
+        instance.set('time', str(time))
+        instance.set('source', str(performance["source"]))
+        instance.set('destination', str(performance["destination"]))
+        instance.set('name', str(performance["name"]))
+        self.__performance.append(instance)
+
+        value = ""
+        for partialValue in performance["value"]:
+            value = value + " " + partialValue
+
+        element = ET.SubElement(instance, "value")
+        element.text = str(value)
+
 
     def saveResults(self):
         from .models import Result #TODO: fix it
 
-        tree = ET.ElementTree(self.__xml)
+        root = ET.Element("result")
+        root.set('roundID', str(self.__roundID))
+        root.append(self.__radioFrequency)
+        root.append(self.__performance)
+
+        tree = ET.ElementTree(root)
         if not self.__schema.is_valid(tree):
             return
 
