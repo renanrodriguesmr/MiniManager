@@ -14,7 +14,7 @@ class MininetWifiExp():
 
     OUTPUT_PATTERNS = [
         r'(\{\'time\':\s+[0-9]+\,\s+\'positions\':\s+\{(\'.+\':\s+\{\'type\':\s+\'.+\',\s+\'position\':\s+\[.*\]\})*\}\})',
-        r'(\{\'time\':\s+[0-9]+\,\s+\'radioFrequency\':\s+\[(\{.*\}).*\]\})',
+        r'(\{\'time\':\s+[0-9]+\,\s+\'radioFrequency\':\s+\[\{.*\}\]\})',
         r'(\{\'time\':\s+[0-9]+\,\s+\'performance\':\s+\{.*\}\})',
         r'(\{\'error\':\s+\'.*\'\})', 
         EOF

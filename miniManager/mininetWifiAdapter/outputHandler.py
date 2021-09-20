@@ -16,11 +16,7 @@ class OutputHandler:
 
         self.contents = []
         for c in splittedContent:
-            try:
-                self.contents.append(json.loads(c))
-            except:
-                print(c)
-
+            self.contents.append(json.loads(c))
 
 class EOFHandler(OutputHandler):
     def __init__(self, content, notifier):
