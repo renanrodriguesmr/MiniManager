@@ -32,7 +32,7 @@
         <td>{{ round.start|date:"d/m/Y" }} - {{ round.start|time:"h:i:s" }}</td>
         <td>{{ round.end|date:"d/m/Y" }} - {{ round.end|time:"h:i:s" }}</td>
         <td>{{ round.status | round_message }}</td>
-        <td><a href="/round/{{round.id}}">OPEN</a></td>
+        <td><a href="/round/{{round.id}}">OPEN</a> <a href="/export-round/{{round.id}}">EXPORT</a></td>
       </tr>
       {% endfor %}
     </tbody>

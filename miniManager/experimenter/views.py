@@ -1,6 +1,6 @@
 from django.views import View
 from django.shortcuts import render
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse
 from django.template.defaultfilters import register
 
@@ -82,6 +82,16 @@ class FinishRoundView(View):
         queue.finishExperiment(roundID)
         
         return HttpResponseRedirect(reverse('version'))
+
+class ExportView(View):
+    def get(self, request, round_id):
+        round = Round.objects.get(id=round_id)
+        xml = ProvenanceService().getXML(round.id)
+
+        response = HttpResponse(xml, content_type="application/xml")
+        response['Content-Disposition'] = 'attachment; filename=myfile.xml'
+        return response
+
 
 @register.filter(name='dict_key')
 def dict_key(d, k):

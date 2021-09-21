@@ -13,7 +13,7 @@
       <button href="/version" class="btn btn-primary">Voltar</button>
     </form>
     {% if round.status != "DONE" %}
-      <form action="/finish_round" method="post">
+      <form action="/finish-round" method="post">
           {% csrf_token %}
           <button type="sumbit" id="finish-button" class="btn btn-primary" name="round" value="{{round.id}}">Finalizar</button>
       </form>

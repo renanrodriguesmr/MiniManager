@@ -1,5 +1,3 @@
-from pprint import pprint
-
 class ProvenanceService():
     def getResultContentFromRound(self, roundID, schema):
         from .models import Result
@@ -13,3 +11,9 @@ class ProvenanceService():
             resultDict = []
 
         return resultDict
+
+    def getXML(self, roundID):
+        from .models import Result
+        result = Result.objects.get(round__pk=roundID)
+        enc = '<?xml version="1.0" encoding="utf-8"?>'
+        return enc + result.xml_content
