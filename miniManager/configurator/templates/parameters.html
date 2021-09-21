@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static 'base.css' %}">
+{% endblock %}
+
+{% block content %}
+  <h3>Parâmetros de medida</h3>
+  <div class="action-buttons">
+    <form action="nodeconfig/" method="post">
+      {% csrf_token %}
+      <div class="form-group row">
+        <div class="col-sm-2">Parâmetros</div>
+        <div class="col-sm-10">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="radiofrequency" value="rssi" id="rssi">
+            <label class="form-check-label" for="defaultCheck1">
+              rssi
+            </label>
+          </div>
+          <input type="number" class="form-control" name = "rssi" id="rssiperiod" placeholder="Período rssi" disabled>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="radiofrequency" value="channel" id="channel">
+            <label class="form-check-label" for="defaultCheck2">
+              channel
+            </label>
+          </div>
+          <input type="number" class="form-control" name="channel" id="channelperiod" placeholder="Período channel" disabled>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="radiofrequency" value="band" id="band">
+            <label class="form-check-label" for="defaultCheck2">
+              band
+            </label>
+          </div>
+          <input type="number" class="form-control" name="band" id="bandperiod" placeholder="Período band" disabled>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="radiofrequency" value="ssid" id="ssid">
+            <label class="form-check-label" for="defaultCheck2">
+              ssid
+            </label>
+          </div>
+          <input type="number" class="form-control" name="ssid" id="ssidperiod" placeholder="Período ssid" disabled>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="radiofrequency"  value="txpower" id="txpower">
+            <label class="form-check-label" for="defaultCheck2">
+              txpower
+            </label>
+          </div>
+          <input type="number" class="form-control" name="txpower" id="txpowerperiod" placeholder="Período txpower" disabled>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="radiofrequency" value="ip" id="ip">
+            <label class="form-check-label" for="defaultCheck2">
+              ip
+            </label>
+          </div>
+          <input type="number" class="form-control" name="ip" id="ipperiod" placeholder="Período ip" disabled>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="radiofrequency" value="position" id="position">
+            <label class="form-check-label" for="defaultCheck2">
+              position
+            </label>
+          </div>
+          <input type="number" class="form-control" name="position" id="positionperiod" placeholder="Período position" disabled>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="radiofrequency" value="associatedTo" id="associatedTo">
+            <label class="form-check-label" for="defaultCheck2">
+              associatedTo
+            </label>
+          </div>
+          <input type="number" class="form-control" name="associatedTo" id="associatedToperiod" placeholder="Período associatedTo" disabled>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="radiofrequency" value="ping" id="ping">
+            <label class="form-check-label" for="defaultCheck2">
+              ping
+            </label>
+          </div>
+          <input type="number" class="form-control" name="ping" id="pingperiod" placeholder="Período ping" disabled>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-sm-10">
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+
+  <script>
+    document.getElementById('rssi').onchange = function() {
+    document.getElementById('rssiperiod').disabled = !this.checked;
+    };
+
+    document.getElementById('channel').onchange = function() {
+    document.getElementById('channelperiod').disabled = !this.checked;
+    };
+
+    document.getElementById('band').onchange = function() {
+    document.getElementById('bandperiod').disabled = !this.checked;
+    };
+
+    document.getElementById('ssid').onchange = function() {
+    document.getElementById('ssidperiod').disabled = !this.checked;
+    };
+
+    document.getElementById('txpower').onchange = function() {
+    document.getElementById('txpowerperiod').disabled = !this.checked;
+    };
+
+    document.getElementById('ip').onchange = function() {
+    document.getElementById('ipperiod').disabled = !this.checked;
+    };
+
+    document.getElementById('position').onchange = function() {
+    document.getElementById('positionperiod').disabled = !this.checked;
+    };
+
+    document.getElementById('associatedTo').onchange = function() {
+    document.getElementById('associatedToperiod').disabled = !this.checked;
+    };
+
+    document.getElementById('ping').onchange = function() {
+    document.getElementById('pingperiod').disabled = !this.checked;
+    };
+  </script>
+{% endblock %}
+
