@@ -4,8 +4,5 @@ from .views import *
 
 
 urlpatterns = [
-
-path('', ParametersView.as_view(), name='parameters'),
-path('nodeconfig/', NodeConfigView.as_view(), name='nodes')
-
+    path('configuration/', ParametersView.as_view(), name='configuration')
 ]
