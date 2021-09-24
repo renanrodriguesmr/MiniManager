@@ -83,14 +83,47 @@ class FinishRoundView(View):
         
         return HttpResponseRedirect(reverse('version'))
 
-class ExportView(View):
+class ExportRoundView(View):
     def get(self, request, round_id):
         round = Round.objects.get(id=round_id)
         xml = ProvenanceService().getXML(round.id)
 
         response = HttpResponse(xml, content_type="application/xml")
-        response['Content-Disposition'] = 'attachment; filename=myfile.xml'
+        response['Content-Disposition'] = 'attachment; filename={}.xml'.format(round.name)
         return response
+
+class CompareRoundsView(View):
+    def get(self, request):
+        args = {}
+        roundID1 = request.GET.get('round1')
+        roundID2 = request.GET.get('round2')
+
+        mockedConfiguration = MockedConfiguration()
+        configuration = mockedConfiguration.getConfiguration()
+        radioFrequencyMeasurements, _ = self.__getMeasurements(configuration)
+
+        service = ProvenanceService()
+        args["radioFrequency"], args["performance"] = service.diffResults(roundID1, roundID2, configuration.medicao_schema, configuration.medicao_schema, radioFrequencyMeasurements)
+        args["radioFrequencyTitles"] = radioFrequencyMeasurements
+        args["performanceTitles"] = ["time", "source", "destination", "name", "value"]
+
+        return render(request, 'compare-rounds.html', args)
+
+    def __getMeasurements(self, configuration):
+        #TODO: fix it
+        RADIO_FREQUENCY_MEASURES = {'rssi','channel','band','ssid','txpower','ip', 'position', 'associatedto'}
+        PERFORMANCE_MEASURES = {'ping', 'Iperf'}
+
+        radioFrequencyMeasurements = ["time", "name"]
+        performanceMeasurements = []
+        for measurement in configuration.measurements:
+            measureName = measurement.measure.name
+            if measureName in RADIO_FREQUENCY_MEASURES:
+                radioFrequencyMeasurements.append(measureName)
+            if measureName in PERFORMANCE_MEASURES:
+                performanceMeasurements.append(measureName)
+
+        return radioFrequencyMeasurements, performanceMeasurements
 
 
 @register.filter(name='dict_key')
@@ -108,3 +141,22 @@ def round_message(status):
 
     return STATUS_TO_MESSAGE[status]
 
+@register.filter(name='type_signal')
+def round_message(status):
+    TYPE_TO_SIGNAL = {
+      "KEEP": "",
+      "ADD": "+",
+      "REMOVE": "-"
+    }
+
+    return TYPE_TO_SIGNAL[status]
+
+@register.filter(name='type_style')
+def round_message(status):
+    TYPE_TO_SIGNAL = {
+      "KEEP": "",
+      "ADD": "add-row",
+      "REMOVE": "removed-row"
+    }
+
+    return TYPE_TO_SIGNAL[status]
