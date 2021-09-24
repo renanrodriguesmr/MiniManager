@@ -21,16 +21,18 @@ class VersionView(View):
 
 class RoundView(View):
     def get(self, request, round_id):
-        round = Round.objects.get(id=round_id)
-
         args = {}
-        mockedConfiguration = MockedConfiguration()
-        configuration = mockedConfiguration.getConfiguration()
-        args['radioFrequencyMeasurements'], args['performanceMeasurements'] = self.__getMeasurements(configuration)
+        round = Round.objects.get(id=round_id)
         args['round'] = { "name": round.name, "id": round.id, "status": round.status }
 
+        mockedConfiguration = MockedConfiguration()
+        configuration = mockedConfiguration.getConfiguration()
+        radioFrequencyMeasurements, _ = self.__getMeasurements(configuration)
+        args["radioFrequencyTitles"] = radioFrequencyMeasurements
+        args["performanceTitles"] = ["time", "source", "destination", "name", "value"]
+
         if round.status == Round.DONE:
-            args['radioFrequency'], args['performance'] = ProvenanceService().getResultContentFromRound(round.id, configuration.medicao_schema)
+            args['radioFrequency'], args['performance'] = ProvenanceService().getResultRowsFromRound(round.id, configuration.medicao_schema, radioFrequencyMeasurements)
 
         return render(request, 'round.html', args)
 

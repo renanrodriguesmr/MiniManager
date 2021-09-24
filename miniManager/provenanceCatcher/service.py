@@ -1,5 +1,5 @@
 class ProvenanceService():
-    def getResultContentFromRound(self, roundID, schema):
+    def __getResultContentFromRound(self, roundID, schema):
         from .models import Result
         try:
             result = Result.objects.get(round__pk=roundID)
@@ -9,9 +9,9 @@ class ProvenanceService():
         except:
             return [], []
 
-    def __getResultRowsFromRound(self, roundID, schema, radioFrequencyMeasures):
+    def getResultRowsFromRound(self, roundID, schema, radioFrequencyMeasures):
         PERFORMANCE_KEYS = ["time", "source", "destination", "name", "value"]
-        radioFrequencyObj, performanceObj = self.getResultContentFromRound(roundID, schema)
+        radioFrequencyObj, performanceObj = self.__getResultContentFromRound(roundID, schema)
 
         radioFrequency = []
         for resultInstance in radioFrequencyObj:
@@ -106,8 +106,8 @@ class ProvenanceService():
         return diff
 
     def diffResults(self, roundID1, roundID2, schema1, schema2, measurements):
-        radioFrequency1, performance1 = self.__getResultRowsFromRound(roundID1, schema1, measurements)
-        radioFrequency2, performance2 = self.__getResultRowsFromRound(roundID2, schema2, measurements)
+        radioFrequency1, performance1 = self.getResultRowsFromRound(roundID1, schema1, measurements)
+        radioFrequency2, performance2 = self.getResultRowsFromRound(roundID2, schema2, measurements)
 
         radioFrequencyDiff = self.__getDiff(radioFrequency1, radioFrequency2)
         performanceDiff = self.__getDiff(performance1, performance2)
