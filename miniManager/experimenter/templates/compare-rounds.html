@@ -2,7 +2,6 @@
 {% load static %}
 
 {% block head %}
-  <link rel="stylesheet" href="{% static 'table.css' %}">
   <link rel="stylesheet" href="{% static 'compare-rounds.css' %}">
 {% endblock %}
 
@@ -10,48 +9,10 @@
   <h1>Comparação de Rodadas</h1>
   <div class="diff-content">
     <div class="table-content">
-      <table class="styled-table">
-        <thead>
-            <tr>
-              <th>diff</th>
-              {% for title in radioFrequencyTitles %}
-                <th>{{ title }}</th>
-              {% endfor %}
-            </tr>
-        </thead>
-        <tbody id="radio-frequency-table-content">
-          {% for row in radioFrequency %}
-            <tr class="{{row.type | type_style}}">
-              <td>{{row.type | type_signal}}</td>
-              {% for col in row.value %}
-                <td>{{ col }}</td>
-              {% endfor %}
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+      {% include "result-table.html" with name="radioFrequency" titles=radioFrequencyTitles rows=radioFrequency only %}
     </div>
     <div class="table-content">
-      <table class="styled-table">
-        <thead>
-            <tr>
-              <th>diff</th>
-              {% for title in performanceTitles %}
-                <th>{{ title }}</th>
-              {% endfor %}
-            </tr>
-        </thead>
-        <tbody id="radio-frequency-table-content">
-          {% for row in performance %}
-            <tr class="{{row.type | type_style}}">
-              <td>{{row.type | type_signal}}</td>
-              {% for col in row.value %}
-                <td>{{ col }}</td>
-              {% endfor %}
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+      {% include "result-table.html" with name="performance" titles=performanceTitles rows=performance only %}
     </div>
   </div>
 {% endblock %}

@@ -1,12 +1,3 @@
-def myFunc1(e):
-    return int(e[0])
-
-def myFunc2(e):
-    return e[1]
-
-def myFunc(e):
-    return (int(e[0]), e[1])
-
 class ProvenanceService():
     def getResultContentFromRound(self, roundID, schema):
         from .models import Result
@@ -18,9 +9,7 @@ class ProvenanceService():
         except:
             return [], []
 
-        
-
-    def getResultRowsFromRound(self, roundID, schema, radioFrequencyMeasures):
+    def __getResultRowsFromRound(self, roundID, schema, radioFrequencyMeasures):
         PERFORMANCE_KEYS = ["time", "source", "destination", "name", "value"]
         radioFrequencyObj, performanceObj = self.getResultContentFromRound(roundID, schema)
 
@@ -38,8 +27,7 @@ class ProvenanceService():
                     row.append(value)
                 
                 radioFrequency.append(row)
-        radioFrequency.sort(key=myFunc)
-
+        radioFrequency.sort(key=lambda row:(int(row[0]), row[1]))
         
         performance = []
         for resultInstance in performanceObj:
@@ -49,7 +37,7 @@ class ProvenanceService():
 
             performance.append(row)
 
-        performance.sort(key=myFunc)
+        performance.sort(key=lambda row:(int(row[0]), row[1]))
 
         return radioFrequency, performance
 
@@ -63,19 +51,19 @@ class ProvenanceService():
 
         return enc + result.xml_content
 
-    def isGreaterThan(self, e1, e2):
-        if myFunc1(e1) == myFunc1(e2):
-            return myFunc2(e1) > myFunc2(e2)
+    def __isGreaterThan(self, row1, row2):
+        if int(row1[0]) == int(row2[0]):
+            return row1[0] > row2[0]
 
-        return myFunc1(e1) > myFunc1(e2)
+        return int(row1[0]) > int(row2[0])
 
-    def isEqual(self, e1, e2):
-        if myFunc1(e1) == myFunc1(e2):
-            return myFunc2(e1) == myFunc2(e2)
+    def __isEqual(self, row1, row2):
+        if int(row1[0]) == int(row2[0]):
+            return row1[1] == row2[1]
 
         return False
 
-    def getDiff(self, radioFrequency1, radioFrequency2):
+    def __getDiff(self, radioFrequency1, radioFrequency2):
         len1 = len(radioFrequency1)
         len2 = len(radioFrequency2)
 
@@ -90,19 +78,19 @@ class ProvenanceService():
                 index2 = index2 + 1
                 continue
 
-            if self.isEqual(radioFrequency1[index1], radioFrequency2[index2]):
+            if self.__isEqual(radioFrequency1[index1], radioFrequency2[index2]):
                 diff.append({"type": "REMOVE", "value": radioFrequency1[index1]})
                 diff.append({"type": "ADD", "value": radioFrequency2[index2]})
                 index1 = index1 + 1
                 index2 = index2 + 1
                 continue
 
-            if self.isGreaterThan(radioFrequency1[index1], radioFrequency2[index2]):
+            if self.__isGreaterThan(radioFrequency1[index1], radioFrequency2[index2]):
                 diff.append({"type": "ADD", "value": radioFrequency2[index2]})
                 index2 = index2 + 1
                 continue
 
-            if self.isGreaterThan(radioFrequency2[index2], radioFrequency1[index1]):
+            if self.__isGreaterThan(radioFrequency2[index2], radioFrequency1[index1]):
                 diff.append({"type": "REMOVE", "value": radioFrequency1[index1]})
                 index1 = index1 + 1
                 continue
@@ -117,13 +105,11 @@ class ProvenanceService():
 
         return diff
 
-
-
     def diffResults(self, roundID1, roundID2, schema1, schema2, measurements):
-        radioFrequency1, performance1 = self.getResultRowsFromRound(roundID1, schema1, measurements)
-        radioFrequency2, performance2 = self.getResultRowsFromRound(roundID2, schema2, measurements)
+        radioFrequency1, performance1 = self.__getResultRowsFromRound(roundID1, schema1, measurements)
+        radioFrequency2, performance2 = self.__getResultRowsFromRound(roundID2, schema2, measurements)
 
-        diff1 = self.getDiff(radioFrequency1, radioFrequency2)
-        diff2 = self.getDiff(performance1, performance2)
+        radioFrequencyDiff = self.__getDiff(radioFrequency1, radioFrequency2)
+        performanceDiff = self.__getDiff(performance1, performance2)
 
-        return diff1, diff2
+        return radioFrequencyDiff, performanceDiff
