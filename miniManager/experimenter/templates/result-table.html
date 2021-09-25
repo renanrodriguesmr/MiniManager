@@ -7,6 +7,9 @@
 <table class="styled-table">
     <thead>
         <tr>
+          {% if isDiff %}
+            <th>diff</th>
+          {% endif %}
           {% for title in titles %}
             <th>{{ title }}</th>
           {% endfor %}
@@ -14,8 +17,11 @@
     </thead>
     <tbody id="{{name}}-table-content">
       {% for row in rows %}
-        <tr>
-          {% for col in row %}
+        <tr class="{{row.type | type_style}}">
+          {% if isDiff %}
+            <td>{{row.type | type_signal}}</td>  
+          {% endif %}
+          {% for col in row.value %}
             <td>{{ col }}</td>
           {% endfor %}
         </tr>

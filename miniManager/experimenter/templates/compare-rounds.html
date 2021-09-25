@@ -9,10 +9,10 @@
   <h1>Comparação de Rodadas</h1>
   <div class="diff-content">
     <div class="table-content">
-      {% include "result-table-diff.html" with name="radioFrequency" titles=radioFrequencyTitles rows=radioFrequency only %}
+      {% include "result-table.html" with name="radioFrequency" titles=radioFrequencyTitles rows=radioFrequency isDiff=True only %}
     </div>
     <div class="table-content">
-      {% include "result-table-diff.html" with name="performance" titles=performanceTitles rows=performance only %}
+      {% include "result-table.html" with name="performance" titles=performanceTitles rows=performance isDiff=True only %}
     </div>
   </div>
 {% endblock %}

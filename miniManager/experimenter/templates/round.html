@@ -31,7 +31,7 @@
         <canvas class="chart" id="myChart"></canvas>
       </div>
       <div class="performance-table">
-        {% include "result-table.html" with name="performance" titles=performanceTitles rows=performance only %}
+        {% include "result-table.html" with name="performance" titles=performanceTitles rows=performance isDiff=True only %}
       </div>
     </div>
   </div>

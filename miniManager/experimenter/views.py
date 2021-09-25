@@ -145,6 +145,9 @@ def round_message(status):
 
 @register.filter(name='type_signal')
 def round_message(status):
+    if not status:
+        return ""
+
     TYPE_TO_SIGNAL = {
       "KEEP": "",
       "ADD": "+",
@@ -155,6 +158,10 @@ def round_message(status):
 
 @register.filter(name='type_style')
 def round_message(status):
+    if not status:
+        return ""
+
+
     TYPE_TO_SIGNAL = {
       "KEEP": "",
       "ADD": "add-row",

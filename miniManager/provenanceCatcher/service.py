@@ -26,8 +26,8 @@ class ProvenanceService():
 
                     row.append(value)
                 
-                radioFrequency.append(row)
-        radioFrequency.sort(key=lambda row:(int(row[0]), row[1]))
+                radioFrequency.append({"value": row})
+        radioFrequency.sort(key=lambda row:(int(row["value"][0]), row["value"][1]))
         
         performance = []
         for resultInstance in performanceObj:
@@ -35,9 +35,8 @@ class ProvenanceService():
             for key in PERFORMANCE_KEYS:
                 row.append(resultInstance[key])
 
-            performance.append(row)
-
-        performance.sort(key=lambda row:(int(row[0]), row[1]))
+            performance.append({"value": row})
+        performance.sort(key=lambda row:(int(row["value"][0]), row["value"][1]))
 
         return radioFrequency, performance
 
@@ -63,44 +62,44 @@ class ProvenanceService():
 
         return False
 
-    def __getDiff(self, radioFrequency1, radioFrequency2):
-        len1 = len(radioFrequency1)
-        len2 = len(radioFrequency2)
+    def __getDiff(self, rows1, rows2):
+        len1 = len(rows1)
+        len2 = len(rows2)
 
         index1 = 0
         index2 = 0
 
         diff = []
         while index1 < len1 and index2 < len2:
-            if radioFrequency1[index1] == radioFrequency2[index2]:
-                diff.append({"type": "KEEP", "value": radioFrequency1[index1]})
+            if rows1[index1]["value"] == rows2[index2]["value"]:
+                diff.append({"type": "KEEP", "value": rows1[index1]["value"]})
                 index1 = index1 + 1
                 index2 = index2 + 1
                 continue
 
-            if self.__isEqual(radioFrequency1[index1], radioFrequency2[index2]):
-                diff.append({"type": "REMOVE", "value": radioFrequency1[index1]})
-                diff.append({"type": "ADD", "value": radioFrequency2[index2]})
+            if self.__isEqual(rows1[index1]["value"], rows2[index2]["value"]):
+                diff.append({"type": "REMOVE", "value": rows1[index1]["value"]})
+                diff.append({"type": "ADD", "value": rows2[index2]["value"]})
                 index1 = index1 + 1
                 index2 = index2 + 1
                 continue
 
-            if self.__isGreaterThan(radioFrequency1[index1], radioFrequency2[index2]):
-                diff.append({"type": "ADD", "value": radioFrequency2[index2]})
+            if self.__isGreaterThan(rows1[index1]["value"], rows2[index2]["value"]):
+                diff.append({"type": "ADD", "value": rows2[index2]["value"]})
                 index2 = index2 + 1
                 continue
 
-            if self.__isGreaterThan(radioFrequency2[index2], radioFrequency1[index1]):
-                diff.append({"type": "REMOVE", "value": radioFrequency1[index1]})
+            if self.__isGreaterThan(rows2[index2]["value"], rows1[index1]["value"]):
+                diff.append({"type": "REMOVE", "value": rows1[index1]["value"]})
                 index1 = index1 + 1
                 continue
 
         while index1 < len1:
-            diff.append({"type": "REMOVE", "value": radioFrequency1[index1]})
+            diff.append({"type": "REMOVE", "value": rows1[index1]["value"]})
             index1 = index1 + 1
 
         while index2 < len2:
-            diff.append({"type": "ADD", "value": radioFrequency2[index2]})
+            diff.append({"type": "ADD", "value": rows2[index2]["value"]})
             index2 = index2 + 1
 
         return diff
