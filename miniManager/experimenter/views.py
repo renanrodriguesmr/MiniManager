@@ -11,6 +11,7 @@ from provenanceCatcher import ProvenanceService
 from .listener import ExperimentListener
 from .experimentsQueue import ExperimentsQueue
 from .models import Round
+from .constants import ExperimenterConstants
 
 class VersionView(View):
     def get(self, request):
@@ -29,7 +30,7 @@ class RoundView(View):
         configuration = mockedConfiguration.getConfiguration()
         radioFrequencyMeasurements, _ = self.__getMeasurements(configuration)
         args["radioFrequencyTitles"] = radioFrequencyMeasurements
-        args["performanceTitles"] = ["time", "source", "destination", "name", "value"]
+        args["performanceTitles"] = ExperimenterConstants.PERFORMANCE_TITLES
 
         if round.status == Round.DONE:
             args['radioFrequency'], args['performance'] = ProvenanceService().getResultRowsFromRound(round.id, configuration.medicao_schema, radioFrequencyMeasurements)
@@ -96,20 +97,34 @@ class ExportRoundView(View):
 
 class CompareRoundsView(View):
     def get(self, request):
-        args = {}
         roundID1 = request.GET.get('round1')
         roundID2 = request.GET.get('round2')
+        round1 = Round.objects.get(id=roundID1)
+        round2 = Round.objects.get(id=roundID2)
+        args = {"round1": round1.name, "round2": round2.name, "hasError": False}
+
+        isRoundsDone = round1.isDone() and round2.isDone()
+        if not isRoundsDone:
+            args["hasError"] = True
+            args["errorMessage"] = ExperimenterConstants.ROUND_NOT_DONE_ERROR
+            return render(request, 'compare-rounds.html', args)
+            
 
         mockedConfiguration = MockedConfiguration()
         configuration = mockedConfiguration.getConfiguration()
         radioFrequencyMeasurements, _ = self.__getMeasurements(configuration)
-
-        service = ProvenanceService()
-        args["radioFrequency"], args["performance"] = service.diffResults(roundID1, roundID2, configuration.medicao_schema, configuration.medicao_schema, radioFrequencyMeasurements)
         args["radioFrequencyTitles"] = radioFrequencyMeasurements
-        args["performanceTitles"] = ["time", "source", "destination", "name", "value"]
+        args["performanceTitles"] = ExperimenterConstants.PERFORMANCE_TITLES
 
-        return render(request, 'compare-rounds.html', args)
+        try:
+            service = ProvenanceService()
+            diffResults = service.diffResults(roundID1, roundID2, configuration.medicao_schema, configuration.medicao_schema, radioFrequencyMeasurements)
+            args["radioFrequency"], args["performance"] = diffResults
+        except:
+            args["hasError"] = True
+            args["errorMessage"] = ExperimenterConstants.COMPARE_ROUNDS_ERROR
+        finally:
+            return render(request, 'compare-rounds.html', args)
 
     def __getMeasurements(self, configuration):
         #TODO: fix it
@@ -162,10 +177,10 @@ def round_message(status):
         return ""
 
 
-    TYPE_TO_SIGNAL = {
+    TYPE_TO_STYLE = {
       "KEEP": "",
       "ADD": "add-row",
       "REMOVE": "removed-row"
     }
 
-    return TYPE_TO_SIGNAL[status]
+    return TYPE_TO_STYLE[status]
