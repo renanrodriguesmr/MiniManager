@@ -22,3 +22,6 @@ class Round(models.Model):
         if self.status == self.DONE and self.old_status != self.DONE:
             self.end = now()
         super().save(*args, **kwargs)
+
+    def isDone(self):
+        return self.status == self.DONE

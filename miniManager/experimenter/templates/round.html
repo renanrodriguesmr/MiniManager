@@ -23,30 +23,7 @@
     <div class="round-result">
       <div id="status-bar" class="alert alert-primary" role="alert">Carregando...</div>
       <div class="result">
-        <table class="radio-frequency-table styled-table">
-          <thead>
-              <tr>
-                  {% for measurement in radioFrequencyMeasurements %}
-                  <th>{{ measurement }}</th>
-                  {% endfor %}
-              </tr>
-          </thead>
-          <tbody id="radio-frequency-table-content">
-            {% for resultInstance in radioFrequency %}
-              {% for result in resultInstance.station %}
-                <tr>
-                  {% for measurement in radioFrequencyMeasurements %}
-                    {% if measurement == "time" %}
-                      <td>{{ resultInstance.time }}</td>
-                    {% else %}
-                      <td>{{ result|dict_key:measurement }}</td>
-                    {% endif %}
-                  {% endfor %}
-                </tr>
-              {% endfor %}
-            {% endfor %}
-          </tbody>
-        </table>
+        {% include "result-table.html" with name="radioFrequency" titles=radioFrequencyTitles rows=radioFrequency only %}
       </div>
     </div>
     <div class="round-graph">
@@ -54,28 +31,7 @@
         <canvas class="chart" id="myChart"></canvas>
       </div>
       <div class="performance-table">
-        <table class="styled-table">
-          <thead>
-            <tr>
-              <th>time</th>
-              <th>source</th>
-              <th>destination</th>
-              <th>name</th>
-              <th>value</th>
-            </tr>
-          </thead>
-          <tbody id="performance-table-content">
-            {% for resultInstance in performance %}
-              <tr>
-                <td>{{ resultInstance.time }}</td>
-                <td>{{ resultInstance.source }}</td>
-                <td>{{ resultInstance.destination }}</td>
-                <td>{{ resultInstance.name }}</td>
-                <td>{{ resultInstance.value }}</td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+        {% include "result-table.html" with name="performance" titles=performanceTitles rows=performance isDiff=True only %}
       </div>
     </div>
   </div>
@@ -222,7 +178,7 @@
           values.push(value);
         }
 
-        addElementToTable(values, "radio-frequency-table-content");
+        addElementToTable(values, "radioFrequency-table-content");
       }
     }
 
@@ -275,7 +231,7 @@
     );
 
     // process measurements
-    const measurementsArray = {{ radioFrequencyMeasurements | safe }};
+    const measurementsArray = {{ radioFrequencyTitles | safe }};
 
     if(roundStatus != STATUS.DONE){
       openWSConnection(roundID);
