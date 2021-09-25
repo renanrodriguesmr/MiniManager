@@ -13,12 +13,12 @@ from .experimentsQueue import ExperimentsQueue
 from .models import Round
 from .constants import ExperimenterConstants
 
-class VersionView(View):
+class RoundsView(View):
     def get(self, request):
         rounds = Round.objects.order_by('-start')
         args = {}
         args['rounds'] = rounds
-        return render(request, 'version.html', args)
+        return render(request, 'versions.html', args)
 
 class RoundView(View):
     def get(self, request, round_id):

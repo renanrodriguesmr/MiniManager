@@ -28,3 +28,7 @@ class ParametersView(View):
 
         url = reverse('configuration')
         return HttpResponseRedirect(url)
+
+class VersionView(View):
+    def get(self, request):
+        return render(request, 'version.html')
