@@ -3,15 +3,18 @@ from django.views import View
 from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse
 
-from .models import Configuration, Measure, Measurement
+from .models import Configuration, Measure, Measurement, PModelCatalog
 
-# Create your views here.
-class ParametersView(View):
-    def get(self, request):
+class ConfigurationView(View):
+    def get(self,request):
+        args={}
+        pmodels = PModelCatalog.objects.all()
+        args['pmodels'] = pmodels
+
         measures = Measure.objects.all()
-        args = {}
         args['measures'] = measures
-        return render(request, 'parameters.html', args)
+
+        return render(request, 'configuration.html', args)
 
     def post(self, request):
         conf = Configuration(medicao_schema='xml_schema')
@@ -28,3 +31,6 @@ class ParametersView(View):
 
         url = reverse('configuration')
         return HttpResponseRedirect(url)
+
+
+
