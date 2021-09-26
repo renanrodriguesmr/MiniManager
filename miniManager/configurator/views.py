@@ -39,8 +39,7 @@ class VersionView(View):
         versionName = request.POST.get('version_name')
         testPlanID = request.POST.get('test-plan')
 
-        if Version.objects.filter(name=versionName).exists():
-            #TODO: fix it
+        if Version.objects.filter(name=versionName, test_plan_id=testPlanID).exists():
             testPlan = TestPlan.objects.get(id=testPlanID)
             args = {"error": True, "errorMessage": "Já existe uma versão com esse nome", "testPlan": testPlan}
             return render(request, 'version.html', args)
