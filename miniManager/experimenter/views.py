@@ -7,24 +7,25 @@ from django.template.defaultfilters import register
 from mininetWifiAdapter import MininetWifiExp, ResultNotifier
 from experimentsConfigurator import MockedConfiguration
 from provenanceCatcher import ProvenanceService
+from configurator import ConfiguratorService
 
 from .listener import ExperimentListener
 from .experimentsQueue import ExperimentsQueue
 from .models import Round
 from .constants import ExperimenterConstants
 
-class VersionView(View):
-    def get(self, request):
-        rounds = Round.objects.order_by('-start')
+class RoundsView(View):
+    def get(self, request, version_id):
         args = {}
-        args['rounds'] = rounds
-        return render(request, 'version.html', args)
+        args['version'] = ConfiguratorService().getVersionByID(version_id)
+        args['rounds'] = Round.objects.filter(version_id=version_id).order_by('-start')
+        return render(request, 'rounds.html', args)
 
 class RoundView(View):
     def get(self, request, round_id):
         args = {}
         round = Round.objects.get(id=round_id)
-        args['round'] = { "name": round.name, "id": round.id, "status": round.status }
+        args['round'] = round
 
         mockedConfiguration = MockedConfiguration()
         configuration = mockedConfiguration.getConfiguration()
@@ -38,11 +39,12 @@ class RoundView(View):
         return render(request, 'round.html', args)
 
     def post(self, request):
-        version = request.POST.get('version')
-        total = Round.objects.count() #TODO: filter by version
-        name = "{} - rodada {}".format(version, total + 1)
-        
-        round = Round(name=name)
+        versionID = request.POST.get('version')
+        version = ConfiguratorService().getVersionByID(versionID)
+
+        total = Round.objects.filter(version_id=versionID).count()
+        name = "{} - rodada {}".format(version.name, total + 1)        
+        round = Round(name=name, version_id = versionID)
         round.save()
 
         mockedConfiguration = MockedConfiguration()
@@ -84,7 +86,9 @@ class FinishRoundView(View):
         queue = ExperimentsQueue.instance()
         queue.finishExperiment(roundID)
         
-        return HttpResponseRedirect(reverse('version'))
+        round = Round.objects.get(id=roundID)
+        url = reverse('rounds', kwargs={ 'version_id': round.version_id })
+        return HttpResponseRedirect(url)
 
 class ExportRoundView(View):
     def get(self, request, round_id):

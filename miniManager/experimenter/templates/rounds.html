@@ -2,16 +2,16 @@
 {% load static %}
 
 {% block head %}
-  <link rel="stylesheet" href="{% static 'version.css' %}">
-  <link rel="stylesheet" href="{% static 'table.css' %}">
+  <link rel="stylesheet" href="{% static 'versions.css' %}">
+  <link rel="stylesheet" href="{% static 'css/table.css' %}">
 {% endblock %}
 
 {% block content %}
-  <h1>Versão 1</h1>
+  <h1>{{ version.name }}</h1>
   <div class="action-buttons">
-    <form action="/rounds/" method="post">
+    <form action="/round/" method="post">
       {% csrf_token %}
-      <button type="sumbit" class="execute btn btn-primary" name="version" value="versao 1">Executar</button>
+      <button type="sumbit" class="execute btn btn-primary" name="version" value="{{ version.id }}">Executar</button>
     </form>
     <button type="button" class="btn btn-primary">Comparar Rodadas</button>
   </div>

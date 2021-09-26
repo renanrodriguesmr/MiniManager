@@ -3,14 +3,14 @@
 
 {% block head %}
   <link rel="stylesheet" href="{% static 'round.css' %}">
-  <link rel="stylesheet" href="{% static 'table.css' %}">
+  <link rel="stylesheet" href="{% static 'css/table.css' %}">
 {% endblock %}
 
 {% block content %}
   <h1>{{ round.name }}</h1>
   <div class="action-buttons">
-    <form action="/version" method="get">
-      <button href="/version" class="btn btn-primary">Voltar</button>
+    <form action="/rounds/{{round.version_id}}" method="get">
+      <button class="btn btn-primary">Voltar</button>
     </form>
     {% if round.status != "DONE" %}
       <form action="/finish-round" method="post">
@@ -23,7 +23,7 @@
     <div class="round-result">
       <div id="status-bar" class="alert alert-primary" role="alert">Carregando...</div>
       <div class="result">
-        {% include "result-table.html" with name="radioFrequency" titles=radioFrequencyTitles rows=radioFrequency only %}
+        {% include "result-table.html" with name="radioFrequency" titles=radioFrequencyTitles rows=radioFrequency isDiff=False only %}
       </div>
     </div>
     <div class="round-graph">
@@ -31,7 +31,7 @@
         <canvas class="chart" id="myChart"></canvas>
       </div>
       <div class="performance-table">
-        {% include "result-table.html" with name="performance" titles=performanceTitles rows=performance isDiff=True only %}
+        {% include "result-table.html" with name="performance" titles=performanceTitles rows=performance isDiff=False only %}
       </div>
     </div>
   </div>
