@@ -31,14 +31,22 @@ class ParametersView(View):
 
 class VersionView(View):
     def get(self, request):
-        return render(request, 'version.html')
+        args = {"error": False, "errorMessage": ""}
+        return render(request, 'version.html', args)
 
     def post(self, request):
         versionName = request.POST.get('version_name')
+
+        if Version.objects.filter(name=versionName).exists():
+            args = {"error": True, "errorMessage": "Já existe uma versão com esse nome"}
+            return render(request, 'version.html', args)
+            
+
         version = Version(name=versionName)
         version.save()
 
-        return render(request, 'version.html')
+        url = reverse('versions')
+        return HttpResponseRedirect(url)
 
 class VersionsView(View):
     def get(self, request):

@@ -18,5 +18,8 @@
         <button type="submit" class="btn btn-primary">Submit</button>
       </div>
     </div>
+    {% if error %}
+      <div id="status-bar" class="alert alert-primary" role="alert">{{ errorMessage }}</div>
+    {% endif %}
   </form>
 {% endblock %}
