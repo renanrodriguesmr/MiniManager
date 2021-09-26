@@ -3,7 +3,7 @@ from django.views import View
 from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse
 
-from .models import Configuration, Measure, Measurement, Version
+from .models import Configuration, Measure, Measurement, Version, TestPlan
 
 # Create your views here.
 class ParametersView(View):
@@ -53,3 +53,29 @@ class VersionsView(View):
         versions = Version.objects.all()
         args = {"versions": versions}
         return render(request, 'versions.html', args)
+
+
+class TestPlanView(View):
+    def get(self, request):
+        args = {"error": False, "errorMessage": ""}
+        return render(request, 'test-plan.html', args)
+
+    def post(self, request):
+        testPlanName = request.POST.get('test-plan_name')
+
+        if TestPlan.objects.filter(name=testPlanName).exists():
+            args = {"error": True, "errorMessage": "Já existe um plano de teste com esse nome"}
+            return render(request, 'test-plan.html', args)
+
+        testPlan = TestPlan(name=testPlanName)
+        testPlan.save()
+
+        url = reverse('test-plans')
+        return HttpResponseRedirect(url)
+
+
+class TestPlansView(View):
+    def get(self, request):
+        testPlans = TestPlan.objects.all()
+        args = {"testPlans": testPlans}
+        return render(request, 'test-plans.html', args)
