@@ -43,5 +43,5 @@ class VersionView(View):
 class VersionsView(View):
     def get(self, request):
         versions = Version.objects.all()
-        print(versions)
-        return render(request, 'version.html')
+        args = {"versions": versions}
+        return render(request, 'versions.html', args)

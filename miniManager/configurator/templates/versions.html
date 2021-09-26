@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static 'version.css' %}">
+  <link rel="stylesheet" href="{% static 'css/table.css' %}">
+{% endblock %}
+
+{% block content %}
+  <h1>Versões do Plano de Teste 1</h1>
+  <table class="styled-table">
+    <thead>
+        <tr>
+            <th>Nome</th>
+            <th>Criado em</th>
+            <th>Atualizado em</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody id="styled-table-content">
+      {% for version in versions %}
+      <tr>
+        <td>{{ version.name }}</td>
+        <td>{{ version.created_at|date:"d/m/Y" }} - {{ version.created_at|time:"h:i:s" }}</td>
+        <td>{{ version.updated_at|date:"d/m/Y" }} - {{ version.updated_at|time:"h:i:s" }}</td>
+        <td><a href="/rounds/{{version.id}}">OPEN</a> <a href="/export-version/{{version.id}}">EXPORT</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

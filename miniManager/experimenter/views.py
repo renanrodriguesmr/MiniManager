@@ -18,7 +18,7 @@ class RoundsView(View):
         rounds = Round.objects.order_by('-start')
         args = {}
         args['rounds'] = rounds
-        return render(request, 'versions.html', args)
+        return render(request, 'rounds.html', args)
 
 class RoundView(View):
     def get(self, request, round_id):
