@@ -1,0 +1,59 @@
+<h3>Modelo de mobilidade</h3>
+  {% csrf_token %}
+<div class="form-group">
+  <label for="mobilityModel">Selecione o Modelo de mobilidade</label>
+  <select class="form-control" onchange="onmobilityModelSelect(this)" name="mobilitymodel" id="mobilityModel">
+    {% for model in mmodels %}
+    <option value="{{model.name}}">{{model.displayname}}</option>
+    {% endfor %}
+  </select>
+</div>
+<div id="randomdirection"  class="hidde-element form-group" style="display: none;">
+  <div class="form-group">
+    <label for="ifprop">Seed</label>
+    <input type="text" class="form-control" id="ifprop">
+    <label for="ifprop">min_velocidade</label>
+    <input type="text" class="form-control" id="ifprop">
+    <label for="ifprop">max_velocidade</label>
+    <input type="text" class="form-control" id="ifprop">
+    <label for="ifprop">min_x</label>
+    <input type="text" class="form-control" id="ifprop">
+    <label for="ifprop">max_x</label>
+    <input type="text" class="form-control" id="ifprop">
+    <label for="ifprop">min_y</label>
+    <input type="text" class="form-control" id="ifprop">
+    <label for="ifprop">max_y</label>
+    <input type="text" class="form-control" id="ifprop">
+    <label for="ifprop">min_z</label>
+    <input type="text" class="form-control" id="ifprop">
+    <label for="ifprop">max_z</label>
+    <input type="text" class="form-control" id="ifprop">
+  </div>
+</div>
+<div id="model-not-supported" class="hidde-element alert alert-primary" role="alert">Modelo de Propagação ainda não suportado</div>
+
+
+<script>
+
+var currentmobilityModelName = "randomDirection";
+changemobilityModelForm(currentmobilityModelName);
+
+function onmobilityModelSelect(selectSrc) {
+  let mobilityModelName = selectSrc.value;
+  changemobilityModelForm(mobilityModelName);
+  currentmobilityModelName = mobilityModelName;
+}
+
+
+function changemobilityModelForm(newmobilityModel) {
+  document.getElementById(currentmobilityModelName).style.display = "none";
+
+  let newElement = document.getElementById(newmobilityModel);
+  if(!newElement){
+    newElement = document.getElementById("model-not-supported");
+  }
+
+  newElement.style.display = "inline-block";
+}
+
+</script>

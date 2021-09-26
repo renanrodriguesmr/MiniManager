@@ -16,3 +16,9 @@ admin.site.register(PropagationModel)
 admin.site.register(PModelCatalog)
 
 admin.site.register(PropagationParam)
+
+admin.site.register(MobilityModel)
+
+admin.site.register(MModelCatalog)
+
+admin.site.register(MobilityParam)
