@@ -7,6 +7,7 @@ from django.template.defaultfilters import register
 from mininetWifiAdapter import MininetWifiExp, ResultNotifier
 from experimentsConfigurator import MockedConfiguration
 from provenanceCatcher import ProvenanceService
+from configurator import ConfiguratorService
 
 from .listener import ExperimentListener
 from .experimentsQueue import ExperimentsQueue
@@ -14,17 +15,17 @@ from .models import Round
 from .constants import ExperimenterConstants
 
 class RoundsView(View):
-    def get(self, request):
-        rounds = Round.objects.order_by('-start')
+    def get(self, request, version_id):
         args = {}
-        args['rounds'] = rounds
+        args['version'] = ConfiguratorService().getVersionByID(version_id)
+        args['rounds'] = Round.objects.filter(version_id=version_id).order_by('-start')
         return render(request, 'rounds.html', args)
 
 class RoundView(View):
     def get(self, request, round_id):
         args = {}
         round = Round.objects.get(id=round_id)
-        args['round'] = { "name": round.name, "id": round.id, "status": round.status }
+        args['round'] = round
 
         mockedConfiguration = MockedConfiguration()
         configuration = mockedConfiguration.getConfiguration()
@@ -42,7 +43,7 @@ class RoundView(View):
         total = Round.objects.count() #TODO: filter by version
         name = "{} - rodada {}".format(version, total + 1)
         
-        round = Round(name=name)
+        round = Round(name=name, version_id = version)
         round.save()
 
         mockedConfiguration = MockedConfiguration()
@@ -84,7 +85,10 @@ class FinishRoundView(View):
         queue = ExperimentsQueue.instance()
         queue.finishExperiment(roundID)
         
-        return HttpResponseRedirect(reverse('version'))
+        round = Round.objects.get(id=roundID)
+        route = "/rounds/{}".format(round.version_id)
+        
+        return HttpResponseRedirect(route)
 
 class ExportRoundView(View):
     def get(self, request, round_id):

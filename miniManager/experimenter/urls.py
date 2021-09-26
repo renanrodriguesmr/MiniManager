@@ -3,8 +3,9 @@ from .webSocketServer import WebSocketServer
 from .views import RoundsView, RoundView, FinishRoundView, ExportRoundView, CompareRoundsView
 
 urlpatterns = [
-    path('rounds/', RoundsView.as_view(), name='rounds'),
+    path('rounds/<version_id>', RoundsView.as_view(), name='rounds'),
     path('round/<round_id>', RoundView.as_view(), name='round'),
+    path('round/', RoundView.as_view(), name='round'),
     path('export-round/<round_id>', ExportRoundView.as_view()),
     path('compare-rounds/', CompareRoundsView.as_view()),
     path('finish-round', FinishRoundView.as_view()),
