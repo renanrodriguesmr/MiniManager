@@ -39,11 +39,12 @@ class RoundView(View):
         return render(request, 'round.html', args)
 
     def post(self, request):
-        version = request.POST.get('version')
-        total = Round.objects.count() #TODO: filter by version
-        name = "{} - rodada {}".format(version, total + 1)
-        
-        round = Round(name=name, version_id = version)
+        versionID = request.POST.get('version')
+        version = ConfiguratorService().getVersionByID(versionID)
+
+        total = Round.objects.filter(version_id=versionID).count()
+        name = "{} - rodada {}".format(version.name, total + 1)        
+        round = Round(name=name, version_id = versionID)
         round.save()
 
         mockedConfiguration = MockedConfiguration()
@@ -86,9 +87,8 @@ class FinishRoundView(View):
         queue.finishExperiment(roundID)
         
         round = Round.objects.get(id=roundID)
-        route = "/rounds/{}".format(round.version_id)
-        
-        return HttpResponseRedirect(route)
+        url = reverse('rounds', kwargs={ 'version_id': round.version_id })
+        return HttpResponseRedirect(url)
 
 class ExportRoundView(View):
     def get(self, request, round_id):
