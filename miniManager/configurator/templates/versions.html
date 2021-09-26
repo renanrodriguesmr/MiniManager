@@ -7,7 +7,13 @@
 {% endblock %}
 
 {% block content %}
-  <h1>Versões do Plano de Teste 1</h1>
+  <h1>Versões de {{ testPlan.name }}</h1>
+  <form action="/version/{{testPlan.id}}" method="get">
+    <button class="btn btn-primary">Criar Versão</button>
+  </form>
+  <form action="/test-plans/" method="get">
+    <button type="sumbit" class="execute btn btn-secondary" >Voltar para Plano de Testes</button>
+  </form>
   <table class="styled-table">
     <thead>
         <tr>

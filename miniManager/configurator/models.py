@@ -2,11 +2,20 @@ from django.db import models
 
 # Create your models here.
 
+class TestPlan(models.Model):
+    name = models.CharField(max_length=30)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "TestPlan"
+
 
 class Version(models.Model):
     name = models.CharField(max_length=30)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    test_plan = models.ForeignKey(TestPlan, models.CASCADE, blank=True, null=True, unique=False)
 
     class Meta:
         db_table = "Version"

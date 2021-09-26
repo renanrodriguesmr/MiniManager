@@ -6,13 +6,17 @@
 {% endblock %}
 
 {% block content %}
-  <h1>Criar Versão</h1>
+  <h1>Criar Versão para {{testPlan.name}}</h1>
+  <form action="/versions/{{testPlan.id}}" method="get">
+    <button class="btn btn-primary">Voltar para Versões</button>
+  </form>
   <form action="/version/" method="POST">
     {% csrf_token %}
     <div class="form-group row">
       <label for="version_name" class="form-label">Nome</label>
       <input type="text" class="form-control" id="version_name" name="version_name" placeholder="Versão 1">
     </div>
+    <input type="hidden" name="test-plan" value="{{testPlan.id}}">
     <div class="form-group row">
       <div class="col-sm-10">
         <button type="submit" class="btn btn-primary">Submit</button>

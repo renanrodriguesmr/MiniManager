@@ -13,7 +13,9 @@
       {% csrf_token %}
       <button type="sumbit" class="execute btn btn-primary" name="version" value="{{ version.id }}">Executar</button>
     </form>
-    <button type="button" class="btn btn-primary">Comparar Rodadas</button>
+    <form action="/versions/{{version.test_plan_id}}" method="get">
+      <button type="sumbit" class="execute btn btn-secondary" >Voltar para versões</button>
+    </form>
   </div>
   <table class="styled-table">
     <thead>
