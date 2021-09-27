@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static 'base.css' %}">
+  <link rel="stylesheet" href="{% static 'modelpropagation.css' %}">
+{% endblock %}
+
+{% block content %}
+  <h1>Configuração de Rede</h1>
+  <form action="/configuration/" method="post">
+    {% csrf_token %}
+    {% include "modelpropagation.html" with pmodels=pmodels only %}
+    {% include "modelmobility.html" with mmodels=mmodels only %}
+    {% include "measures.html" with measures=measures only %}
+    <div class="form-group row">
+        <div class="col-sm-10">
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+      </div>
+  </form>
+{% endblock %}
+
