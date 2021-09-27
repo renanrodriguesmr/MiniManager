@@ -3,7 +3,7 @@ from django.views import View
 from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse
 
-from .models import Configuration, MModelCatalog, Measure, Measurement, PModelCatalog, PropagationModel
+from .models import Configuration, MModelCatalog, Measure, Measurement, MobilityModel, MobilityParam, PModelCatalog, PropagationModel, PropagationParam
 
 class ConfigurationView(View):
     def get(self,request):
@@ -24,18 +24,41 @@ class ConfigurationView(View):
         paramlist = request.POST.getlist('radiofrequency')
 
         pmodelSelected = request.POST.get('propagationmodel')
+        mmodelSelected = request.POST.get('mobilitymodel')
         
         pmodel = PModelCatalog.objects.get(name=pmodelSelected)
+        pmodelName = str(pmodel.name)
+
+        mmodel=MModelCatalog.objects.get(name=mmodelSelected)
+        mmodelName=str(mmodel.name)
 
         propagationmodel = PropagationModel(model=pmodel)
+        mobilitymodel=MobilityModel(model=mmodel)
 
-        #propagationmodel.save()
+        propagationmodel.save()
+        mobilitymodel.save()
 
-        propagationparams = request.POST.get()
-        print(propagationparams)
+        propagationParamNames = request.POST.get(pmodelName+"attribute")
+        propagationParams = propagationParamNames.split(",")
 
-        conf = Configuration(medicao_schema='xml_schema', propagationmodel=propagationmodel)
-        #conf.save()
+        mobilityParamNames = request.POST.get(mmodelName+"attribute")
+        mobilityParams = mobilityParamNames.split(",")
+
+        for param in mobilityParams:
+            value=request.POST.get(param)
+            mobilityparam = MobilityParam(name=param, value=value, mobilitymodel=mobilitymodel)
+            print(mobilityparam.value)
+            mobilityparam.save()
+
+
+        
+        for param in propagationParams:
+            value = request.POST.get(param)
+            propagationparam = PropagationParam(name=param, value=value, propagationmodel=propagationmodel)
+            propagationparam.save()
+
+        conf = Configuration(medicao_schema='xml_schema', propagationmodel=propagationmodel, mobilitymodel=mobilitymodel)
+        conf.save()
 
 
         for param in paramlist:
