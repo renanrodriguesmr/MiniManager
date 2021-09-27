@@ -47,7 +47,6 @@ class ConfigurationView(View):
         for param in mobilityParams:
             value=request.POST.get(param)
             mobilityparam = MobilityParam(name=param, value=value, mobilitymodel=mobilitymodel)
-            print(mobilityparam.value)
             mobilityparam.save()
 
 
