@@ -67,7 +67,7 @@ class ConfigurationView(View):
 
             period=request.POST.get(measureName)
             measurement = Measurement(period=period, measure=measure, config=conf)
-            #measurement.save()
+            measurement.save()
 
         url = reverse('configuration')
         return HttpResponseRedirect(url)
