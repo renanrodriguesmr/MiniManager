@@ -11,6 +11,16 @@ class TestPlan(models.Model):
         db_table = "TestPlan"
 
 
+class Network(models.Model):
+    fixo = models.BooleanField()
+    
+    class Meta:
+        db_table="Network"
+
+#class NetworkController(models.Model): /vamos usar o Controller do mininet.node
+    #protocol = models.CharField(max_length=30)
+
+
 class Version(models.Model):
     name = models.CharField(max_length=30)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -52,6 +62,9 @@ class Configuration(models.Model):
     medicao_schema = models.TextField()
     propagationmodel = models.ForeignKey(PropagationModel, on_delete=models.CASCADE, null= True)
     mobilitymodel = models.ForeignKey(MobilityModel, on_delete = models.CASCADE, null=True)
+    start_time = models.FloatField(null=True)
+    stop_time = models.FloatField(null=True)
+    network = models.ForeignKey(Network, on_delete=models.CASCADE, null=True)
 
 
     class Meta:
@@ -94,8 +107,90 @@ class MobilityParam(models.Model):
 
 
 
+class Node(models.Model):
+    name = models.CharField(max_length=30)
+    fixo = models.BooleanField()
+    mac = models.CharField(max_length=30)
+    network = models.ForeignKey(Network, on_delete=models.CASCADE)
 
 
+    class Meta:
+        db_table = "Node"
+
+class Mobility(models.Model):
+    tempo = models.FloatField()
+    fixo = models.BooleanField()
+    x = models.FloatField()
+    y = models.FloatField()
+    z = models.FloatField()
+    node = models.ForeignKey(Node, on_delete=models.CASCADE)
+    class Meta:
+        db_table = "Mobility"
+
+class Position(models.Model):
+    x = models.FloatField()
+    y = models.FloatField()
+    z = models.FloatField()
+    node = models.ForeignKey(Node, on_delete=models.CASCADE)
+   
+    class Meta:
+        db_table = "Position"
+
+class Station(models.Model):
+    node = models.ForeignKey(Node, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = "Station"
+
+class Host(models.Model):
+    node = models.ForeignKey(Node, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = "Host"
+
+
+
+class Switch(models.Model):
+    type = models.CharField(max_length=30)
+    node = models.ForeignKey(Node,on_delete=models.CASCADE)
+    
+    class Meta:
+        db_table="Switch"
+
+
+
+
+
+class AccessPoint(models.Model):
+    ssid = models.CharField(max_length=30)
+    modo = models.CharField(max_length=30)
+    channel = models.CharField(max_length=30)
+    node = models.ForeignKey(Node,on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = "AccessPoint"
+
+class Interface(models.Model):
+    name = models.CharField(max_length=30)
+    fixo = models.BooleanField()
+    ip = models.CharField(max_length=30)
+    node = models.ForeignKey(Node, on_delete=models.CASCADE) 
+
+    class Meta:
+        db_table = "Interface"
+
+class Link(models.Model):
+    interface = models.ForeignKey(Interface, on_delete=models.CASCADE)
+    conexao = models.CharField(max_length=30)
+    fixo = models.BooleanField()
+    delay = models.CharField(max_length=30)
+    loss = models.CharField(max_length=30)
+    tamanho_maximo_fila = models.CharField(max_length=30)
+    jitter = models.CharField(max_length=30)
+    speedup = models.CharField(max_length=30)
+
+    class Meta:
+        db_table="Link"
 
 
 
