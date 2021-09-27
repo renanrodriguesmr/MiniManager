@@ -1,0 +1,44 @@
+<h3>Modelo de propagação</h3>
+<div class="form-group">
+  <label for="PropagationModel">Selecione o Modelo de propagação</label>
+  <select class="form-control" onchange="onPropagationModelSelect(this)" name="propagationmodel" id="PropagationModel">
+    {% for model in pmodels %}
+    <option value="{{model.name}}">{{model.displayname}}</option>
+    {% endfor %}
+  </select>
+</div>
+<div id="logDistance"  class="hidde-element form-group" style="display: none;">
+  <div class="form-group">
+    <input type="hidden" name="logDistanceattribute" value="exponent">
+    <label id="exponent" value="exponent" for="ifprop">Exponent</label>
+    <input type="number" name="exponent" class="form-control" id="ifprop">
+  </div>
+</div>
+<div id="friis"  class="hidde-element form-group" style="display: none;"></div>
+<div id="model-not-supported" class="hidde-element alert alert-primary" role="alert">Modelo de Propagação ainda não suportado</div>
+
+<script>
+
+var currentPropagationModelName = "logDistance";
+changePropagationModelForm(currentPropagationModelName);
+
+function onPropagationModelSelect(selectSrc) {
+  let propagationModelName = selectSrc.value;
+  changePropagationModelForm(propagationModelName);
+  currentPropagationModelName = propagationModelName;
+}
+
+
+function changePropagationModelForm(newPropagationModel) {
+  document.getElementById(currentPropagationModelName).style.display = "none";
+
+  let newElement = document.getElementById(newPropagationModel);
+  if(!newElement){
+    newElement = document.getElementById("model-not-supported");
+  }
+
+  newElement.style.display = "inline-block";
+}
+
+</script>
+

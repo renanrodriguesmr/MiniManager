@@ -1,0 +1,22 @@
+<h3>Parâmetros de medida</h3>
+<div class="form-group">
+  {% for measure in measures %}
+  <div class="row">
+    <div class="col-sm-2 form-check">
+      <input class="form-check-input" type="checkbox" name="radiofrequency" value="{{measure.name}}" id="{{measure.name}}">
+      <label class="form-check-label" for="defaultCheck1">
+        {{measure.name}}
+      </label>
+    </div>
+    <input type="number" class="col-sm-10 form-control" name = "{{measure.name}}" id="{{measure.name}}period" placeholder="Período {{measure.name}}" disabled>
+  </div>
+  {% endfor %}
+</div>
+
+<script>
+  {% for measure in measures %}
+    document.getElementById('{{measure.name}}').onchange = function() {
+      document.getElementById('{{measure.name}}period').disabled = !this.checked;
+    };
+  {% endfor %}
+</script>
