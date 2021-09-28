@@ -5,7 +5,6 @@ from django.urls import reverse
 from django.template.defaultfilters import register
 
 from mininetWifiAdapter import MininetWifiExp, ResultNotifier
-from experimentsConfigurator import MockedConfiguration
 from provenanceCatcher import ProvenanceService
 from configurator import ConfiguratorService
 
@@ -58,7 +57,11 @@ class RoundView(View):
         notifier = ResultNotifier()
         notifier.attach(experimentListener)
         
-        configurationObj = {"radioFrequencyMeasurements": configuration.getMeasurements(), "propagationModel": configuration.getPropagationModel()}
+        configurationObj = {
+            "radioFrequencyMeasurements": configuration.getMeasurements(), 
+            "propagationModel": configuration.getPropagationModel(),
+            "mobilityModel": configuration.getMobilityModel()
+        }
         
         mininetWifiExp = MininetWifiExp(notifier, configurationObj)
         queue = ExperimentsQueue.instance()

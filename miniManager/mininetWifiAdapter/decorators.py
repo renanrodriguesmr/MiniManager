@@ -64,9 +64,34 @@ class PropagationModelDecorator(MininetDecorator):
         self.__network.setPropagationModel(model=self.__propagationModel["model"], **self.__args)
 
 class MobilityModelDecorator(MininetDecorator):
-    def __init__(self, component):
+    ARGS_MAP = {
+        "seed": "seed",
+        "min_velocidade": "min_v",
+        "max_velocidade": "max_v",
+        "min_x": "min_x",
+        "max_x": "max_x",
+        "min_y": "min_y",
+        "max_y": "max_y",
+        "min_z": "min_z",
+        "max_z": "max_z",
+    }
+
+    def __init__(self, component, mobilityModel):
         self.__network = None
         self.__component = component
+        self.__mobilityModel = mobilityModel
+        
+        self.__args = {}
+        self.__parseArgs()
+
+    def __parseArgs(self):
+        self.__args = {}
+        for arg in self.__mobilityModel["args"]:
+            value = self.__mobilityModel["args"][arg]
+            if arg == "seed":
+                value = int(value)
+
+            self.__args[self.ARGS_MAP[arg]] = value
     
     def getNetwork(self):
         return self.__network
@@ -75,7 +100,7 @@ class MobilityModelDecorator(MininetDecorator):
         info("***Setting Mobility Model\n")
         self.__component.configure()
         self.__network = self.__component.getNetwork()
-        self.__network.setMobilityModel(time=0, model='RandomDirection',max_x=90, max_y=90, seed=20)
+        self.__network.setMobilityModel(time=0, model=self.__mobilityModel["model"], **self.__args)
 
 class NetworkStarterDecorator(MininetDecorator):
     def __init__(self, component):

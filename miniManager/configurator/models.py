@@ -75,6 +75,16 @@ class Configuration(models.Model):
 
         return {"model": propagationmodel.model.name, "args": args}
 
+    def getMobilityModel(self):
+        mobilitymodel = self.mobilitymodel
+        args = {}
+        params = MobilityParam.objects.filter(mobilitymodel_id = mobilitymodel.id)
+        for param in params:
+            args[param.name] = param.value
+
+        return {"model": mobilitymodel.model.name, "args": args}
+
+
 class Measure(models.Model):
     name = models.CharField(max_length=20)
     unit = models.CharField(max_length=10)
