@@ -58,7 +58,7 @@ class RoundView(View):
         notifier = ResultNotifier()
         notifier.attach(experimentListener)
         
-        configurationObj = {"radioFrequencyMeasurements": configuration.getMeasurements()}
+        configurationObj = {"radioFrequencyMeasurements": configuration.getMeasurements(), "propagationModel": configuration.getPropagationModel()}
         
         mininetWifiExp = MininetWifiExp(notifier, configurationObj)
         queue = ExperimentsQueue.instance()
