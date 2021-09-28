@@ -97,38 +97,23 @@ class CompareRoundsView(View):
             args["errorMessage"] = ExperimenterConstants.ROUND_NOT_DONE_ERROR
             return render(request, 'compare-rounds.html', args)
             
+        configuration1 = round1.version.configuration
+        radioFrequencyMeasures1 = [measurement["measure"]["name"] for measurement in configuration1.getMeasurements()]
+        configuration2 = round1.version.configuration
+        radioFrequencyMeasures2 = [measurement["measure"]["name"] for measurement in configuration2.getMeasurements()]
 
-        mockedConfiguration = MockedConfiguration()
-        configuration = mockedConfiguration.getConfiguration()
-        radioFrequencyMeasurements, _ = self.__getMeasurements(configuration)
-        args["radioFrequencyTitles"] = radioFrequencyMeasurements
+        args["radioFrequencyTitles"] = ["time", "name"]+[value for value in radioFrequencyMeasures1 if value in radioFrequencyMeasures2]
         args["performanceTitles"] = ExperimenterConstants.PERFORMANCE_TITLES
 
         try:
             service = ProvenanceService()
-            diffResults = service.diffResults(roundID1, roundID2, configuration.medicao_schema, configuration.medicao_schema, radioFrequencyMeasurements)
+            diffResults = service.diffResults(roundID1, roundID2, configuration1.medicao_schema, configuration2.medicao_schema, args["radioFrequencyTitles"])
             args["radioFrequency"], args["performance"] = diffResults
         except:
             args["hasError"] = True
             args["errorMessage"] = ExperimenterConstants.COMPARE_ROUNDS_ERROR
         finally:
             return render(request, 'compare-rounds.html', args)
-
-    def __getMeasurements(self, configuration):
-        #TODO: fix it
-        RADIO_FREQUENCY_MEASURES = {'rssi','channel','band','ssid','txpower','ip', 'position', 'associatedto'}
-        PERFORMANCE_MEASURES = {'ping', 'Iperf'}
-
-        radioFrequencyMeasurements = ["time", "name"]
-        performanceMeasurements = []
-        for measurement in configuration.measurements:
-            measureName = measurement.measure.name
-            if measureName in RADIO_FREQUENCY_MEASURES:
-                radioFrequencyMeasurements.append(measureName)
-            if measureName in PERFORMANCE_MEASURES:
-                performanceMeasurements.append(measureName)
-
-        return radioFrequencyMeasurements, performanceMeasurements
 
 
 @register.filter(name='dict_key')
