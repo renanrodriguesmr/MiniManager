@@ -7,9 +7,9 @@
     {% endfor %}
   </select>
 </div>
-<div id="randomdirection"  class="hidde-element form-group" style="display: none;">
+<div id="RandomDirection"  class="hidde-element form-group" style="display: none;">
   <div class="form-group">
-    <input type="hidden" name="randomdirectionattribute" value="seed,min_velocidade,max_velocidade,min_x,max_x,min_y,max_y,min_z,max_z">
+    <input type="hidden" name="RandomDirectionattribute" value="seed,min_velocidade,max_velocidade,min_x,max_x,min_y,max_y,min_z,max_z">
     <div class="row">
       <div class="col">
         <label for="ifprop">seed</label>
@@ -53,7 +53,7 @@
 <div id="model-not-supported" class="hidde-element alert alert-primary" role="alert">Modelo de mobilidade ainda não suportado</div>
 <script>
 
-var currentmobilityModelName = "randomdirection";
+var currentmobilityModelName = "RandomDirection";
 changemobilityModelForm(currentmobilityModelName);
 
 function onmobilityModelSelect(selectSrc) {

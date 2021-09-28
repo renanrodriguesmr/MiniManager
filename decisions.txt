@@ -28,4 +28,4 @@ logDistance,Log Distance
 friis,Free Space
 
 11) Modelos de mobilidade
-randomdirection,Random Direction
+RandomDirection,Random Direction
