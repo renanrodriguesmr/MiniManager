@@ -1,17 +1,12 @@
-import math
 import time
 import json
 import threading
 
-from mininet.node import Controller
-from mininet.log import setLogLevel, info
-from mn_wifi.link import wmediumd
-from mn_wifi.cli import CLI
-from mn_wifi.net import Mininet_wifi
-from mn_wifi.wmediumdConnector import interference
+from mininet.log import setLogLevel
 
 import constants
 import measurers as meas
+import decorators
 
 class MininetScript():
     ERROR_CONFIG = "error opening configurations"
@@ -41,26 +36,13 @@ class MininetScript():
         self.__analyse()
 
     def __topology(self):
-        info("*** Creating nodes\n")
-        self.__net = Mininet_wifi(controller=Controller, link=wmediumd, wmediumd_mode=interference, noise_th=-91, fading_cof=3)
-        ap1 = self.__net.addAccessPoint('ap1', ssid='new-ssid', mode='a', channel='36', position='15,30,0')
-        self.__net.addStation('sta1', mac='00:00:00:00:00:02', ip='10.0.0.1/8', min_x=10, max_x=30, min_y=50, max_y=70, min_v=5, max_v=10)
-        self.__net.addStation('sta2', mac='00:00:00:00:00:03', ip='10.0.0.2/8', min_x=0, max_x=60, min_y=25, max_y=80, min_v=2, max_v=10)
-        self.__net.addStation('sta3', mac='00:00:00:00:00:04', ip='10.0.0.3/8', min_x=60, max_x=70, min_y=10, max_y=20, min_v=1, max_v=5)
-        c1 = self.__net.addController('c1')
-
-        info("*** Configuring Propagation Model\n")
-        self.__net.setPropagationModel(model="logDistance", exp=4)
-
-        info("*** Configuring wifi nodes\n")
-        self.__net.configureWifiNodes()
-        #nodes = self.__net.stations
-        self.__net.setMobilityModel(time=0, model='RandomDirection',max_x=90, max_y=90, seed=20)
+        mininetNetwork = decorators.MininetNetwork()
+        propagationModel = decorators.PropagationModelDecorator(mininetNetwork, self.__configuration["propagationModel"])
+        mobilityModel = decorators.MobilityModelDecorator(propagationModel)
+        networkStarter = decorators.NetworkStarterDecorator(mobilityModel)
         
-        info("*** Starting network\n")
-        self.__net.build()
-        c1.start()
-        ap1.start([c1])
+        networkStarter.configure()
+        self.__net = networkStarter.getNetwork()
 
     def __analyse(self):
         nodes = { "station": self.__net.stations, "accessPoint": self.__net.aps }
