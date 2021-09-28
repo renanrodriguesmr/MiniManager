@@ -1,0 +1,79 @@
+<h3>Nós da Rede</h3>
+<div class="form-group">
+  <label for="Node">Selecione o Modelo de mobilidade</label>
+  <select class="form-control" onchange="onmobilityModelSelect(this)" name="nodeselected" id="Node">
+    <option value="station">Estação</option>
+    <option value="host">Host</option>
+    <option value="accesspoint">Access Point</option>
+    <option value="switch">Switch</option>
+  </select>
+</div>
+<div id="station"  class="hidde-element form-group" style="display: none;">
+    <div class="form-group">
+      <label id="name" for="namestation">Name</label>
+      <input type="text" name="name" class="form-control" id="namestation">
+      <label id="name" for="mac">mac address</label>
+      <input type="text" name="macaddress" class="form-control" id="mac">
+      <label id="name" for="ip">ip</label>
+      <input type="text" name="ipaddress" class="form-control" id="ip">
+    </div>
+</div>
+<div id="accesspoint"  class="hidde-element form-group" style="display: none;">
+    <div class="form-group">
+      <label id="name" for="nameaccess">Name</label>
+      <input type="text" name="name" class="form-control" id="nameaccess">
+      <label id="name" for="ssidlb">ssid</label>
+      <input type="text" name="ssid" class="form-control" id="ssidlb">
+      <label id="name" for="mode">mode</label>
+      <input type="text" name="mode" class="form-control" id="mode">
+      <label id="name" for="channel">channel</label>
+      <input type="text" name="channel" class="form-control" id="channel">
+    </div>
+</div>
+<div id="host"  class="hidde-element form-group" style="display: none;">
+    <div class="form-group">
+      <label id="name" for="namehost">name</label>
+      <input type="text" name="name" class="form-control" id="namehost">
+      <label id="name" for="mac">mac address</label>
+      <input type="text" name="macaddress" class="form-control" id="mac">
+      <label id="name" for="ip">ip</label>
+      <input type="text" name="ipaddress" class="form-control" id="ip">
+    </div>
+</div>
+<div id="station"  class="hidde-element form-group" style="display: none;">
+    <div class="form-group">
+      <label id="type" for="typeswitch">type</label>
+      <input type="text" name="type" class="form-control" id="typeswitch">
+      <label id="name" for="namestation">name</label>
+      <input type="text" name="name" class="form-control" id="namestation">
+      <label id="name" for="mac">mac address</label>
+      <input type="text" name="macaddress" class="form-control" id="mac">
+      <label id="name" for="ip">ip</label>
+      <input type="text" name="ipaddress" class="form-control" id="ip">
+    </div>
+</div>
+
+
+
+<script>
+
+var currentmobilityModelName = "randomdirection";
+changemobilityModelForm(currentmobilityModelName);
+
+function onmobilityModelSelect(selectSrc) {
+  let mobilityModelName = selectSrc.value;
+  changemobilityModelForm(mobilityModelName);
+  currentmobilityModelName = mobilityModelName;
+}
+
+
+function changemobilityModelForm(newmobilityModel) {
+  document.getElementById(currentmobilityModelName).style.display = "none";
+
+  let newElement = document.getElementById(newmobilityModel);
+  
+
+  newElement.style.display = "inline-block";
+}
+
+</script>
