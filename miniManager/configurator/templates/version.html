@@ -17,10 +17,11 @@
       <input type="text" class="form-control" id="version_name" name="version_name" placeholder="Versão 1">
     </div>
     <input type="hidden" name="test-plan" value="{{testPlan.id}}">
-    <div class="form-group row">
-      <div class="col-sm-10">
-        <button type="submit" class="btn btn-primary">Submit</button>
-      </div>
+
+    {% include "configuration.html" with pmodels=pmodels mmodels=mmodels measures=measures only %}
+
+    <div class="submit-button d-grid gap-2">
+      <button type="submit" class="btn btn-primary">Submit</button>
     </div>
     {% if error %}
       <div id="status-bar" class="alert alert-primary" role="alert">{{ errorMessage }}</div>

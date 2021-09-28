@@ -42,8 +42,8 @@ class RadioFrequencyMeasurer(IMeasurer):
             time.sleep(constants.MininetConstants.DELAY)
             currentTime = math.floor(time.time() - self.__start)
 
-            measures = self.__getValidMeasures(currentTime)
-            if measures == []:
+            measures, hasAtLeastOne = self.__getValidMeasures(currentTime)
+            if not hasAtLeastOne:
                 continue
 
             radioFrequency = []
@@ -53,7 +53,10 @@ class RadioFrequencyMeasurer(IMeasurer):
 
                 for measure in measures:
                     measureName = measure['name']
-                    measObj[measureName] = self.__getMetricFromNode(measureName, eachNode)
+                    if measure["valid"]:
+                        measObj[measureName] = self.__getMetricFromNode(measureName, eachNode)
+                    else:
+                        measObj[measureName] = ""
 
                 radioFrequency.append(measObj)
 
@@ -61,25 +64,31 @@ class RadioFrequencyMeasurer(IMeasurer):
                 constants.MininetConstants.TIME_KEY: currentTime,
                 constants.MininetConstants.RADIO_FREQUENCY_KEY: radioFrequency
             })
+    
+    def __isValidMeasurement(self, currentTime, measurement):
+        return (currentTime % measurement["period"]) == 0
 
     def __getValidMeasures(self, currentTime):
         radioFrequencyMeasures = []
+        hasAtLeastOne = False
         for measurement in self.__measurements:
-            if (currentTime % measurement["period"]) == 0:
-                measure = measurement["measure"]
-                radioFrequencyMeasures.append(measure)
-        
-        if len(radioFrequencyMeasures) != 0:
-            radioFrequencyMeasures.append({ "name": "name" })
+            measure = measurement["measure"]
+            measure["valid"] = self.__isValidMeasurement(currentTime, measurement)
+            radioFrequencyMeasures.append(measure)
 
-        return radioFrequencyMeasures
+            if measure["valid"]:
+                hasAtLeastOne = True
+        
+        radioFrequencyMeasures.append({ "name": "name", "valid": hasAtLeastOne })
+
+        return radioFrequencyMeasures, hasAtLeastOne
 
     def __getMetricFromNode(self, measureName, node):
         if measureName == "position":
             return list(node.position)
 
         
-        if measureName == "associatedto":
+        if measureName == "associatedTo":
             if node.wintfs[0].associatedTo:
                 return node.wintfs[0].associatedTo.node.wintfs[0].name
             return "None"

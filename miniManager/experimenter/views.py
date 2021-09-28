@@ -27,14 +27,15 @@ class RoundView(View):
         round = Round.objects.get(id=round_id)
         args['round'] = round
 
-        mockedConfiguration = MockedConfiguration()
-        configuration = mockedConfiguration.getConfiguration()
-        radioFrequencyMeasurements, _ = self.__getMeasurements(configuration)
-        args["radioFrequencyTitles"] = radioFrequencyMeasurements
+        
+        configuration = round.version.configuration
+        radioFrequencyMeasurements = configuration.getMeasurements()
+        
+        args["radioFrequencyTitles"] = ["time", "name"]+[measurement["measure"]["name"] for measurement in radioFrequencyMeasurements]
         args["performanceTitles"] = ExperimenterConstants.PERFORMANCE_TITLES
 
         if round.status == Round.DONE:
-            args['radioFrequency'], args['performance'] = ProvenanceService().getResultRowsFromRound(round.id, configuration.medicao_schema, radioFrequencyMeasurements)
+            args['radioFrequency'], args['performance'] = ProvenanceService().getResultRowsFromRound(round.id, configuration.medicao_schema, args["radioFrequencyTitles"])
 
         return render(request, 'round.html', args)
 
@@ -47,9 +48,7 @@ class RoundView(View):
         round = Round(name=name, version_id = versionID)
         round.save()
 
-        mockedConfiguration = MockedConfiguration()
-        configuration = mockedConfiguration.getConfiguration()
-        self.__enqueueExperiment(configuration, round.id)
+        self.__enqueueExperiment(version.configuration, round.id)
 
         url = reverse('round', kwargs={ 'round_id': round.id })
         return HttpResponseRedirect(url)
@@ -58,27 +57,12 @@ class RoundView(View):
         experimentListener = ExperimentListener(roundID)
         notifier = ResultNotifier()
         notifier.attach(experimentListener)
-
-        schema = configuration.medicao_schema
-        configuration.medicao_schema = None
-        mininetWifiExp = MininetWifiExp(notifier, configuration)
+        
+        configurationObj = {"radioFrequencyMeasurements": configuration.getMeasurements()}
+        
+        mininetWifiExp = MininetWifiExp(notifier, configurationObj)
         queue = ExperimentsQueue.instance()
-        queue.add(mininetWifiExp, roundID, schema)
-
-    def __getMeasurements(self, configuration):
-        RADIO_FREQUENCY_MEASURES = {'rssi','channel','band','ssid','txpower','ip', 'position', 'associatedto'}
-        PERFORMANCE_MEASURES = {'ping', 'Iperf'}
-
-        radioFrequencyMeasurements = ["time", "name"]
-        performanceMeasurements = []
-        for measurement in configuration.measurements:
-            measureName = measurement.measure.name
-            if measureName in RADIO_FREQUENCY_MEASURES:
-                radioFrequencyMeasurements.append(measureName)
-            if measureName in PERFORMANCE_MEASURES:
-                performanceMeasurements.append(measureName)
-
-        return radioFrequencyMeasurements, performanceMeasurements
+        queue.add(mininetWifiExp, roundID, configuration.medicao_schema)
 
 class FinishRoundView(View):
     def post(self, request):
@@ -113,38 +97,23 @@ class CompareRoundsView(View):
             args["errorMessage"] = ExperimenterConstants.ROUND_NOT_DONE_ERROR
             return render(request, 'compare-rounds.html', args)
             
+        configuration1 = round1.version.configuration
+        radioFrequencyMeasures1 = [measurement["measure"]["name"] for measurement in configuration1.getMeasurements()]
+        configuration2 = round1.version.configuration
+        radioFrequencyMeasures2 = [measurement["measure"]["name"] for measurement in configuration2.getMeasurements()]
 
-        mockedConfiguration = MockedConfiguration()
-        configuration = mockedConfiguration.getConfiguration()
-        radioFrequencyMeasurements, _ = self.__getMeasurements(configuration)
-        args["radioFrequencyTitles"] = radioFrequencyMeasurements
+        args["radioFrequencyTitles"] = ["time", "name"]+[value for value in radioFrequencyMeasures1 if value in radioFrequencyMeasures2]
         args["performanceTitles"] = ExperimenterConstants.PERFORMANCE_TITLES
 
         try:
             service = ProvenanceService()
-            diffResults = service.diffResults(roundID1, roundID2, configuration.medicao_schema, configuration.medicao_schema, radioFrequencyMeasurements)
+            diffResults = service.diffResults(roundID1, roundID2, configuration1.medicao_schema, configuration2.medicao_schema, args["radioFrequencyTitles"])
             args["radioFrequency"], args["performance"] = diffResults
         except:
             args["hasError"] = True
             args["errorMessage"] = ExperimenterConstants.COMPARE_ROUNDS_ERROR
         finally:
             return render(request, 'compare-rounds.html', args)
-
-    def __getMeasurements(self, configuration):
-        #TODO: fix it
-        RADIO_FREQUENCY_MEASURES = {'rssi','channel','band','ssid','txpower','ip', 'position', 'associatedto'}
-        PERFORMANCE_MEASURES = {'ping', 'Iperf'}
-
-        radioFrequencyMeasurements = ["time", "name"]
-        performanceMeasurements = []
-        for measurement in configuration.measurements:
-            measureName = measurement.measure.name
-            if measureName in RADIO_FREQUENCY_MEASURES:
-                radioFrequencyMeasurements.append(measureName)
-            if measureName in PERFORMANCE_MEASURES:
-                performanceMeasurements.append(measureName)
-
-        return radioFrequencyMeasurements, performanceMeasurements
 
 
 @register.filter(name='dict_key')

@@ -4,77 +4,76 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 
 from .models import Configuration, MModelCatalog, Measure, Measurement, MobilityModel, MobilityParam, PModelCatalog, PropagationModel, PropagationParam, Version, TestPlan
+from .xmlSchemaGenerator import XMLSchemaGenerator
 
-class ConfigurationView(View):
-    def get(self,request):
-        args={}
+class ConfigurationView():
+    def getHelper(self):
         pmodels = PModelCatalog.objects.all()
-        args['pmodels'] = pmodels
-
         mmodels = MModelCatalog.objects.all()
-        args['mmodels'] = mmodels
-
         measures = Measure.objects.all()
-        args['measures'] = measures
 
-        return render(request, 'configuration.html', args)
+        return {"pmodels": pmodels, "mmodels": mmodels, "measures": measures}
 
-    def post(self, request):
-        
+    def __saveMeasurements(self, request, configuration):
         paramlist = request.POST.getlist('radiofrequency')
-
-        pmodelSelected = request.POST.get('propagationmodel')
-        mmodelSelected = request.POST.get('mobilitymodel')
-        
-        pmodel = PModelCatalog.objects.get(name=pmodelSelected)
-        pmodelName = str(pmodel.name)
-
-        mmodel=MModelCatalog.objects.get(name=mmodelSelected)
-        mmodelName=str(mmodel.name)
-
-        propagationmodel = PropagationModel(model=pmodel)
-        mobilitymodel=MobilityModel(model=mmodel)
-
-        propagationmodel.save()
-        mobilitymodel.save()
-
-        propagationParamNames = request.POST.get(pmodelName+"attribute")
-        propagationParams = propagationParamNames.split(",")
-
-        mobilityParamNames = request.POST.get(mmodelName+"attribute")
-        mobilityParams = mobilityParamNames.split(",")
-
-        for param in mobilityParams:
-            value=request.POST.get(param)
-            mobilityparam = MobilityParam(name=param, value=value, mobilitymodel=mobilitymodel)
-            mobilityparam.save()
-
-
-        
-        for param in propagationParams:
-            value = request.POST.get(param)
-            propagationparam = PropagationParam(name=param, value=value, propagationmodel=propagationmodel)
-            propagationparam.save()
-
-        conf = Configuration(medicao_schema='xml_schema', propagationmodel=propagationmodel, mobilitymodel=mobilitymodel)
-        conf.save()
-
-
         for param in paramlist:
             measureName = str(param)
             measure = Measure.objects.get(name=measureName)
 
             period=request.POST.get(measureName)
-            measurement = Measurement(period=period, measure=measure, config=conf)
+            measurement = Measurement(period=period, measure=measure, config=configuration)
             measurement.save()
 
-        url = reverse('configuration')
-        return HttpResponseRedirect(url)
+        xmlSchemaGenerator = XMLSchemaGenerator()
+        return xmlSchemaGenerator.generate(paramlist)  
 
-class VersionView(View):
+    def __savePropagationModel(self, request):
+        pmodelSelected = request.POST.get('propagationmodel')
+        pmodel = PModelCatalog.objects.get(name=pmodelSelected)
+        propagationmodel = PropagationModel(model=pmodel)
+        propagationmodel.save()
+
+        propagationParams = request.POST.get("{}attribute".format(pmodelSelected)).split(",")
+        for param in propagationParams:
+            value = request.POST.get(param)
+            propagationparam = PropagationParam(name=param, value=value, propagationmodel=propagationmodel)
+            propagationparam.save()
+
+        return propagationmodel
+
+    def __saveMobilityModel(self, request):
+        mmodelSelected = request.POST.get('mobilitymodel')
+        mmodel=MModelCatalog.objects.get(name=mmodelSelected)
+        mobilitymodel=MobilityModel(model=mmodel)
+        mobilitymodel.save()
+
+        mobilityParams = request.POST.get("{}attribute".format(mmodelSelected)).split(",")
+        for param in mobilityParams:
+            value=request.POST.get(param)
+            mobilityparam = MobilityParam(name=param, value=value, mobilitymodel=mobilitymodel)
+            mobilityparam.save()
+
+        return mobilitymodel
+
+    def postHelper(self, request):
+        propagationmodel = self.__savePropagationModel(request)
+        mobilitymodel = self.__saveMobilityModel(request)
+
+        configuration = Configuration(medicao_schema='xml_schema', propagationmodel=propagationmodel, mobilitymodel=mobilitymodel)
+        configuration.save()
+
+        configuration.medicao_schema = self.__saveMeasurements(request, configuration)
+        configuration.save()
+
+        return configuration
+
+
+class VersionView(ConfigurationView, View):
     def get(self, request, test_plan_id):
         testPlan = TestPlan.objects.get(id=test_plan_id)
         args = {"error": False, "errorMessage": "", "testPlan": testPlan}
+        args.update(self.getHelper())
+
         return render(request, 'version.html', args)
 
     def post(self, request):
@@ -85,9 +84,9 @@ class VersionView(View):
             testPlan = TestPlan.objects.get(id=testPlanID)
             args = {"error": True, "errorMessage": "Já existe uma versão com esse nome", "testPlan": testPlan}
             return render(request, 'version.html', args)
-            
 
-        version = Version(name=versionName, test_plan_id = testPlanID)
+        configuration = self.postHelper(request)
+        version = Version(name=versionName, test_plan_id = testPlanID, configuration=configuration)
         version.save()
 
         url = reverse('versions', kwargs={ 'test_plan_id': testPlanID })
@@ -99,7 +98,6 @@ class VersionsView(View):
         versions = Version.objects.filter(test_plan_id=testPlan.id).all()
         args = {"versions": versions, "testPlan": testPlan}
         return render(request, 'versions.html', args)
-
 
 class TestPlanView(View):
     def get(self, request):
@@ -118,7 +116,6 @@ class TestPlanView(View):
 
         url = reverse('test-plans')
         return HttpResponseRedirect(url)
-
 
 class TestPlansView(View):
     def get(self, request):

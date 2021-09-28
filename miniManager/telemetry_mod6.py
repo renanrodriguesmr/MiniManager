@@ -58,17 +58,8 @@ def topology():
     #    monNode(nodes)
     #    time.sleep(1)
     #
-    # myping(net, nodes[0], nodes[1], 3)
+    myPing(nodes[0], nodes[1], 3)
     #
-    t1 = threading.Thread(target=nwMon, args=(nodes[0], 1, "/home", ['rssi']))
-    t1.daemon = True
-    t1.start()
-    t2 = threading.Thread(target=nwMon, args=(nodes[1], 1, "/home", ['rssi']))
-    t2.daemon = True
-    t2.start()
-    t3 = threading.Thread(target=myPing, args=(nodes[0], nodes[1]))
-    t3.daemon = True
-    t3.start()
     # t4 = threading.Thread(target=myPing, args=(nodes[2], nodes[1]))
     # t4.daemon = True
     # t4.start()
@@ -81,18 +72,18 @@ def topology():
     #setIperfServer(net, [nodes[0], nodes[1]])
     #
     info("*** Running CLI - my message\n")
-    CLI(net)
+    #CLI(net)
 
-    info("*** Stopping network\n")
-    net.stop()
+    #info("*** Stopping network\n")
+    #net.stop()
 
 
 def myPing(src, dst, period=5):
     path = '/home/jtesolin/mininet-wifi/tests/results/'
     filename = path + 'nwPingTest_' + src.wintfs[0].name+'.txt'
     #
-    f = open(filename, 'w')
-    f.close()
+    #f = open(filename, 'w')
+    #f.close()
     #
     time.sleep(5)
     perfDict = {}
@@ -100,7 +91,7 @@ def myPing(src, dst, period=5):
         pingResult = src.cmd('ping', '-c 10 -q', '-I ' +
                              src.wintfs[0].ip, dst.wintfs[0].ip)
         # print(pingResult.split('\r\n')[3:5])
-        f = open(filename, 'a')
+        #f = open(filename, 'a')
         perfDict.clear()
         perfDict.update({'timestamp': time.ctime(time.time())})
         perfDict.update({'source': src.wintfs[0].name})
@@ -108,8 +99,9 @@ def myPing(src, dst, period=5):
         perfDict.update({'pingResult': pingResult.split('\r\n')[3]})
         perfDict.update({'rttResult': pingResult.split('\r\n')[4]})
         #
-        f.write(str(perfDict.items())+'\n')
-        f.close()
+        print(str(perfDict.items())+'\n')
+        #f.write(str(perfDict.items())+'\n')
+        #f.close()
         time.sleep(period)
 
 
@@ -154,12 +146,12 @@ def nwMon(nwnode, period, path, list=None):
     path = '/home/jtesolin/mininet-wifi/tests/results/'
     filename = path + 'nwmon_' + nwnode.wintfs[0].name+'.txt'
     #
-    f = open(filename, 'w')
-    f.close()
+    #f = open(filename, 'w')
+    #f.close()
     #
     measDict = {}
     while True:
-        f = open(filename, 'a')
+        #f = open(filename, 'a')
         measDict.clear()
         measDict.update({'node': nwnode.wintfs[0].name})
         measDict.update({'timestamp': time.ctime(time.time())})
@@ -171,8 +163,8 @@ def nwMon(nwnode, period, path, list=None):
                 measDict.update(
                     {eachAttr: getattr(nwnode.wintfs[0], eachAttr)})
         # print(measDict.items())
-        f.write(str(measDict.items())+'\n')
-        f.close()
+        #f.write(str(measDict.items())+'\n')
+        #f.close()
         time.sleep(period)
 
 

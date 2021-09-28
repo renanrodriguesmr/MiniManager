@@ -1,7 +1,5 @@
 from django.db import models
 
-# Create your models here.
-
 class TestPlan(models.Model):
     name = models.CharField(max_length=30)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -12,7 +10,7 @@ class TestPlan(models.Model):
 
 
 class Network(models.Model):
-    fixo = models.BooleanField()
+    fixed = models.BooleanField()
     
     class Meta:
         db_table="Network"
@@ -20,15 +18,6 @@ class Network(models.Model):
 #class NetworkController(models.Model): /vamos usar o Controller do mininet.node
     #protocol = models.CharField(max_length=30)
 
-
-class Version(models.Model):
-    name = models.CharField(max_length=30)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    test_plan = models.ForeignKey(TestPlan, models.CASCADE, blank=True, null=True, unique=False)
-
-    class Meta:
-        db_table = "Version"
 
 #PModelCatalog works as a catalog of propagation models
 class PModelCatalog(models.Model): 
@@ -62,15 +51,20 @@ class Configuration(models.Model):
     medicao_schema = models.TextField()
     propagationmodel = models.ForeignKey(PropagationModel, on_delete=models.CASCADE, null= True)
     mobilitymodel = models.ForeignKey(MobilityModel, on_delete = models.CASCADE, null=True)
-    start_time = models.FloatField(null=True)
-    stop_time = models.FloatField(null=True)
+    stop_time = models.IntegerField(null=True)
     network = models.ForeignKey(Network, on_delete=models.CASCADE, null=True)
 
 
     class Meta:
         db_table = "Configuration"
 
+    def getMeasurements(self):
+        result = []
+        measurements = Measurement.objects.filter(config_id = self.id)
+        for measurement in measurements:
+            result.append({"period": measurement.period, "measure": {"name": measurement.measure.name}})
 
+        return result
 
 class Measure(models.Model):
     name = models.CharField(max_length=20)
@@ -109,7 +103,7 @@ class MobilityParam(models.Model):
 
 class Node(models.Model):
     name = models.CharField(max_length=30)
-    fixo = models.BooleanField()
+    fixed = models.BooleanField()
     mac = models.CharField(max_length=30)
     network = models.ForeignKey(Network, on_delete=models.CASCADE)
 
@@ -119,7 +113,7 @@ class Node(models.Model):
 
 class Mobility(models.Model):
     tempo = models.FloatField()
-    fixo = models.BooleanField()
+    fixed = models.BooleanField()
     x = models.FloatField()
     y = models.FloatField()
     z = models.FloatField()
@@ -163,7 +157,7 @@ class Switch(models.Model):
 
 class AccessPoint(models.Model):
     ssid = models.CharField(max_length=30)
-    modo = models.CharField(max_length=30)
+    mode = models.CharField(max_length=30)
     channel = models.CharField(max_length=30)
     node = models.ForeignKey(Node,on_delete=models.CASCADE)
 
@@ -172,7 +166,7 @@ class AccessPoint(models.Model):
 
 class Interface(models.Model):
     name = models.CharField(max_length=30)
-    fixo = models.BooleanField()
+    fixed = models.BooleanField()
     ip = models.CharField(max_length=30)
     node = models.ForeignKey(Node, on_delete=models.CASCADE) 
 
@@ -181,18 +175,25 @@ class Interface(models.Model):
 
 class Link(models.Model):
     interface = models.ForeignKey(Interface, on_delete=models.CASCADE)
-    conexao = models.CharField(max_length=30)
-    fixo = models.BooleanField()
+    connection = models.CharField(max_length=30)
+    fixed = models.BooleanField()
     delay = models.CharField(max_length=30)
     loss = models.CharField(max_length=30)
-    tamanho_maximo_fila = models.CharField(max_length=30)
+    max_queue_size = models.CharField(max_length=30)
     jitter = models.CharField(max_length=30)
     speedup = models.CharField(max_length=30)
 
     class Meta:
         db_table="Link"
 
+class Version(models.Model):
+    name = models.CharField(max_length=30)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    test_plan = models.ForeignKey(TestPlan, models.CASCADE, blank=True, null=True, unique=False)
+    configuration = models.OneToOneField(Configuration, models.CASCADE, unique=True, blank=True, null=True)
 
-
+    class Meta:
+        db_table = "Version"
 
 
