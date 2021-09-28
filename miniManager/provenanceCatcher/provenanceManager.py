@@ -1,4 +1,5 @@
 import xml.etree.ElementTree as ET
+import xmlschema
 
 class ProvenanceManager:
 
@@ -78,7 +79,8 @@ class ProvenanceManager:
         root.append(self.__performance)
 
         tree = ET.ElementTree(root)
-        if not self.__schema.is_valid(tree):
+        schema = xmlschema.XMLSchema(self.__schema)
+        if not schema.is_valid(tree):
             return
 
         xml = ET.tostring(tree.getroot()).decode('utf-8')

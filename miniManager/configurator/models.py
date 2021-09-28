@@ -1,6 +1,4 @@
-from django.db import connection, models
-
-# Create your models here.
+from django.db import models
 
 class TestPlan(models.Model):
     name = models.CharField(max_length=30)
@@ -20,15 +18,6 @@ class Network(models.Model):
 #class NetworkController(models.Model): /vamos usar o Controller do mininet.node
     #protocol = models.CharField(max_length=30)
 
-
-class Version(models.Model):
-    name = models.CharField(max_length=30)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    test_plan = models.ForeignKey(TestPlan, models.CASCADE, blank=True, null=True, unique=False)
-
-    class Meta:
-        db_table = "Version"
 
 #PModelCatalog works as a catalog of propagation models
 class PModelCatalog(models.Model): 
@@ -69,7 +58,13 @@ class Configuration(models.Model):
     class Meta:
         db_table = "Configuration"
 
+    def getMeasurements(self):
+        result = []
+        measurements = Measurement.objects.filter(config_id = self.id)
+        for measurement in measurements:
+            result.append({"period": measurement.period, "measure": {"name": measurement.measure.name}})
 
+        return result
 
 class Measure(models.Model):
     name = models.CharField(max_length=20)
@@ -191,7 +186,14 @@ class Link(models.Model):
     class Meta:
         db_table="Link"
 
+class Version(models.Model):
+    name = models.CharField(max_length=30)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    test_plan = models.ForeignKey(TestPlan, models.CASCADE, blank=True, null=True, unique=False)
+    configuration = models.OneToOneField(Configuration, models.CASCADE, unique=True, blank=True, null=True)
 
-
+    class Meta:
+        db_table = "Version"
 
 

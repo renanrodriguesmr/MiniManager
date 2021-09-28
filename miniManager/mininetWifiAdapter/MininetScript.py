@@ -19,22 +19,10 @@ class MininetScript():
 
     def __init__(self):
         self.__configuration = self.__loadConfiguration()
-        self.__radioFrequencyMeasurements, self.__performanceMeasurements = self.__segmentMeasurements()
+        self.__radioFrequencyMeasurements = self.__configuration["radioFrequencyMeasurements"]
+        #self.__performanceMeasurements = self.__configuration["performanceMeasurements"]
+        self.__performanceMeasurements = []
         self.__net = None
-
-    def __segmentMeasurements(self):
-        radioFrequencyMeasures = []
-        performanceMeasures = []
-        
-        for measurement in self.__configuration["measurements"]:
-            name = measurement["measure"]["name"]
-            if name in constants.MininetConstants.RADIO_FREQUENCY_MEASURES:
-                radioFrequencyMeasures.append(measurement)
-
-            if name in constants.MininetConstants.PERFORMANCE_MEASURES:
-                performanceMeasures.append(measurement)
-
-        return radioFrequencyMeasures, performanceMeasures
 
     def __loadConfiguration(self):
         try:

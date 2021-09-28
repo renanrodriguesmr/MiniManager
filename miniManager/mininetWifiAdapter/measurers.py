@@ -79,7 +79,7 @@ class RadioFrequencyMeasurer(IMeasurer):
             return list(node.position)
 
         
-        if measureName == "associatedto":
+        if measureName == "associatedTo":
             if node.wintfs[0].associatedTo:
                 return node.wintfs[0].associatedTo.node.wintfs[0].name
             return "None"

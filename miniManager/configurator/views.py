@@ -85,10 +85,9 @@ class VersionView(ConfigurationView, View):
             args = {"error": True, "errorMessage": "Já existe uma versão com esse nome", "testPlan": testPlan}
             return render(request, 'version.html', args)
 
-        version = Version(name=versionName, test_plan_id = testPlanID)
+        configuration = self.postHelper(request)
+        version = Version(name=versionName, test_plan_id = testPlanID, configuration=configuration)
         version.save()
-
-        self.postHelper(request)
 
         url = reverse('versions', kwargs={ 'test_plan_id': testPlanID })
         return HttpResponseRedirect(url)
