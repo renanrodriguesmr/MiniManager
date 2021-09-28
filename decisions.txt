@@ -22,3 +22,10 @@ txpower
 ip
 position
 associatedTo
+
+10) Modelos de propagacao
+logDistance,Log Distance
+friis,Free Space
+
+11) Modelos de mobilidade
+randomdirection,Random Direction

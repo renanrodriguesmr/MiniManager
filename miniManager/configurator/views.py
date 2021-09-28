@@ -4,6 +4,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 
 from .models import Configuration, MModelCatalog, Measure, Measurement, MobilityModel, MobilityParam, PModelCatalog, PropagationModel, PropagationParam, Version, TestPlan
+from .xmlSchemaGenerator import XMLSchemaGenerator
 
 class ConfigurationView():
     def getHelper(self):
@@ -22,6 +23,9 @@ class ConfigurationView():
             period=request.POST.get(measureName)
             measurement = Measurement(period=period, measure=measure, config=configuration)
             measurement.save()
+
+        xmlSchemaGenerator = XMLSchemaGenerator()
+        return xmlSchemaGenerator.generate(paramlist)  
 
     def __savePropagationModel(self, request):
         pmodelSelected = request.POST.get('propagationmodel')
@@ -58,7 +62,11 @@ class ConfigurationView():
         configuration = Configuration(medicao_schema='xml_schema', propagationmodel=propagationmodel, mobilitymodel=mobilitymodel)
         configuration.save()
 
-        self.__saveMeasurements(request, configuration)
+        configuration.medicao_schema = self.__saveMeasurements(request, configuration)
+        configuration.save()
+
+        return configuration
+
 
 class VersionView(ConfigurationView, View):
     def get(self, request, test_plan_id):
@@ -92,7 +100,6 @@ class VersionsView(View):
         args = {"versions": versions, "testPlan": testPlan}
         return render(request, 'versions.html', args)
 
-
 class TestPlanView(View):
     def get(self, request):
         args = {"error": False, "errorMessage": ""}
@@ -110,7 +117,6 @@ class TestPlanView(View):
 
         url = reverse('test-plans')
         return HttpResponseRedirect(url)
-
 
 class TestPlansView(View):
     def get(self, request):
