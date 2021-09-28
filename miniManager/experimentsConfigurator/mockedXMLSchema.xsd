@@ -10,7 +10,7 @@
             <xs:element name="instant" maxOccurs="unbounded">
               <xs:complexType>
                 <xs:sequence>
-                  <xs:element name="station" maxOccurs="unbounded">
+                  <xs:element name="station" minOccurs="0" maxOccurs="unbounded">
                     <xs:complexType>
                       <xs:all>
                         <xs:element name="position" type="xs:string"/>
@@ -35,7 +35,7 @@
       <xs:element name="performance">
         <xs:complexType>
           <xs:sequence>
-            <xs:element name="instance" maxOccurs="unbounded">
+            <xs:element name="instance" minOccurs="0" maxOccurs="unbounded">
               <xs:complexType>
                 <xs:all>
                   <xs:element name="value" type="xs:string"/>
