@@ -1,10 +1,12 @@
+import json
 from django.shortcuts import render
 from django.views import View
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse
 
 from .models import Configuration, MModelCatalog, Measure, Measurement, MobilityModel, MobilityParam, PModelCatalog, PropagationModel, PropagationParam, Version, TestPlan
 from .xmlSchemaGenerator import XMLSchemaGenerator
+
 
 class ConfigurationView():
     def getHelper(self):
@@ -67,7 +69,6 @@ class ConfigurationView():
 
         return configuration
 
-
 class VersionView(ConfigurationView, View):
     def get(self, request, test_plan_id):
         testPlan = TestPlan.objects.get(id=test_plan_id)
@@ -122,3 +123,17 @@ class TestPlansView(View):
         testPlans = TestPlan.objects.all()
         args = {"testPlans": testPlans}
         return render(request, 'test-plans.html', args)
+
+class ExportVersionView(View):
+    def get(self, request, version_id):
+        version = Version.objects.get(id=version_id)
+        configurationObj = {
+            "radioFrequencyMeasurements": version.configuration.getMeasurements(), 
+            "propagationModel": version.configuration.getPropagationModel(),
+            "mobilityModel": version.configuration.getMobilityModel()
+        }
+
+        jsonString = json.dumps(configurationObj, default=lambda o: o.__dict__, indent=4)
+        response = HttpResponse(jsonString, content_type="application/json")
+        response['Content-Disposition'] = 'attachment; filename={}.json'.format(version.name)
+        return response
