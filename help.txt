@@ -1,0 +1,28 @@
+criar postgres em docker:
+> sudo docker run --name mininet-postgres -e "POSTGRES_PASSWORD=postgres" -p 5432:5432 -v /home/renan/Documentos/projetos/pfc/postgres:/var/lib/postgresql/data -d postgres
+> sudo docker run --name mininet-postgres -e "POSTGRES_PASSWORD=postgres" -p 5432:5432 -v /home/wifi/vboxshare/postgres:/var/lib/postgresql/datadb -d postgres
+
+executar o docker:
+> sudo docker start mininet-postgres
+
+executar django:
+> sudo python manage.py runserver 0.0.0.0:8000 (na VM)
+> sudo python manage.py runserver
+
+compartilhar pasta com VM:
+> VBoxManage sharedfolder add "mn-wifi" --name pfc --hostpath "/home/renan/Documentos/projetos/pfc"
+> mkdir /home/wifi/vboxshare
+> sudo mount -t vboxsf -o uid=1000,gid=1000 pfc /home/wifi/vboxshare 
+
+ssh -p2222 wifi@127.0.0.1
+
+
+python manage.py makemigrations
+python manage.py migrate
+
+
+==============
+
+generate UML by django models: https://simpleit.rocks/python/django/generate-uml-class-diagrams-from-django-models/
+
+bizu do xml: https://github.com/fortesp/xsd2xml/blob/master/xsd2xml/xmlgenerator.py

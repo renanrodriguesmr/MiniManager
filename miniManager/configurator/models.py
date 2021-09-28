@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import connection, models
 
 # Create your models here.
 
@@ -12,7 +12,7 @@ class TestPlan(models.Model):
 
 
 class Network(models.Model):
-    fixo = models.BooleanField()
+    fixed = models.BooleanField()
     
     class Meta:
         db_table="Network"
@@ -62,8 +62,7 @@ class Configuration(models.Model):
     medicao_schema = models.TextField()
     propagationmodel = models.ForeignKey(PropagationModel, on_delete=models.CASCADE, null= True)
     mobilitymodel = models.ForeignKey(MobilityModel, on_delete = models.CASCADE, null=True)
-    start_time = models.FloatField(null=True)
-    stop_time = models.FloatField(null=True)
+    stop_time = models.IntegerField(null=True)
     network = models.ForeignKey(Network, on_delete=models.CASCADE, null=True)
 
 
@@ -109,7 +108,7 @@ class MobilityParam(models.Model):
 
 class Node(models.Model):
     name = models.CharField(max_length=30)
-    fixo = models.BooleanField()
+    fixed = models.BooleanField()
     mac = models.CharField(max_length=30)
     network = models.ForeignKey(Network, on_delete=models.CASCADE)
 
@@ -119,7 +118,7 @@ class Node(models.Model):
 
 class Mobility(models.Model):
     tempo = models.FloatField()
-    fixo = models.BooleanField()
+    fixed = models.BooleanField()
     x = models.FloatField()
     y = models.FloatField()
     z = models.FloatField()
@@ -163,7 +162,7 @@ class Switch(models.Model):
 
 class AccessPoint(models.Model):
     ssid = models.CharField(max_length=30)
-    modo = models.CharField(max_length=30)
+    mode = models.CharField(max_length=30)
     channel = models.CharField(max_length=30)
     node = models.ForeignKey(Node,on_delete=models.CASCADE)
 
@@ -172,7 +171,7 @@ class AccessPoint(models.Model):
 
 class Interface(models.Model):
     name = models.CharField(max_length=30)
-    fixo = models.BooleanField()
+    fixed = models.BooleanField()
     ip = models.CharField(max_length=30)
     node = models.ForeignKey(Node, on_delete=models.CASCADE) 
 
@@ -181,11 +180,11 @@ class Interface(models.Model):
 
 class Link(models.Model):
     interface = models.ForeignKey(Interface, on_delete=models.CASCADE)
-    conexao = models.CharField(max_length=30)
-    fixo = models.BooleanField()
+    connection = models.CharField(max_length=30)
+    fixed = models.BooleanField()
     delay = models.CharField(max_length=30)
     loss = models.CharField(max_length=30)
-    tamanho_maximo_fila = models.CharField(max_length=30)
+    max_queue_size = models.CharField(max_length=30)
     jitter = models.CharField(max_length=30)
     speedup = models.CharField(max_length=30)
 

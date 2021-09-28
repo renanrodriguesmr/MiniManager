@@ -74,7 +74,11 @@ class ConfigurationView(View):
 class VersionView(View):
     def get(self, request, test_plan_id):
         testPlan = TestPlan.objects.get(id=test_plan_id)
-        args = {"error": False, "errorMessage": "", "testPlan": testPlan}
+        pmodels = PModelCatalog.objects.all()
+        mmodels = MModelCatalog.objects.all()
+        measures = Measure.objects.all()
+        args = {"error": False, "errorMessage": "", "testPlan": testPlan, "pmodels": pmodels, "mmodels": mmodels, "measures": measures}
+
         return render(request, 'version.html', args)
 
     def post(self, request):
