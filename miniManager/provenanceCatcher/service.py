@@ -1,10 +1,20 @@
+import xmlschema
+
 class ProvenanceService():
     def __getResultContentFromRound(self, roundID, schema):
         from .models import Result
         try:
             result = Result.objects.get(round__pk=roundID)
-            resultDict = schema.decode(result.xml_content, attr_prefix='')
-            return resultDict["radioFrequency"]["instant"], resultDict["performance"]["instance"]
+            resultDict = xmlschema.XMLSchema(schema).decode(result.xml_content, attr_prefix='')
+
+            radioFrequency = []
+            performance = []
+            if resultDict["radioFrequency"] and "instant" in resultDict["radioFrequency"]:
+                radioFrequency = resultDict["radioFrequency"]["instant"]
+            if resultDict["performance"] and "instance" in resultDict["performance"]:
+                performance = resultDict["performance"]["instance"]
+
+            return radioFrequency, performance
 
         except:
             return [], []

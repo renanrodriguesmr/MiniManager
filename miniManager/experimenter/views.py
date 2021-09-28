@@ -35,7 +35,7 @@ class RoundView(View):
         args["performanceTitles"] = ExperimenterConstants.PERFORMANCE_TITLES
 
         if round.status == Round.DONE:
-            args['radioFrequency'], args['performance'] = ProvenanceService().getResultRowsFromRound(round.id, configuration.medicao_schema, radioFrequencyMeasurements)
+            args['radioFrequency'], args['performance'] = ProvenanceService().getResultRowsFromRound(round.id, configuration.medicao_schema, args["radioFrequencyTitles"])
 
         return render(request, 'round.html', args)
 
