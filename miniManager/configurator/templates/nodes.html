@@ -1,7 +1,7 @@
 <h3>Nós da Rede</h3>
 <div class="form-group">
   <label for="Node">Selecione o Modelo de mobilidade</label>
-  <select class="form-control" onchange="onmobilityModelSelect(this)" name="nodeselected" id="Node">
+  <select class="form-control" onchange="onnodeSelect(this)" name="nodeselected" id="Node">
     <option value="station">Estação</option>
     <option value="host">Host</option>
     <option value="accesspoint">Access Point</option>
@@ -10,7 +10,7 @@
 </div>
 <div id="station"  class="hidde-element form-group" style="display: none;">
     <div class="form-group">
-      <label id="name" for="namestation">Name</label>
+      <label id="name" for="namestation">name</label>
       <input type="text" name="name" class="form-control" id="namestation">
       <label id="name" for="mac">mac address</label>
       <input type="text" name="macaddress" class="form-control" id="mac">
@@ -20,10 +20,10 @@
 </div>
 <div id="accesspoint"  class="hidde-element form-group" style="display: none;">
     <div class="form-group">
-      <label id="name" for="nameaccess">Name</label>
+      <label id="name" for="nameaccess">name</label>
       <input type="text" name="name" class="form-control" id="nameaccess">
       <label id="name" for="ssidlb">ssid</label>
-      <input type="text" name="ssid" class="form-control" id="ssidlb">
+      <input type="text" name="ssid" class="form-control" id="ssidlb"> 
       <label id="name" for="mode">mode</label>
       <input type="text" name="mode" class="form-control" id="mode">
       <label id="name" for="channel">channel</label>
@@ -57,20 +57,20 @@
 
 <script>
 
-var currentmobilityModelName = "randomdirection";
-changemobilityModelForm(currentmobilityModelName);
+var currentNodeType = "station";
+changeNodeForm(currentNodeType);
 
-function onmobilityModelSelect(selectSrc) {
-  let mobilityModelName = selectSrc.value;
-  changemobilityModelForm(mobilityModelName);
-  currentmobilityModelName = mobilityModelName;
+function onnodeSelect(selectSrc) {
+  let nodeType = selectSrc.value;
+  changeNodeForm(nodeType);
+  currentNodeType = nodeType;
 }
 
 
-function changemobilityModelForm(newmobilityModel) {
-  document.getElementById(currentmobilityModelName).style.display = "none";
+function changeNodeForm(newNodeType) {
+  document.getElementById(currentNodeType).style.display = "none";
 
-  let newElement = document.getElementById(newmobilityModel);
+  let newElement = document.getElementById(newNodeType);
   
 
   newElement.style.display = "inline-block";

@@ -10,6 +10,7 @@
   <h1>Configuração de Rede</h1>
   <form action="/configuration/" method="post">
     {% csrf_token %}
+    {% include "nodes.html" %}
     {% include "modelpropagation.html" with pmodels=pmodels only %}
     {% include "modelmobility.html" with mmodels=mmodels only %}
     {% include "measures.html" with measures=measures only %}
