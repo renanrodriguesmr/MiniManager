@@ -1,10 +1,10 @@
+from django.db import connection
 from django.shortcuts import render
 from django.views import View
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 
-from .models import Configuration, MModelCatalog, Measure, Measurement, MobilityModel, MobilityParam, PModelCatalog, PropagationModel, PropagationParam, Version, TestPlan
-
+from .models import *
 class ConfigurationView(View):
     def get(self,request):
         args={}
@@ -23,9 +23,95 @@ class ConfigurationView(View):
         
         paramlist = request.POST.getlist('radiofrequency')
 
+
+        #nodes
+        nodeSelected = request.POST.get('nodeselected')
+        nodetype = str(nodeSelected)
+        network = Network(fixo = True)
+        network.save()
+
+            
+        if(nodetype == "station"):
+            stationname = request.POST.get(nodetype+"name")
+            stationmac = request.POST.get(nodetype+"mac")
+            stationip = request.POST.get(nodetype+"ip")
+
+            node = Node(name = stationname , mac=stationmac, network = network)
+            node.save()
+
+            station = Station(node = node)
+            station.save()
+
+
+            interface = Interface(name=stationname+"int", ip = stationip, node=node)
+            interface.save()
+
+        if( nodetype == "accesspoint"):
+
+            apname = request.POST.get(nodetype+"name")
+            apssid = request.POST.get(nodetype+"ssid")
+            apmode = request.POST.get(nodetype+"mode")
+            apchannel = request.POST.get(nodetype+"channel")
+            
+
+            node = Node(name = apname, network = network)
+            node.save()
+
+            ap = AccessPoint(ssid = apssid,  mode =apmode ,  channel = apchannel )
+            ap.save()
+
+
+            interface = Interface(name=apname+"int", node=node)
+            interface.save()
+
+        if( nodetype == "host"):
+
+            hostname = request.POST.get(nodetype+"name")
+            hostmac = request.POST.get(nodetype+"mac")
+            hostip = request.POST.get(nodetype+"ip")
+            
+
+            node = Node(name = hostname, mac = hostmac, network = network)
+            node.save()
+
+            host = Host(node = node)
+            host.save()
+
+
+            interface = Interface(name=hostname+"int", node=node)
+            interface.save()
+
+        if( nodetype == "switch"):
+            
+            switchname = request.POST.get(nodetype+"name")
+            switchtype = request.POST.get(nodetype+"type")
+
+            node = Node(name = switchname, network = network)
+            node.save()
+
+            switch = Switch(type = switchtype, node = node )
+            switch.save()
+
+
+            interface = Interface(name=switchname+"int", node=node)
+            interface.save()
+
+
+        #link
+        
+        conn = request.POST.get("conn")
+        delay = request.POST.get("delay")
+        loss = request.POST.get("loss")
+        maxqueue= request.POST.get("maxqueue")
+        jitter= request.POST.get("jitter")
+        speedup= request.POST.get("speedup")
+
+        link = Link(connection=conn, delay=delay,loss=loss, max_queue_size=maxqueue, jitter=jitter, speedup=speedup)
+        link.save()
+
         pmodelSelected = request.POST.get('propagationmodel')
         mmodelSelected = request.POST.get('mobilitymodel')
-        
+
         pmodel = PModelCatalog.objects.get(name=pmodelSelected)
         pmodelName = str(pmodel.name)
 

@@ -7,9 +7,9 @@
     {% endfor %}
   </select>
 </div>
-<div id="randomdirection"  class="hidde-element form-group" style="display: none;">
+<div id="RandomDirection"  class="hidde-element form-group" style="display: none;">
   <div class="form-group">
-    <input type="hidden" name="randomdirectionattribute" value="seed,min_velocidade,max_velocidade,min_x,max_x,min_y,max_y,min_z,max_z,time">
+    <input type="hidden" name="RandomDirectionattribute" value="seed,min_velocidade,max_velocidade,min_x,max_x,min_y,max_y,min_z,max_z,time">
     <label for="ifprop">seed</label>
     <input type="number" name="seed" class="form-control" id="ifprop">
     <label for="ifprop">min_velocidade</label>
@@ -37,7 +37,7 @@
 
 <script>
 
-var currentmobilityModelName = "randomdirection";
+var currentmobilityModelName = "RandomDirection";
 changemobilityModelForm(currentmobilityModelName);
 
 function onmobilityModelSelect(selectSrc) {

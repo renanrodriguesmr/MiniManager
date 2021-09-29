@@ -109,7 +109,6 @@ class MobilityParam(models.Model):
 
 class Node(models.Model):
     name = models.CharField(max_length=30)
-    fixo = models.BooleanField()
     mac = models.CharField(max_length=30)
     network = models.ForeignKey(Network, on_delete=models.CASCADE)
 
@@ -119,7 +118,6 @@ class Node(models.Model):
 
 class Mobility(models.Model):
     tempo = models.FloatField()
-    fixo = models.BooleanField()
     x = models.FloatField()
     y = models.FloatField()
     z = models.FloatField()
@@ -172,7 +170,6 @@ class AccessPoint(models.Model):
 
 class Interface(models.Model):
     name = models.CharField(max_length=30)
-    fixo = models.BooleanField()
     ip = models.CharField(max_length=30)
     node = models.ForeignKey(Node, on_delete=models.CASCADE) 
 
@@ -180,12 +177,12 @@ class Interface(models.Model):
         db_table = "Interface"
 
 class Link(models.Model):
-    interface = models.ForeignKey(Interface, on_delete=models.CASCADE)
-    conexao = models.CharField(max_length=30)
-    fixo = models.BooleanField()
+    int1 = models.ForeignKey(Interface, related_name='int1', on_delete=models.CASCADE, null=True)
+    int2 = models.ForeignKey(Interface, related_name='int2', on_delete=models.CASCADE, null=True)
+    connection = models.CharField(max_length=30)
     delay = models.CharField(max_length=30)
     loss = models.CharField(max_length=30)
-    tamanho_maximo_fila = models.CharField(max_length=30)
+    max_queue_size = models.CharField(max_length=30)
     jitter = models.CharField(max_length=30)
     speedup = models.CharField(max_length=30)
 
