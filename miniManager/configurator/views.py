@@ -199,7 +199,10 @@ class TestPlanView(View):
             args = {"error": True, "errorMessage": "Já existe um plano de teste com esse nome"}
             return render(request, 'test-plan.html', args)
 
-        testPlan = TestPlan(name=testPlanName)
+        testPlanDescription = request.POST.get('test-plan_description')
+        testplanAuthor = request.POST.get('test-plan_author')
+
+        testPlan = TestPlan(name=testPlanName, author = testplanAuthor, description = testPlanDescription)
         testPlan.save()
 
         url = reverse('test-plans')
