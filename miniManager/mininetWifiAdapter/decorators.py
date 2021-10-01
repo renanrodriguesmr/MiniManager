@@ -15,7 +15,7 @@ class MininetDecorator(ABC):
     def getNetwork(self):
         pass
 
-class MininetNetwork(MininetDecorator):
+class NetworkDecorator(MininetDecorator):
     def __init__(self):
         self.__network = None
 
