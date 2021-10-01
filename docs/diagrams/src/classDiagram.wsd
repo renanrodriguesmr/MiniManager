@@ -1,0 +1,180 @@
+@startuml  Diagrama de Classe
+skinparam classAttributeIconSize 0
+
+package django {
+    class AsyncJsonWebsocketConsumer {}
+    class Model {}
+    class View {}
+}
+
+package experimenter {
+
+    class WebSocketServer {
+        + void connect()
+        + void disconnect()
+        + void sendMessage(data)
+        + void sendMessageToRoom(roundID, data)
+        - getRoomGroupName(roundID)
+    }
+
+    class Round {
+        + string name
+        + datetime start
+        + datetime end
+        + string status
+        + string version
+        - string old_status
+        
+        + save()
+        + boolean isDone()
+    }
+
+    class ExperimentListener {
+        - roundID
+        - started
+
+        + update(subject)
+        - updateStatus(status)
+        - sendMessage(subject)
+    }
+
+    class ExperimentsQueue {
+        + Queue queue
+        - ExperimentsQueue instance
+        - boolean busy
+        - Map roundToExperimentMap
+        - number currentRound
+
+        + add (MininetWifiExp mininetWifiExp, number roundID, string medicao_schema)
+        + finishExperiment(number roundID)
+        + experimentFinished(number roundID)
+        + instance()
+
+        - consume()
+        - startExperiment(number roundID)
+        - updateRoundStatus(number roundID)
+        - startCapture(number roundID, string schema)
+    }
+    
+
+    class RoundsView {
+        + get(request, version_id)
+    }
+
+    class RoundView {
+        + get(request, version_id)
+        + post(request)
+        - enqueueExperiment(configuration, roundID)
+    }
+
+    class FinishRoundView {
+        + post(request)
+    }
+
+    class ExportRoundView {
+        + get(request, round_id)
+    }
+
+    class CompareRoundsView {
+        + get(request)
+    }
+
+}
+
+package mininetWifiAdapter {
+    interface IResultEventListener {
+        + update(subject)
+    }
+
+    class MininetWifiExp {}
+}
+
+
+package provenanceCatcher {
+    class ProvenanceService {
+        + getResultRowsFromRound(roundID, schema, radioFrequencyMeasures)
+        + getXML(roundID, encoding)
+        + diffResults(roundID1, roundID2, schema1, schema2, measurements)
+        - getResultContentFromRound(roundID, schema)
+        - isGreaterThan(row1, row2)
+        - isEqual(row1, row2)
+        - getDiff(rows1, rows2)
+    }
+
+    class ProvenanceManager {
+        - instance
+        - roundID
+        - schema
+        - radioFrequency
+        - performance
+
+        + instance()
+        + reset(roundID, schema)
+        + addResult(content)
+        + saveResults()
+        - addRadioFrequencyElement(time, radioFrequency)
+        - addPerformanceElement(time, performance)
+    }
+
+    class Result {
+        + xml_content
+        + round
+    }
+
+    class ProvenanceListener {
+        + update(subject)
+    }
+
+    ProvenanceListener *-- ProvenanceManager
+    ProvenanceManager ..> Result
+    ProvenanceService ..> Result
+}
+
+Model <|-- Result
+
+
+
+package configurator {
+    class ConfiguratorService {}
+}
+
+
+
+AsyncJsonWebsocketConsumer <|-- WebSocketServer
+
+Model <|-- Round
+
+IResultEventListener <|.. ExperimentListener
+ExperimentListener ..> WebSocketServer
+ExperimentListener ..> ExperimentsQueue
+ExperimentListener ..> Round
+
+IResultEventListener <|.. ProvenanceListener
+
+ExperimentsQueue "1" o-- "*" MininetWifiExp
+ExperimentsQueue ..> Round
+ExperimentsQueue ..> ProvenanceManager
+ExperimentsQueue ..> ProvenanceListener
+
+View <|-- RoundsView
+RoundsView ..> Round
+RoundsView ..> ConfiguratorService
+
+View <|-- RoundView
+RoundView ..> Round
+RoundView ..> ConfiguratorService
+RoundView ..> ExperimentsQueue
+
+View <|-- FinishRoundView
+FinishRoundView ..> Round
+FinishRoundView ..> ExperimentsQueue
+
+View <|-- ExportRoundView
+ExportRoundView ..> Round
+ExportRoundView ..> ProvenanceService
+
+View <|-- CompareRoundsView
+CompareRoundsView ..> Round
+CompareRoundsView ..> ProvenanceService
+
+@enduml
