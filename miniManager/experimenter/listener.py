@@ -8,7 +8,10 @@ from .models import Round
 class ExperimentListener(IResultEventListener):
     def __init__(self, roundID):
         self.__roundID = roundID
+        self.roundID = roundID
         self.__started = False
+        self.started = False
+
 
     def update(self, subject):
         run(self.__sendMessage(subject))
