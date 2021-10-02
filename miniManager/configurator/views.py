@@ -4,9 +4,8 @@ from django.views import View
 from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse
 
-from .models import Configuration, MModelCatalog, Measure, Measurement, MobilityModel, MobilityParam, PModelCatalog, PropagationModel, PropagationParam, Version, TestPlan
+from .models import *
 from .xmlSchemaGenerator import XMLSchemaGenerator
-
 
 class ConfigurationView():
     def getHelper(self):
@@ -27,7 +26,106 @@ class ConfigurationView():
             measurement.save()
 
         xmlSchemaGenerator = XMLSchemaGenerator()
-        return xmlSchemaGenerator.generate(paramlist)  
+        return xmlSchemaGenerator.generate(paramlist)
+
+    def __saveStation(self, request, network):
+        NODE_TYPE = "station"
+        stationname = request.POST.get(NODE_TYPE+"name")
+        stationmac = request.POST.get(NODE_TYPE+"mac")
+        stationip = request.POST.get(NODE_TYPE+"ip")
+
+        node = Node(name = stationname , mac=stationmac, network = network)
+        node.save()
+
+        station = Station(node = node)
+        station.save()
+
+
+        interface = Interface(name=stationname+"int", ip = stationip, node=node)
+        interface.save()
+
+    def __saveAcessPoint(self, request, network):
+        NODE_TYPE = "accesspoint"
+        apname = request.POST.get(NODE_TYPE+"name")
+        apssid = request.POST.get(NODE_TYPE+"ssid")
+        apmode = request.POST.get(NODE_TYPE+"mode")
+        apchannel = request.POST.get(NODE_TYPE+"channel")
+        
+        node = Node(name = apname, network = network)
+        node.save()
+
+        ap = AccessPoint(ssid = apssid,  mode =apmode ,  channel = apchannel )
+        ap.save()
+
+        interface = Interface(name=apname+"int", node=node)
+        interface.save()
+         
+    def __saveHost(self, request, network):
+        NODE_TYPE = "host"
+        hostname = request.POST.get(NODE_TYPE+"name")
+        hostmac = request.POST.get(NODE_TYPE+"mac")
+        hostip = request.POST.get(NODE_TYPE+"ip")
+        
+
+        node = Node(name = hostname, mac = hostmac, network = network)
+        node.save()
+
+        host = Host(node = node)
+        host.save()
+
+
+        interface = Interface(name=hostname+"int", node=node)
+        interface.save()
+
+    def __saveSwitch(self, request, network):
+        NODE_TYPE = "host"
+        switchname = request.POST.get(NODE_TYPE+"name")
+        switchtype = request.POST.get(NODE_TYPE+"type")
+
+        node = Node(name = switchname, network = network)
+        node.save()
+
+        switch = Switch(type = switchtype, node = node )
+        switch.save()
+
+
+        interface = Interface(name=switchname+"int", node=node)
+        interface.save()
+
+
+    def __saveNetowrk(self, request):
+        network = Network()
+        network.save()
+
+        return network
+
+    
+    def __saveNodes(self, request, network):
+        nodeSelected = request.POST.get('nodeselected')
+        nodetype = str(nodeSelected)
+
+
+        nodeTypeToSaverMap = {
+            "station": self.__saveStation,
+            "accesspoint": self.__saveAcessPoint,
+            "host": self.__saveHost,
+            "switch": self.__saveSwitch
+        }
+
+        saver = nodeTypeToSaverMap[nodetype]
+        saver(request, network)
+            
+
+    def __saveLink(self, request):
+        conn = request.POST.get("conn")
+        delay = request.POST.get("delay")
+        loss = request.POST.get("loss")
+        maxqueue= request.POST.get("maxqueue")
+        jitter= request.POST.get("jitter")
+        speedup= request.POST.get("speedup")
+
+        link = Link(connection=conn, delay=delay,loss=loss, max_queue_size=maxqueue, jitter=jitter, speedup=speedup)
+        link.save()
 
     def __savePropagationModel(self, request):
         pmodelSelected = request.POST.get('propagationmodel')
@@ -60,6 +158,9 @@ class ConfigurationView():
     def postHelper(self, request):
         propagationmodel = self.__savePropagationModel(request)
         mobilitymodel = self.__saveMobilityModel(request)
+        network = self.__saveNetowrk(request)
+        self.__saveNodes(network)
+        self.__saveLink()
 
         configuration = Configuration(medicao_schema='xml_schema', propagationmodel=propagationmodel, mobilitymodel=mobilitymodel)
         configuration.save()
@@ -112,7 +213,10 @@ class TestPlanView(View):
             args = {"error": True, "errorMessage": "Já existe um plano de teste com esse nome"}
             return render(request, 'test-plan.html', args)
 
-        testPlan = TestPlan(name=testPlanName)
+        testPlanDescription = request.POST.get('test-plan_description')
+        testplanAuthor = request.POST.get('test-plan_author')
+
+        testPlan = TestPlan(name=testPlanName, author = testplanAuthor, description = testPlanDescription)
         testPlan.save()
 
         url = reverse('test-plans')
