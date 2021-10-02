@@ -2,6 +2,7 @@
 
 {% block head %}
   <link rel="stylesheet" href="{% static 'modelpropagation.css' %}">
+  <link rel="stylesheet" href="{% static 'nodes.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -11,4 +12,3 @@
   {% include "modelmobility.html" with mmodels=mmodels only %}
   {% include "measures.html" with measures=measures only %}
 {% endblock %}
-

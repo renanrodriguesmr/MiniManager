@@ -10,7 +10,7 @@
   <form action="/versions/{{testPlan.id}}" method="get">
     <button class="btn btn-primary">Voltar para Versões</button>
   </form>
-  <form action="/version/" method="POST">
+  <form id="network-form" action="/version/" method="POST" onsubmit="teste()">
     {% csrf_token %}
     <div class="form-group row">
       <label for="version_name" class="form-label">Nome</label>
@@ -22,9 +22,44 @@
 
     <div class="submit-button d-grid gap-2">
       <button type="submit" class="btn btn-primary">Submit</button>
+      <button type="button" class="btn btn-primary" onclick="teste()">Teste</button>
     </div>
     {% if error %}
       <div id="status-bar" class="alert alert-primary" role="alert">{{ errorMessage }}</div>
     {% endif %}
   </form>
+
+  <script>
+    function generateInputsOfNode(node){
+      var element = document.createElement("div");
+      var inputType = document.createElement("input");
+      inputType.setAttribute('name', node.id + "-" + type);
+      inputType.setAttribute('value', node.type);
+      element.appendChild(inputType);
+
+      for(var arg in node.args){
+        var input = document.createElement("input");
+        input.setAttribute('name', node.id + "-" + arg);
+        input.setAttribute('value', node.args[arg]);
+        element.appendChild(input);
+      }
+
+      return element;
+    }
+
+    function teste(){
+      var parent = document.getElementById("network-form");
+      var nodes = [];
+
+      for(var nodeID in currentNodes){
+        nodes.push(nodeID);
+        parent.appendChild(generateInputsOfNode(currentNodes[nodeID]));
+      }
+
+      var input = document.createElement("input");
+      input.setAttribute('name', 'nodes');
+      input.setAttribute('value', nodes.toString());
+      parent.appendChild(input);
+    }
+  </script>
 {% endblock %}
