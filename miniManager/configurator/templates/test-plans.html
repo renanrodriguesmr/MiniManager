@@ -17,6 +17,8 @@
             <th>Nome</th>
             <th>Criado em</th>
             <th>Atualizado em</th>
+            <th>Autor</th>
+            <th>Descrição</th>
             <th>Ações</th>
         </tr>
     </thead>
@@ -26,6 +28,8 @@
         <td>{{ testPlan.name }}</td>
         <td>{{ testPlan.created_at|date:"d/m/Y" }} - {{ testPlan.created_at|time:"h:i:s" }}</td>
         <td>{{ testPlan.updated_at|date:"d/m/Y" }} - {{ testPlan.updated_at|time:"h:i:s" }}</td>
+        <td>{{ testPlan.author }}</td>
+        <td>{{ testPlan.description }}</td>
         <td><a href="/versions/{{testPlan.id}}">OPEN</a>
       </tr>
       {% endfor %}
