@@ -4,6 +4,8 @@ class TestPlan(models.Model):
     name = models.CharField(max_length=30)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    description = models.TextField(null = True)
+    author = models.CharField(max_length=50, null = True)
 
     class Meta:
         db_table = "TestPlan"
@@ -122,7 +124,6 @@ class MobilityParam(models.Model):
 
 class Node(models.Model):
     name = models.CharField(max_length=30)
-    fixed = models.BooleanField()
     mac = models.CharField(max_length=30)
     network = models.ForeignKey(Network, on_delete=models.CASCADE)
 
@@ -132,7 +133,6 @@ class Node(models.Model):
 
 class Mobility(models.Model):
     tempo = models.FloatField()
-    fixed = models.BooleanField()
     x = models.FloatField()
     y = models.FloatField()
     z = models.FloatField()
@@ -162,17 +162,12 @@ class Host(models.Model):
         db_table = "Host"
 
 
-
 class Switch(models.Model):
     type = models.CharField(max_length=30)
     node = models.ForeignKey(Node,on_delete=models.CASCADE)
     
     class Meta:
         db_table="Switch"
-
-
-
-
 
 class AccessPoint(models.Model):
     ssid = models.CharField(max_length=30)
@@ -185,7 +180,6 @@ class AccessPoint(models.Model):
 
 class Interface(models.Model):
     name = models.CharField(max_length=30)
-    fixed = models.BooleanField()
     ip = models.CharField(max_length=30)
     node = models.ForeignKey(Node, on_delete=models.CASCADE) 
 
@@ -193,9 +187,9 @@ class Interface(models.Model):
         db_table = "Interface"
 
 class Link(models.Model):
-    interface = models.ForeignKey(Interface, on_delete=models.CASCADE)
+    int1 = models.ForeignKey(Interface, related_name='int1', on_delete=models.CASCADE, null=True)
+    int2 = models.ForeignKey(Interface, related_name='int2', on_delete=models.CASCADE, null=True)
     connection = models.CharField(max_length=30)
-    fixed = models.BooleanField()
     delay = models.CharField(max_length=30)
     loss = models.CharField(max_length=30)
     max_queue_size = models.CharField(max_length=30)
