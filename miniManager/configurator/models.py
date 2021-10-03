@@ -12,7 +12,7 @@ class TestPlan(models.Model):
 
 
 class Network(models.Model):
-    fixed = models.BooleanField()
+    fixed = models.BooleanField(default=True)
     
     class Meta:
         db_table="Network"

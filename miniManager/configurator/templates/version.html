@@ -10,7 +10,7 @@
   <form action="/versions/{{testPlan.id}}" method="get">
     <button class="btn btn-primary">Voltar para Versões</button>
   </form>
-  <form id="network-form" action="/version/" method="POST" onsubmit="teste()">
+  <form id="network-form" action="/version/" method="POST" onsubmit="return processNodes();">
     {% csrf_token %}
     <div class="form-group row">
       <label for="version_name" class="form-label">Nome</label>
@@ -22,7 +22,7 @@
 
     <div class="submit-button d-grid gap-2">
       <button type="submit" class="btn btn-primary">Submit</button>
-      <button type="button" class="btn btn-primary" onclick="teste()">Teste</button>
+      <button type="button" class="btn btn-primary" onclick="processNodes()">teste</button>
     </div>
     {% if error %}
       <div id="status-bar" class="alert alert-primary" role="alert">{{ errorMessage }}</div>
@@ -33,23 +33,28 @@
     function generateInputsOfNode(node){
       var element = document.createElement("div");
       var inputType = document.createElement("input");
-      inputType.setAttribute('name', node.id + "-" + type);
+      inputType.setAttribute('name', node.id + "-type");
       inputType.setAttribute('value', node.type);
       element.appendChild(inputType);
 
-      for(var arg in node.args){
+      for(var prop in node.props){
         var input = document.createElement("input");
-        input.setAttribute('name', node.id + "-" + arg);
-        input.setAttribute('value', node.args[arg]);
+        input.setAttribute('name', node.id + "-" + prop);
+        input.setAttribute('value', node.props[prop]);
         element.appendChild(input);
       }
 
       return element;
     }
 
-    function teste(){
+    function processNodes(){
       var parent = document.getElementById("network-form");
       var nodes = [];
+
+      if(currentNodes == {}){
+        alert("nenhum nó configurado");
+        return false;
+      }
 
       for(var nodeID in currentNodes){
         nodes.push(nodeID);
@@ -60,6 +65,8 @@
       input.setAttribute('name', 'nodes');
       input.setAttribute('value', nodes.toString());
       parent.appendChild(input);
+
+      return true;
     }
   </script>
 {% endblock %}

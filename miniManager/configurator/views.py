@@ -28,94 +28,62 @@ class ConfigurationView():
         xmlSchemaGenerator = XMLSchemaGenerator()
         return xmlSchemaGenerator.generate(paramlist)
 
-    def __saveStation(self, request, network):
-        NODE_TYPE = "station"
-        stationname = request.POST.get(NODE_TYPE+"name")
-        stationmac = request.POST.get(NODE_TYPE+"mac")
-        stationip = request.POST.get(NODE_TYPE+"ip")
+    def __parseAttributes(self, attributesString):
+        attributesString.strip()
+        if (attributesString == ""):
+            return []
 
-        node = Node(name = stationname , mac=stationmac, network = network)
-        node.save()
+        if "," in attributesString:
+            return attributesString.split(",")
 
-        station = Station(node = node)
-        station.save()
-
-
-        interface = Interface(name=stationname+"int", ip = stationip, node=node)
-        interface.save()
-
-    def __saveAcessPoint(self, request, network):
-        NODE_TYPE = "accesspoint"
-        apname = request.POST.get(NODE_TYPE+"name")
-        apssid = request.POST.get(NODE_TYPE+"ssid")
-        apmode = request.POST.get(NODE_TYPE+"mode")
-        apchannel = request.POST.get(NODE_TYPE+"channel")
-        
-        node = Node(name = apname, network = network)
-        node.save()
-
-        ap = AccessPoint(ssid = apssid,  mode =apmode ,  channel = apchannel )
-        ap.save()
-
-        interface = Interface(name=apname+"int", node=node)
-        interface.save()
-         
-    def __saveHost(self, request, network):
-        NODE_TYPE = "host"
-        hostname = request.POST.get(NODE_TYPE+"name")
-        hostmac = request.POST.get(NODE_TYPE+"mac")
-        hostip = request.POST.get(NODE_TYPE+"ip")
-        
-
-        node = Node(name = hostname, mac = hostmac, network = network)
-        node.save()
-
-        host = Host(node = node)
-        host.save()
-
-
-        interface = Interface(name=hostname+"int", node=node)
-        interface.save()
-
-    def __saveSwitch(self, request, network):
-        NODE_TYPE = "host"
-        switchname = request.POST.get(NODE_TYPE+"name")
-        switchtype = request.POST.get(NODE_TYPE+"type")
-
-        node = Node(name = switchname, network = network)
-        node.save()
-
-        switch = Switch(type = switchtype, node = node )
-        switch.save()
-
-
-        interface = Interface(name=switchname+"int", node=node)
-        interface.save()
-
-
-    def __saveNetowrk(self, request):
-        network = Network()
-        network.save()
-
-        return network
-
+        return [attributesString]
     
-    def __saveNodes(self, request, network):
-        nodeSelected = request.POST.get('nodeselected')
-        nodetype = str(nodeSelected)
-
+    def __saveNode(self, request, network, nodeID):
+        type = request.POST.get(nodeID + "-" + "type")
 
         nodeTypeToSaverMap = {
-            "station": self.__saveStation,
-            "accesspoint": self.__saveAcessPoint,
-            "host": self.__saveHost,
-            "switch": self.__saveSwitch
+            "station": Station,
+            "accesspoint": AccessPoint,
+            "host": Host,
+            "switch": Switch
         }
 
-        saver = nodeTypeToSaverMap[nodetype]
-        saver(request, network)
-            
+        nodeClass = nodeTypeToSaverMap[type]
 
+        specificAttributeString = request.POST.get(type+"_specific_attribute")
+        specificAttributes = self.__parseAttributes(specificAttributeString)
+            
+        nodeAttributeString = request.POST.get(type+"_node_attribute")
+        nodeAttributes = self.__parseAttributes(nodeAttributeString)
+
+        interfaceAttributeString = request.POST.get(type+"_interface_attribute")
+        interfaceAttributes = self.__parseAttributes(interfaceAttributeString)
+
+        nodeParams = {}
+        for attr in nodeAttributes:
+            nodeParams[attr] = request.POST.get(nodeID + "-" + attr)
+        node = Node(network = network, **nodeParams)
+        node.save()
+
+        specParams = {}
+        for attr in specificAttributes:
+            specParams[attr] = request.POST.get(nodeID + "-" + attr)
+        spec = nodeClass(node = node, **specParams)
+        spec.save()
+
+        interfaceParams = {}
+        for attr in interfaceAttributes:
+            interfaceParams[attr] = request.POST.get(nodeID + "-" + attr)
+        interface = Interface(name=node.name + "int", node=node, **interfaceParams)
+        interface.save()
+
+    def __saveNodes(self, request, network):
+        nodesString = request.POST.get('nodes')
+        nodes = nodesString.split(",")
+
+        for nodeID in nodes:
+            self.__saveNode(request, network, nodeID)
+            
     def __saveLink(self, request):
         conn = request.POST.get("conn")
         delay = request.POST.get("delay")
@@ -127,13 +95,22 @@ class ConfigurationView():
         link = Link(connection=conn, delay=delay,loss=loss, max_queue_size=maxqueue, jitter=jitter, speedup=speedup)
         link.save()
 
+    def __saveNetowrk(self, request):
+        network = Network()
+        network.save()
+
+        return network
+    
     def __savePropagationModel(self, request):
         pmodelSelected = request.POST.get('propagationmodel')
         pmodel = PModelCatalog.objects.get(name=pmodelSelected)
         propagationmodel = PropagationModel(model=pmodel)
         propagationmodel.save()
 
-        propagationParams = request.POST.get("{}attribute".format(pmodelSelected)).split(",")
+        propagationParamsString = request.POST.get("{}attribute".format(pmodelSelected))
+        propagationParams = []
+        if propagationParamsString:
+            propagationParams = propagationParamsString.split(",")
         for param in propagationParams:
             value = request.POST.get(param)
             propagationparam = PropagationParam(name=param, value=value, propagationmodel=propagationmodel)
@@ -147,7 +124,10 @@ class ConfigurationView():
         mobilitymodel=MobilityModel(model=mmodel)
         mobilitymodel.save()
 
-        mobilityParams = request.POST.get("{}attribute".format(mmodelSelected)).split(",")
+        mobilityParamsString = request.POST.get("{}attribute".format(mmodelSelected))
+        mobilityParams = []
+        if mobilityParamsString:
+            mobilityParams = mobilityParamsString.split(",")
         for param in mobilityParams:
             value=request.POST.get(param)
             mobilityparam = MobilityParam(name=param, value=value, mobilitymodel=mobilitymodel)
@@ -159,10 +139,10 @@ class ConfigurationView():
         propagationmodel = self.__savePropagationModel(request)
         mobilitymodel = self.__saveMobilityModel(request)
         network = self.__saveNetowrk(request)
-        self.__saveNodes(network)
-        self.__saveLink()
+        self.__saveNodes(request, network)
+        self.__saveLink(request)
 
-        configuration = Configuration(medicao_schema='xml_schema', propagationmodel=propagationmodel, mobilitymodel=mobilitymodel)
+        configuration = Configuration(medicao_schema='xml_schema', propagationmodel=propagationmodel, mobilitymodel=mobilitymodel, network=network)
         configuration.save()
 
         configuration.medicao_schema = self.__saveMeasurements(request, configuration)
