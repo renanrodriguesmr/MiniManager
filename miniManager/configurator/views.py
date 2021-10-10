@@ -12,9 +12,9 @@ class ConfigurationView():
         pmodels = PModelCatalog.objects.all()
         mmodels = MModelCatalog.objects.all()
         measures = Measure.objects.all()
-        pmearusers = PerformanceMeasure.objects.all
+        pmeasures = PerformanceMeasure.objects.all
 
-        return {"pmodels": pmodels, "mmodels": mmodels, "measures": measures, "pmearusers": pmearusers}
+        return {"pmodels": pmodels, "mmodels": mmodels, "measures": measures, "pmeasures": pmeasures}
 
     def __saveMeasurements(self, request, configuration):
         paramlist = request.POST.getlist('radiofrequency')
@@ -27,15 +27,14 @@ class ConfigurationView():
             measurement.save()
 
         hasPerformanceMeasurement = request.POST.get('performancemeasure')
-        performanceMeasurement = {}
         if hasPerformanceMeasurement:
-            performanceMeasurement["name"] = request.POST.get('performancemeasure_name')
-            performanceMeasurement["source"] = request.POST.get('performancemeasuresource')
-            performanceMeasurement["destination"] = request.POST.get('performancemeasuredestination')
-            performanceMeasurement["period"] = request.POST.get('performanceperiod')
+            name = request.POST.get('performancemeasure_name')
+            source = request.POST.get('performancemeasuresource')
+            destination = request.POST.get('performancemeasuredestination')
+            period = request.POST.get('performanceperiod')
 
-            measure = PerformanceMeasure.objects.get(name=performanceMeasurement["name"])
-            measurement = PerformanceMeasurement(period=performanceMeasurement["period"], source=performanceMeasurement["source"], destination=performanceMeasurement["destination"], measure=measure, config=configuration)
+            measure = PerformanceMeasure.objects.get(name=name)
+            measurement = PerformanceMeasurement(period=period, source=source, destination=destination, measure=measure, config=configuration)
             measurement.save()
             
 
