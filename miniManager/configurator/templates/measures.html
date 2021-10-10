@@ -2,7 +2,7 @@
 <div class="form-group">
   {% for measure in measures %}
   <div class="row">
-    <input class="col-1 form-check-input" type="checkbox" name="radiofrequency" value="{{measure.name}}" id="{{measure.name}}">
+    <input class="col-1 form-check-input" type="checkbox" name="radiofrequency" value="{{measure.name}}" id="{{measure.name}}check">
     <label class="col-1 form-check-label" for="defaultCheck1">
       {{measure.name}}
     </label>
@@ -13,7 +13,7 @@
 
 <script>
   {% for measure in measures %}
-    document.getElementById('{{measure.name}}').onchange = function() {
+    document.getElementById('{{measure.name}}check').onchange = function() {
       document.getElementById('{{measure.name}}period').disabled = !this.checked;
     };
   {% endfor %}

@@ -94,6 +94,12 @@ class Measure(models.Model):
     class Meta:
         db_table = "Measures"
 
+class PerformanceMeasure(models.Model):
+    name = models.CharField(max_length=30)
+    unit = models.CharField(max_length=10)
+
+    class Meta:
+        db_table = "PerformanceMeasure"
 
 class Measurement(models.Model):
     period = models.IntegerField()
@@ -102,6 +108,16 @@ class Measurement(models.Model):
 
     class Meta:
         db_table = "Measurement"
+
+class PerformanceMeasurement(models.Model):
+    period = models.IntegerField()
+    measure = models.ForeignKey(PerformanceMeasure, on_delete=models.CASCADE)
+    config = models.ForeignKey(Configuration, on_delete=models.CASCADE)
+    source = models.CharField(max_length=20)
+    destination = models.CharField(max_length=20)
+
+    class Meta:
+        db_table = "PerformanceMeasurement"
 
 
 class PropagationParam(models.Model):

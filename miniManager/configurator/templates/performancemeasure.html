@@ -1,0 +1,22 @@
+<h3>Parâmetros de medida de performance</h3>
+<div class="form-group">
+  <div class="row">
+    <input class="col-1 form-check-input" type="checkbox" name="performancemeasure" value="performancemeasure" id="performancemeasure">
+    <select class="col" name="performancemeasure_name" id="performancemeasure_name">
+        {% for measure in measures %}
+        <option value="{{measure.name}}">{{measure.name}}</option>
+        {% endfor %}
+    </select>
+    <input class="col" type="text" name="performancemeasuresource" id="performancemeasuresource" placeholder="source" disabled>
+    <input class="col" type="text" name="performancemeasuredestination" id="performancemeasuredestination" placeholder="destination" disabled>
+    <input type="number" class="col-1" name = "performanceperiod" id="performanceperiod" placeholder="Período" disabled>
+  </div>
+</div>
+
+<script>
+document.getElementById('performancemeasure').onchange = function() {
+  document.getElementById('performancemeasuresource').disabled = !this.checked;
+  document.getElementById('performancemeasuredestination').disabled = !this.checked;
+  document.getElementById('performanceperiod').disabled = !this.checked;
+};
+</script>
