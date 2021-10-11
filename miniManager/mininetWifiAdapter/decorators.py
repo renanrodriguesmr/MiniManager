@@ -6,7 +6,7 @@ from mn_wifi.net import Mininet_wifi
 from mn_wifi.wmediumdConnector import interference
 from mininet.log import info
 
-class MininetDecorator(ABC):
+class MininetDecoratorComponent(ABC):
     @abstractmethod
     def configure(self):
         pass
@@ -15,9 +15,10 @@ class MininetDecorator(ABC):
     def getNetwork(self):
         pass
 
-class MininetNetwork(MininetDecorator):
-    def __init__(self):
+class MininetNetwork(MininetDecoratorComponent):
+    def __init__(self, nodes):
         self.__network = None
+        self.__nodes = nodes
 
     def getNetwork(self):
         return self.__network
@@ -26,25 +27,41 @@ class MininetNetwork(MininetDecorator):
         info("*** Creating network\n")
         self.__network = Mininet_wifi(controller=Controller, link=wmediumd, wmediumd_mode=interference, noise_th=-91, fading_cof=3)
 
+        nodeTypeToAdder = {
+            "station": self.__network.addStation,
+            "accesspoint": self.__network.addAccessPoint,
+            "host": self.__network.addHost,
+            "switch": self.__network.addSwitch
+        }
+
         info("*** Creating nodes\n")
-        ap1 = self.__network.addAccessPoint('ap1', ssid='new-ssid', mode='a', channel='36', position='15,30,0')
-        self.__network.addStation('sta1', mac='00:00:00:00:00:02', ip='10.0.0.1/8', min_x=10, max_x=30, min_y=50, max_y=70, min_v=5, max_v=10)
-        self.__network.addStation('sta2', mac='00:00:00:00:00:03', ip='10.0.0.2/8', min_x=0, max_x=60, min_y=25, max_y=80, min_v=2, max_v=10)
-        self.__network.addStation('sta3', mac='00:00:00:00:00:04', ip='10.0.0.3/8', min_x=60, max_x=70, min_y=10, max_y=20, min_v=1, max_v=5)
+        for node in self.__nodes:
+            nodeTypeToAdder[node["type"]](node["name"], **node["args"], **node["interface"]["args"])
+
         c1 = self.__network.addController('c1')
 
         info("*** Configuring wifi nodes\n")
         self.__network.configureWifiNodes()
 
+class MininetBaseDecorator(MininetDecoratorComponent):
+    def __init__(self, component):
+        self.__network = None
+        self.__component = component
 
-class PropagationModelDecorator(MininetDecorator):
+    def getNetwork(self):
+        return self.__network
+
+    def configure(self):
+        self.__component.configure()
+        self.__network = self.__component.getNetwork()
+
+class PropagationModelDecorator(MininetBaseDecorator):
     ARGS_MAP = {
         "exponent": "exp"
     }
 
     def __init__(self, component, propagationModel):
-        self.__network = None
-        self.__component = component
+        super().__init__(component)
         self.__propagationModel = propagationModel
         self.__args = {}
         self.__parseArgs()
@@ -53,17 +70,13 @@ class PropagationModelDecorator(MininetDecorator):
         self.__args = {}
         for arg in self.__propagationModel["args"]:
             self.__args[self.ARGS_MAP[arg]] = self.__propagationModel["args"][arg]
-    
-    def getNetwork(self):
-        return self.__network
 
     def configure(self):
         info("***Setting Propagation Model\n")
-        self.__component.configure()
-        self.__network = self.__component.getNetwork()
-        self.__network.setPropagationModel(model=self.__propagationModel["model"], **self.__args)
+        super().configure()
+        self.getNetwork().setPropagationModel(model=self.__propagationModel["model"], **self.__args)
 
-class MobilityModelDecorator(MininetDecorator):
+class MobilityModelDecorator(MininetBaseDecorator):
     ARGS_MAP = {
         "seed": "seed",
         "min_velocidade": "min_v",
@@ -77,8 +90,7 @@ class MobilityModelDecorator(MininetDecorator):
     }
 
     def __init__(self, component, mobilityModel):
-        self.__network = None
-        self.__component = component
+        super().__init__(component)
         self.__mobilityModel = mobilityModel
         
         self.__args = {}
@@ -92,29 +104,26 @@ class MobilityModelDecorator(MininetDecorator):
                 value = int(value)
 
             self.__args[self.ARGS_MAP[arg]] = value
-    
-    def getNetwork(self):
-        return self.__network
 
     def configure(self):
         info("***Setting Mobility Model\n")
-        self.__component.configure()
-        self.__network = self.__component.getNetwork()
-        self.__network.setMobilityModel(time=0, model=self.__mobilityModel["model"], **self.__args)
+        super().configure()
+        self.getNetwork().setMobilityModel(time=0, model=self.__mobilityModel["model"], **self.__args)
 
-class NetworkStarterDecorator(MininetDecorator):
-    def __init__(self, component):
-        self.__network = None
-        self.__component = component
+class NetworkStarterDecorator(MininetBaseDecorator):
+    def __init__(self, component, links):
+        super().__init__(component)
+        self.__links = links
     
-    def getNetwork(self):
-        return self.__network
-
     def configure(self):
-        self.__component.configure()
-        self.__network = self.__component.getNetwork()
-
+        super().configure()
         info("*** Starting network\n")
-        self.__network.build()
-        self.__network.get("c1").start()
-        self.__network.get("ap1").start([self.__network.get("c1")])
+        network = self.getNetwork()
+
+        for link in self.__links:
+            network.addLink(link["node1"], link["node2"], **link["args"])
+
+
+        network.build()
+        network.get("c1").start()
+        network.get("ap1").start([network.get("c1")])

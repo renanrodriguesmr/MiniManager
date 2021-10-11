@@ -108,7 +108,7 @@ class ConfigurationView():
         node1 = request.POST.get(linkID + "-" + "node1")
         node2 = request.POST.get(linkID + "-" + "node2")
 
-        linkAttributes = ["connection", "delay", "loss", "maxqueue", "jitter", "speedup"]
+        linkAttributes = ["bw", "delay", "loss", "max_queue_size", "jitter"]
         linkObj = {}
         for attr in linkAttributes:
             linkObj[attr] = request.POST.get(linkID + "-" + attr)

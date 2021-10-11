@@ -16,28 +16,24 @@
     </div>
     <div class="row">
       <div class="col">
-        <label for="conn">connection</label>
-        <input type="text" name="conn" class="form-control" id="conn">
+        <label for="bw">Largura de Banda (b/s)</label>
+        <input type="number" name="bw" class="form-control" id="bw">
       </div>
       <div class="col">
-        <label for="delay">delay</label>
-        <input type="text" name="delay" class="form-control" id="delay">
+        <label for="delay">Delay (ms)</label>
+        <input type="number" name="delay" class="form-control" id="delay">
       </div>
       <div class="col">
-        <label for="loss">loss</label>
-        <input type="text" name="loss" class="form-control" id="loss">
+        <label for="loss">Loss (%)</label>
+        <input type="number" name="loss" class="form-control" id="loss">
       </div>
       <div class="col">
-        <label for="maxqueue">maxqueue</label>
-        <input type="text" name="maxqueue" class="form-control" id="maxqueue">
+        <label for="max_queue_size">Máximo tamanho da fila</label>
+        <input type="number" name="max_queue_size" class="form-control" id="max_queue_size">
       </div>
       <div class="col">
-        <label for="jitter">jitter</label>
-        <input type="text" name="jitter" class="form-control" id="jitter">
-      </div>
-      <div class="col">
-        <label for="speedup">speedup</label>
-        <input type="text" name="speedup" class="form-control" id="speedup">
+        <label for="jitter">Jitter (ms)</label>
+        <input type="number" name="jitter" class="form-control" id="jitter">
       </div>
     </div>
   </div>
@@ -54,14 +50,13 @@
     var linkID = "link-"+linksCounter;
     var node1 = document.getElementById("node1").value;
     var node2 = document.getElementById("node2").value;
-    var connection = document.getElementById("conn").value;
+    var bw = document.getElementById("bw").value;
     var delay = document.getElementById("delay").value;
     var loss = document.getElementById("loss").value;
-    var maxqueue = document.getElementById("maxqueue").value;
+    var max_queue_size = document.getElementById("max_queue_size").value;
     var jitter = document.getElementById("jitter").value;
-    var speedup = document.getElementById("speedup").value;
 
-    var props = { connection: connection, delay: delay, loss: loss, maxqueue: maxqueue, jitter: jitter, speedup: speedup };
+    var props = { bw: bw, delay: delay, loss: loss, max_queue_size: max_queue_size, jitter: jitter};
   
     var link = {id: linkID, node1: node1, node2: node2, props: props}
   

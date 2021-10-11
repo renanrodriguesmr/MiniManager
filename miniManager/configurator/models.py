@@ -157,18 +157,17 @@ class Interface(models.Model):
 class Link(models.Model):
     int1 = models.ForeignKey(Interface, related_name='int1', on_delete=models.CASCADE, null=True)
     int2 = models.ForeignKey(Interface, related_name='int2', on_delete=models.CASCADE, null=True)
-    connection = models.CharField(max_length=30)
-    delay = models.CharField(max_length=30)
-    loss = models.CharField(max_length=30)
-    maxqueue = models.CharField(max_length=30)
-    jitter = models.CharField(max_length=30)
-    speedup = models.CharField(max_length=30)
+    bw = models.IntegerField(blank=True, null=True)
+    delay = models.IntegerField(blank=True, null=True)
+    loss = models.IntegerField(blank=True, null=True)
+    max_queue_size = models.IntegerField(blank=True, null=True)
+    jitter = models.IntegerField(blank=True, null=True)
 
     class Meta:
         db_table="Link"
 
     def serialize(self):
-        args = {"connection": self.connection, "delay": self.delay, "loss": self.loss, "maxqueue": self.maxqueue, "jitter": self.jitter, "speedup": self.speedup}
+        args = {"bw": self.bw, "delay": self.delay, "loss": self.loss, "max_queue_size": self.max_queue_size, "jitter": self.jitter}
         return {"node1": self.int1.node.name, "node2": self.int2.node.name, "args": args}
 
 class Mobility(models.Model):
