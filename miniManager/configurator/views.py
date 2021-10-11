@@ -126,10 +126,13 @@ class ConfigurationView():
         for linkID in links:
             self.__saveLink(request, linkID, nodeToInterfaceMap)
 
-    def __saveNetowrk(self, request):
-        network = Network()
-        network.save()
+    def __saveNetwork(self, request):
+        adhoc = request.POST.get('adhoc') == 'on'
+        fading_cof = request.POST.get('fading_cof')
+        noise_th = request.POST.get('noise_th')
 
+        network = Network(adhoc=adhoc, fading_cof=fading_cof, noise_th=noise_th)
+        network.save()
         return network
     
     def __savePropagationModel(self, request):
@@ -169,7 +172,7 @@ class ConfigurationView():
     def postHelper(self, request):
         propagationmodel = self.__savePropagationModel(request)
         mobilitymodel = self.__saveMobilityModel(request)
-        network = self.__saveNetowrk(request)
+        network = self.__saveNetwork(request)
         nodeToInterfaceMap = self.__saveNodes(request, network)
         self.__saveLinks(request, nodeToInterfaceMap)
 

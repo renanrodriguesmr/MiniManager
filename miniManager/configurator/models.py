@@ -11,10 +11,15 @@ class TestPlan(models.Model):
         db_table = "TestPlan"
 
 class Network(models.Model):
-    fixed = models.BooleanField(default=True)
+    noise_th = models.IntegerField(default=-91)
+    fading_cof = models.IntegerField(default=0)
+    adhoc = models.BooleanField(default=False)
     
     class Meta:
         db_table="Network"
+
+    def seialize(self):
+        return {"noise_th": self.noise_th, "fading_cof": self.fading_cof, "adhoc": self.adhoc}
 
 #class NetworkController(models.Model): /vamos usar o Controller do mininet.node
     #protocol = models.CharField(max_length=30)
@@ -254,6 +259,7 @@ class Configuration(models.Model):
     def getConfigurationObj(self):
         nodes = self.getNodes()
         return {
+            "network": self.network.seialize(),
             "radioFrequencyMeasurements": self.getMeasurements(),
             "performanceMeasurements": self.getPerformanceMeasurements(),
             "propagationModel": self.getPropagationModel(),

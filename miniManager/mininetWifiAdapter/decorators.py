@@ -25,7 +25,7 @@ class MininetNetwork(MininetDecoratorComponent):
 
     def configure(self):
         info("*** Creating network\n")
-        self.__network = Mininet_wifi(controller=Controller, link=wmediumd, wmediumd_mode=interference, noise_th=-91, fading_cof=3)
+        self.__network = Mininet_wifi(controller=Controller, noise_th=-91, fading_cof=3)
 
         nodeTypeToAdder = {
             "station": self.__network.addStation,

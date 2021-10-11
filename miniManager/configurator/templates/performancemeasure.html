@@ -1,7 +1,7 @@
 <h3>Parâmetros de medida de performance</h3>
 <div class="form-group">
   <div class="row">
-    <input class="col-1 form-check-input" type="checkbox" name="performancemeasure" value="performancemeasure" id="performancemeasure">
+    <input class="col-1 form-check-input" type="checkbox" name="performancemeasure" id="performancemeasure">
     <select class="col" name="performancemeasure_name" id="performancemeasure_name">
         {% for measure in measures %}
         <option value="{{measure.name}}">{{measure.name}}</option>
