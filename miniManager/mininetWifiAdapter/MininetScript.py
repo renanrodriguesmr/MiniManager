@@ -15,8 +15,7 @@ class MininetScript():
     def __init__(self):
         self.__configuration = self.__loadConfiguration()
         self.__radioFrequencyMeasurements = self.__configuration["radioFrequencyMeasurements"]
-        #self.__performanceMeasurements = self.__configuration["performanceMeasurements"]
-        self.__performanceMeasurements = []
+        self.__performanceMeasurements = self.__configuration["performanceMeasurements"]
         self.__net = None
 
     def __loadConfiguration(self):
