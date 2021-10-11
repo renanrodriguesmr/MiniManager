@@ -68,6 +68,14 @@ class Configuration(models.Model):
 
         return result
 
+    def getPerformanceMeasurements(self):
+        result = []
+        measurements = PerformanceMeasurement.objects.filter(config_id = self.id)
+        for measurement in measurements:
+            result.append({"period": measurement.period, "source": measurement.source, "destination": measurement.destination, "measure": {"name": measurement.measure.name}})
+
+        return result
+
     def getPropagationModel(self):
         propagationmodel = self.propagationmodel
         args = {}
@@ -86,6 +94,13 @@ class Configuration(models.Model):
 
         return {"model": mobilitymodel.model.name, "args": args}
 
+    def getConfigurationObj(self):
+        return {
+            "radioFrequencyMeasurements": self.getMeasurements(),
+            "performanceMeasurements": self.getPerformanceMeasurements(),
+            "propagationModel": self.getPropagationModel(),
+            "mobilityModel": self.getMobilityModel()
+        }
 
 class Measure(models.Model):
     name = models.CharField(max_length=20)

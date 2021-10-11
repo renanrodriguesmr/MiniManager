@@ -242,11 +242,7 @@ class TestPlansView(View):
 class ExportVersionView(View):
     def get(self, request, version_id):
         version = Version.objects.get(id=version_id)
-        configurationObj = {
-            "radioFrequencyMeasurements": version.configuration.getMeasurements(), 
-            "propagationModel": version.configuration.getPropagationModel(),
-            "mobilityModel": version.configuration.getMobilityModel()
-        }
+        configurationObj = version.configuration.getConfigurationObj()
 
         jsonString = json.dumps(configurationObj, default=lambda o: o.__dict__, indent=4)
         response = HttpResponse(jsonString, content_type="application/json")
