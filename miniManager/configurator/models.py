@@ -208,7 +208,7 @@ class Link(models.Model):
     connection = models.CharField(max_length=30)
     delay = models.CharField(max_length=30)
     loss = models.CharField(max_length=30)
-    max_queue_size = models.CharField(max_length=30)
+    maxqueue = models.CharField(max_length=30)
     jitter = models.CharField(max_length=30)
     speedup = models.CharField(max_length=30)
 

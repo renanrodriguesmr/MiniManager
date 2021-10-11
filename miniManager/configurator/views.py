@@ -90,23 +90,41 @@ class ConfigurationView():
         interface = Interface(name=node.name + "int", node=node, **interfaceParams)
         interface.save()
 
+        return node.name, interface.id
+
     def __saveNodes(self, request, network):
         nodesString = request.POST.get('nodes')
         nodes = nodesString.split(",")
 
-        for nodeID in nodes:
-            self.__saveNode(request, network, nodeID)
-            
-    def __saveLink(self, request):
-        conn = request.POST.get("conn")
-        delay = request.POST.get("delay")
-        loss = request.POST.get("loss")
-        maxqueue= request.POST.get("maxqueue")
-        jitter= request.POST.get("jitter")
-        speedup= request.POST.get("speedup")
+        nodeToInterfaceMap = {}
 
-        link = Link(connection=conn, delay=delay,loss=loss, max_queue_size=maxqueue, jitter=jitter, speedup=speedup)
+        for nodeID in nodes:
+            nodeName, interfaceID = self.__saveNode(request, network, nodeID)
+            nodeToInterfaceMap[nodeName] = interfaceID
+
+        return nodeToInterfaceMap
+            
+    def __saveLink(self, request, linkID, nodeToInterfaceMap):
+        node1 = request.POST.get(linkID + "-" + "node1")
+        node2 = request.POST.get(linkID + "-" + "node2")
+
+        linkAttributes = ["connection", "delay", "loss", "maxqueue", "jitter", "speedup"]
+        linkObj = {}
+        for attr in linkAttributes:
+            linkObj[attr] = request.POST.get(linkID + "-" + attr)
+
+        int1 = nodeToInterfaceMap[node1]
+        int2 = nodeToInterfaceMap[node2]
+
+        link = Link(int1_id = int1, int2_id = int2, **linkObj)
         link.save()
+    
+    def __saveLinks(self, request, nodeToInterfaceMap):
+        linksString = request.POST.get('links')
+        links = linksString.split(",")
+
+        for linkID in links:
+            self.__saveLink(request, linkID, nodeToInterfaceMap)
 
     def __saveNetowrk(self, request):
         network = Network()
@@ -152,8 +170,8 @@ class ConfigurationView():
         propagationmodel = self.__savePropagationModel(request)
         mobilitymodel = self.__saveMobilityModel(request)
         network = self.__saveNetowrk(request)
-        self.__saveNodes(request, network)
-        self.__saveLink(request)
+        nodeToInterfaceMap = self.__saveNodes(request, network)
+        self.__saveLinks(request, nodeToInterfaceMap)
 
         configuration = Configuration(medicao_schema='xml_schema', propagationmodel=propagationmodel, mobilitymodel=mobilitymodel, network=network)
         configuration.save()
