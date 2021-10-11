@@ -75,7 +75,7 @@ class ConfigurationView():
         nodeParams = {}
         for attr in nodeAttributes:
             nodeParams[attr] = request.POST.get(nodeID + "-" + attr)
-        node = Node(network = network, **nodeParams)
+        node = Node(network = network, type = type, **nodeParams)
         node.save()
 
         specParams = {}

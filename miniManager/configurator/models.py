@@ -10,7 +10,6 @@ class TestPlan(models.Model):
     class Meta:
         db_table = "TestPlan"
 
-
 class Network(models.Model):
     fixed = models.BooleanField(default=True)
     
@@ -19,7 +18,6 @@ class Network(models.Model):
 
 #class NetworkController(models.Model): /vamos usar o Controller do mininet.node
     #protocol = models.CharField(max_length=30)
-
 
 #PModelCatalog works as a catalog of propagation models
 class PModelCatalog(models.Model): 
@@ -42,12 +40,154 @@ class PropagationModel(models.Model):
     class Meta:
         db_table = "PropagationModel"
 
-
 class MobilityModel(models.Model):
     model = models.ForeignKey(MModelCatalog, on_delete=models.CASCADE)
 
     class Meta:
         db_table = "MobilityModel"
+class Measure(models.Model):
+    name = models.CharField(max_length=20)
+    unit = models.CharField(max_length=10)
+
+    class Meta:
+        db_table = "Measures"
+
+class PerformanceMeasure(models.Model):
+    name = models.CharField(max_length=30)
+    unit = models.CharField(max_length=10)
+
+    class Meta:
+        db_table = "PerformanceMeasure"
+
+class PropagationParam(models.Model):
+    name = models.CharField(max_length=30)
+    value = models.FloatField()
+    propagationmodel = models.ForeignKey(PropagationModel, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = "PropagationParam"
+
+class MobilityParam(models.Model):
+    name = models.CharField(max_length=30)
+    value = models.FloatField()
+    mobilitymodel = models.ForeignKey(MobilityModel, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = "MobilityParam"
+
+class Node(models.Model):
+    name = models.CharField(max_length=30)
+    mac = models.CharField(max_length=30)
+    type = models.CharField(max_length=30, blank=True, null=True)
+    network = models.ForeignKey(Network, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = "Node"
+
+    def getTypeWithAttributes(self):
+        nodeTypeToSpecialization = {
+            "station": Station,
+            "accesspoint": AccessPoint,
+            "host": Host,
+            "switch": Switch
+        }
+
+        return nodeTypeToSpecialization[self.type].objects.get(node_id = self.id).serialize()
+
+    def getInterface(self):
+        return Interface.objects.get(node_id = self.id).serialize()
+
+    def serialize(self):
+        specializationArgs = self.getTypeWithAttributes()
+        interface = self.getInterface()
+        return {"name": self.name, "mac": self.mac, "type": self.type, "args": specializationArgs, "interface": interface}
+
+class Station(models.Model):
+    node = models.OneToOneField(Node, on_delete=models.CASCADE, unique=True)
+
+    class Meta:
+        db_table = "Station"
+    
+    def serialize(self):
+        return {}
+
+class Host(models.Model):
+    node = models.OneToOneField(Node, on_delete=models.CASCADE, unique=True)
+
+    class Meta:
+        db_table = "Host"
+
+    def serialize(self):
+        return {}
+
+class Switch(models.Model):
+    type = models.CharField(max_length=30)
+    node = models.OneToOneField(Node,on_delete=models.CASCADE, unique=True)
+    
+    class Meta:
+        db_table="Switch"
+
+    def serialize(self):
+        return {"type": self.type}
+
+class AccessPoint(models.Model):
+    ssid = models.CharField(max_length=30)
+    mode = models.CharField(max_length=30)
+    channel = models.CharField(max_length=30)
+    node = models.OneToOneField(Node,on_delete=models.CASCADE, unique=True)
+
+    class Meta:
+        db_table = "AccessPoint"
+
+    def serialize(self):
+        return {"ssid": self.ssid, "mode": self.mode, "channel": self.channel}
+
+class Interface(models.Model):
+    name = models.CharField(max_length=30)
+    ip = models.CharField(max_length=30)
+    node = models.ForeignKey(Node, on_delete=models.CASCADE) 
+
+    class Meta:
+        db_table = "Interface"
+
+    def serialize(self):
+        args = {"ip": self.ip}
+        return {"id": self.id, "name": self.name, "args": args}
+
+class Link(models.Model):
+    int1 = models.ForeignKey(Interface, related_name='int1', on_delete=models.CASCADE, null=True)
+    int2 = models.ForeignKey(Interface, related_name='int2', on_delete=models.CASCADE, null=True)
+    connection = models.CharField(max_length=30)
+    delay = models.CharField(max_length=30)
+    loss = models.CharField(max_length=30)
+    maxqueue = models.CharField(max_length=30)
+    jitter = models.CharField(max_length=30)
+    speedup = models.CharField(max_length=30)
+
+    class Meta:
+        db_table="Link"
+
+    def serialize(self):
+        args = {"connection": self.connection, "delay": self.delay, "loss": self.loss, "maxqueue": self.maxqueue, "jitter": self.jitter, "speedup": self.speedup}
+        return {"node1": self.int1.node.name, "node2": self.int2.node.name, "args": args}
+
+class Mobility(models.Model):
+    tempo = models.FloatField()
+    x = models.FloatField()
+    y = models.FloatField()
+    z = models.FloatField()
+    node = models.ForeignKey(Node, on_delete=models.CASCADE)
+    class Meta:
+        db_table = "Mobility"
+
+class Position(models.Model):
+    x = models.FloatField()
+    y = models.FloatField()
+    z = models.FloatField()
+    node = models.ForeignKey(Node, on_delete=models.CASCADE)
+   
+    class Meta:
+        db_table = "Position"
 
 class Configuration(models.Model):
     medicao_schema = models.TextField()
@@ -56,9 +196,27 @@ class Configuration(models.Model):
     stop_time = models.IntegerField(null=True)
     network = models.ForeignKey(Network, on_delete=models.CASCADE, null=True)
 
-
     class Meta:
         db_table = "Configuration"
+
+    def getNodes(self):
+        result = []
+        nodes = Node.objects.filter(network_id = self.network.id)
+
+        for node in nodes:
+            nodeObj = node.serialize()
+            result.append(nodeObj)
+
+        return result
+
+    def getLinks(self, nodes):
+        links = []
+        for node in nodes:
+            foundedLinks = Link.objects.filter(int1_id = node["interface"]["id"]).all()
+            for link in foundedLinks:
+                links.append(link.serialize())
+
+        return links
 
     def getMeasurements(self):
         result = []
@@ -95,34 +253,15 @@ class Configuration(models.Model):
         return {"model": mobilitymodel.model.name, "args": args}
 
     def getConfigurationObj(self):
+        nodes = self.getNodes()
         return {
             "radioFrequencyMeasurements": self.getMeasurements(),
             "performanceMeasurements": self.getPerformanceMeasurements(),
             "propagationModel": self.getPropagationModel(),
-            "mobilityModel": self.getMobilityModel()
+            "mobilityModel": self.getMobilityModel(),
+            "nodes": nodes,
+            "links": self.getLinks(nodes)
         }
-
-class Measure(models.Model):
-    name = models.CharField(max_length=20)
-    unit = models.CharField(max_length=10)
-
-    class Meta:
-        db_table = "Measures"
-
-class PerformanceMeasure(models.Model):
-    name = models.CharField(max_length=30)
-    unit = models.CharField(max_length=10)
-
-    class Meta:
-        db_table = "PerformanceMeasure"
-
-class Measurement(models.Model):
-    period = models.IntegerField()
-    measure = models.ForeignKey(Measure, on_delete=models.CASCADE)
-    config = models.ForeignKey(Configuration, on_delete=models.CASCADE)
-
-    class Meta:
-        db_table = "Measurement"
 
 class PerformanceMeasurement(models.Model):
     period = models.IntegerField()
@@ -134,101 +273,13 @@ class PerformanceMeasurement(models.Model):
     class Meta:
         db_table = "PerformanceMeasurement"
 
-
-class PropagationParam(models.Model):
-    name = models.CharField(max_length=30)
-    value = models.FloatField()
-    propagationmodel = models.ForeignKey(PropagationModel, on_delete=models.CASCADE)
-
-    class Meta:
-        db_table = "PropagationParam"
-
-class MobilityParam(models.Model):
-    name = models.CharField(max_length=30)
-    value = models.FloatField()
-    mobilitymodel = models.ForeignKey(MobilityModel, on_delete=models.CASCADE)
+class Measurement(models.Model):
+    period = models.IntegerField()
+    measure = models.ForeignKey(Measure, on_delete=models.CASCADE)
+    config = models.ForeignKey(Configuration, on_delete=models.CASCADE)
 
     class Meta:
-        db_table = "MobilityParam"
-
-
-
-class Node(models.Model):
-    name = models.CharField(max_length=30)
-    mac = models.CharField(max_length=30)
-    network = models.ForeignKey(Network, on_delete=models.CASCADE)
-
-
-    class Meta:
-        db_table = "Node"
-
-class Mobility(models.Model):
-    tempo = models.FloatField()
-    x = models.FloatField()
-    y = models.FloatField()
-    z = models.FloatField()
-    node = models.ForeignKey(Node, on_delete=models.CASCADE)
-    class Meta:
-        db_table = "Mobility"
-
-class Position(models.Model):
-    x = models.FloatField()
-    y = models.FloatField()
-    z = models.FloatField()
-    node = models.ForeignKey(Node, on_delete=models.CASCADE)
-   
-    class Meta:
-        db_table = "Position"
-
-class Station(models.Model):
-    node = models.ForeignKey(Node, on_delete=models.CASCADE)
-
-    class Meta:
-        db_table = "Station"
-
-class Host(models.Model):
-    node = models.ForeignKey(Node, on_delete=models.CASCADE)
-
-    class Meta:
-        db_table = "Host"
-
-
-class Switch(models.Model):
-    type = models.CharField(max_length=30)
-    node = models.ForeignKey(Node,on_delete=models.CASCADE)
-    
-    class Meta:
-        db_table="Switch"
-
-class AccessPoint(models.Model):
-    ssid = models.CharField(max_length=30)
-    mode = models.CharField(max_length=30)
-    channel = models.CharField(max_length=30)
-    node = models.ForeignKey(Node,on_delete=models.CASCADE)
-
-    class Meta:
-        db_table = "AccessPoint"
-
-class Interface(models.Model):
-    name = models.CharField(max_length=30)
-    ip = models.CharField(max_length=30)
-    node = models.ForeignKey(Node, on_delete=models.CASCADE) 
-
-    class Meta:
-        db_table = "Interface"
-
-class Link(models.Model):
-    int1 = models.ForeignKey(Interface, related_name='int1', on_delete=models.CASCADE, null=True)
-    int2 = models.ForeignKey(Interface, related_name='int2', on_delete=models.CASCADE, null=True)
-    connection = models.CharField(max_length=30)
-    delay = models.CharField(max_length=30)
-    loss = models.CharField(max_length=30)
-    maxqueue = models.CharField(max_length=30)
-    jitter = models.CharField(max_length=30)
-    speedup = models.CharField(max_length=30)
-
-    class Meta:
-        db_table="Link"
+        db_table = "Measurement"
 
 class Version(models.Model):
     name = models.CharField(max_length=30)
@@ -239,5 +290,3 @@ class Version(models.Model):
 
     class Meta:
         db_table = "Version"
-
-
