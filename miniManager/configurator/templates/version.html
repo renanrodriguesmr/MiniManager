@@ -7,9 +7,15 @@
 
 {% block content %}
   <h1>Criar Versão para {{testPlan.name}}</h1>
-  <form action="/versions/{{testPlan.id}}" method="get">
-    <button class="btn btn-primary">Voltar para Versões</button>
-  </form>
+  <div class="row">
+    <form class="col-2" action="/versions/{{testPlan.id}}" method="get">
+      <button class="btn btn-primary">Voltar para Versões</button>
+    </form>
+    <div class="col-8" class="input-group">
+      <input type="file" class="form-control" id="inputGroupFile" aria-describedby="inputGroupFileAddon" aria-label="Upload">
+      <button class="btn btn-outline-secondary" type="button" id="inputGroupFileAddon" onclick="importFile()">Importar</button>
+    </div>
+  </div>
   <form id="network-form" action="/version/" method="POST" onsubmit="return processForm();">
     {% csrf_token %}
     <div class="form-group row">
@@ -115,6 +121,21 @@
 
     function processForm(){
       return processNodes() && processLinks();
+    }
+
+    function importFile(){
+      var file = document.getElementById("inputGroupFile").files[0];
+      if (file) {
+        var reader = new FileReader();
+        reader.readAsText(file, "UTF-8");
+        reader.onload = function (evt) {
+          jsonOBJ = JSON.parse(evt.target.result);
+          fillForm(jsonOBJ);
+        }
+        reader.onerror = function (evt) {
+          console.log(evt);
+        }
+      }
     }
   </script>
 {% endblock %}
