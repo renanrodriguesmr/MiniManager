@@ -6,10 +6,8 @@
 <div class="card network-form">
     <h5 class="card-header">Rede</h5>
     <div class="card-body">
-        <div>
-            <label for="adhoc">Rede Adhoc</label>
-            <input type="checkbox" name="adhoc" id="adhoc">
-        </div>
+        <label for="adhoc">Rede Adhoc</label>
+        <input type="checkbox" name="adhoc" id="adhoc">
         <div class="row">
             <div class="col-2">
                 <label for="fading_cof">Coeficiente de Fading*</label>
@@ -33,8 +31,8 @@ function fillNetwork(network){
 }
 
 function validateNetwork(){
-    fading_cof = document.getElementById("fading_cof").value;
-    noise_th = document.getElementById("noise_th").value;
+    var fading_cof = document.getElementById("fading_cof").value;
+    var noise_th = document.getElementById("noise_th").value;
 
     if(!fading_cof || !noise_th){
         alert("Preencha os campos obrigatórios de Network");

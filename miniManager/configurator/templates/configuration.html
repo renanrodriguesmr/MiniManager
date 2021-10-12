@@ -1,7 +1,6 @@
 {% load static %}
 
 {% block head %}
-  <link rel="stylesheet" href="{% static 'propagationModel.css' %}">
   <link rel="stylesheet" href="{% static 'nodes.css' %}">
   <link rel="stylesheet" href="{% static 'links.css' %}">
 {% endblock %}
@@ -9,9 +8,9 @@
 {% block content %}
   {% include "network.html" %}
   {% include "propagationModel.html" with pmodels=pmodels only %}
+  {% include "mobilityModel.html" with mmodels=mmodels only %}
   {% include "nodes.html" %}
   {% include "links.html" %}
-  {% include "mobilityModel.html" with mmodels=mmodels only %}
   {% include "radioFrequencyMeasurements.html" with measures=measures only %}
   {% include "performanceMeasurements.html" with measures=pmeasures only %}
 

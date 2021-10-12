@@ -16,6 +16,9 @@
       <button class="btn btn-secondary">Voltar para Versões</button>
     </form>
   </div>
+  {% if error %}
+  <div id="status-bar" class="alert alert-primary" role="alert">{{ errorMessage }}</div>
+  {% endif %}
   <div class="row">
   </div>
   <form id="version-form" action="/version/" method="POST" onsubmit="return processForm();">
@@ -31,9 +34,6 @@
     <div class="submit-button d-grid gap-2">
       <button type="submit" class="btn btn-primary">Submit</button>
     </div>
-    {% if error %}
-      <div id="status-bar" class="alert alert-primary" role="alert">{{ errorMessage }}</div>
-    {% endif %}
   </form>
 
   <script>
@@ -124,7 +124,6 @@
       if(!validateForm()){
         return false;
       }
-
       return processNodes() && processLinks();
     }
 
@@ -154,7 +153,7 @@
         return false;
       }
 
-      return validateNetwork();
+      return validateNetwork() && validatePropagationModel();
     }
   </script>
 {% endblock %}
