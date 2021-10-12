@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
+import time
 
 from mininet.node import Controller
-from mn_wifi.link import wmediumd
+from mn_wifi.link import adhoc
 from mn_wifi.net import Mininet_wifi
-from mn_wifi.wmediumdConnector import interference
 from mininet.log import info
 
 class MininetDecoratorComponent(ABC):
@@ -16,16 +16,24 @@ class MininetDecoratorComponent(ABC):
         pass
 
 class MininetNetwork(MininetDecoratorComponent):
-    def __init__(self, nodes):
+    def __init__(self, networkAttributes, nodes, isAdhoc):
         self.__network = None
         self.__nodes = nodes
+        self.__networkAttributes = networkAttributes
+        self.__isAdhoc = isAdhoc
 
     def getNetwork(self):
         return self.__network
 
     def configure(self):
         info("*** Creating network\n")
-        self.__network = Mininet_wifi(controller=Controller, noise_th=-91, fading_cof=3)
+
+        if self.__isAdhoc:
+            self.__network = Mininet_wifi(**self.__networkAttributes)
+        else:
+            self.__network = Mininet_wifi(controller=Controller, **self.__networkAttributes)
+            self.__network.addController('c1')
+
 
         nodeTypeToAdder = {
             "station": self.__network.addStation,
@@ -37,8 +45,6 @@ class MininetNetwork(MininetDecoratorComponent):
         info("*** Creating nodes\n")
         for node in self.__nodes:
             nodeTypeToAdder[node["type"]](node["name"], **node["args"], **node["interface"]["args"])
-
-        c1 = self.__network.addController('c1')
 
         info("*** Configuring wifi nodes\n")
         self.__network.configureWifiNodes()
@@ -111,19 +117,25 @@ class MobilityModelDecorator(MininetBaseDecorator):
         self.getNetwork().setMobilityModel(time=0, model=self.__mobilityModel["model"], **self.__args)
 
 class NetworkStarterDecorator(MininetBaseDecorator):
-    def __init__(self, component, links):
+    def __init__(self, component, links, isAdhoc):
         super().__init__(component)
         self.__links = links
+        self.__isAdhoc = isAdhoc
     
     def configure(self):
         super().configure()
         info("*** Starting network\n")
         network = self.getNetwork()
 
+        if self.__isAdhoc:
+            for station in network.stations:
+                network.addLink(station, cls=adhoc, intf=station.wintfs[0].name, ssid='adhocNet')
+        else:
+            network.get("c1").start()
+            for ap in network.aps:
+                network.get(ap.name).start([network.get("c1")])
+
         for link in self.__links:
             network.addLink(link["node1"], link["node2"], **link["args"])
 
-
         network.build()
-        network.get("c1").start()
-        network.get("ap1").start([network.get("c1")])

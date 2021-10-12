@@ -19,7 +19,7 @@ class Network(models.Model):
         db_table="Network"
 
     def seialize(self):
-        return {"noise_th": self.noise_th, "fading_cof": self.fading_cof, "adhoc": self.adhoc}
+        return {"adhoc": self.adhoc, "args": {"fading_cof": self.fading_cof, "noise_th": self.noise_th}}
 
 #class NetworkController(models.Model): /vamos usar o Controller do mininet.node
     #protocol = models.CharField(max_length=30)
