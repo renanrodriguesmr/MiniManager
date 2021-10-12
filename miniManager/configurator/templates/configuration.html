@@ -2,13 +2,16 @@
 
 {% block head %}
   <link rel="stylesheet" href="{% static 'modelpropagation.css' %}">
+  <link rel="stylesheet" href="{% static 'nodes.css' %}">
+  <link rel="stylesheet" href="{% static 'link.css' %}">
 {% endblock %}
 
 {% block content %}
+  {% include "network.html" %}
   {% include "nodes.html" %}
   {% include "link.html" %}
   {% include "modelpropagation.html" with pmodels=pmodels only %}
   {% include "modelmobility.html" with mmodels=mmodels only %}
   {% include "measures.html" with measures=measures only %}
+  {% include "performancemeasure.html" with measures=pmeasures only %}
 {% endblock %}
-

@@ -12,8 +12,9 @@ class ConfigurationView():
         pmodels = PModelCatalog.objects.all()
         mmodels = MModelCatalog.objects.all()
         measures = Measure.objects.all()
+        pmeasures = PerformanceMeasure.objects.all
 
-        return {"pmodels": pmodels, "mmodels": mmodels, "measures": measures}
+        return {"pmodels": pmodels, "mmodels": mmodels, "measures": measures, "pmeasures": pmeasures}
 
     def __saveMeasurements(self, request, configuration):
         paramlist = request.POST.getlist('radiofrequency')
@@ -25,115 +26,125 @@ class ConfigurationView():
             measurement = Measurement(period=period, measure=measure, config=configuration)
             measurement.save()
 
+        hasPerformanceMeasurement = request.POST.get('performancemeasure')
+        if hasPerformanceMeasurement:
+            name = request.POST.get('performancemeasure_name')
+            source = request.POST.get('performancemeasuresource')
+            destination = request.POST.get('performancemeasuredestination')
+            period = request.POST.get('performanceperiod')
+
+            measure = PerformanceMeasure.objects.get(name=name)
+            measurement = PerformanceMeasurement(period=period, source=source, destination=destination, measure=measure, config=configuration)
+            measurement.save()
+            
+
         xmlSchemaGenerator = XMLSchemaGenerator()
         return xmlSchemaGenerator.generate(paramlist)
 
-    def __saveStation(self, request, network):
-        NODE_TYPE = "station"
-        stationname = request.POST.get(NODE_TYPE+"name")
-        stationmac = request.POST.get(NODE_TYPE+"mac")
-        stationip = request.POST.get(NODE_TYPE+"ip")
+    def __parseAttributes(self, attributesString):
+        attributesString.strip()
+        if (attributesString == ""):
+            return []
 
-        node = Node(name = stationname , mac=stationmac, network = network)
-        node.save()
+        if "," in attributesString:
+            return attributesString.split(",")
 
-        station = Station(node = node)
-        station.save()
-
-
-        interface = Interface(name=stationname+"int", ip = stationip, node=node)
-        interface.save()
-
-    def __saveAcessPoint(self, request, network):
-        NODE_TYPE = "accesspoint"
-        apname = request.POST.get(NODE_TYPE+"name")
-        apssid = request.POST.get(NODE_TYPE+"ssid")
-        apmode = request.POST.get(NODE_TYPE+"mode")
-        apchannel = request.POST.get(NODE_TYPE+"channel")
-        
-        node = Node(name = apname, network = network)
-        node.save()
-
-        ap = AccessPoint(ssid = apssid,  mode =apmode ,  channel = apchannel )
-        ap.save()
-
-        interface = Interface(name=apname+"int", node=node)
-        interface.save()
-         
-    def __saveHost(self, request, network):
-        NODE_TYPE = "host"
-        hostname = request.POST.get(NODE_TYPE+"name")
-        hostmac = request.POST.get(NODE_TYPE+"mac")
-        hostip = request.POST.get(NODE_TYPE+"ip")
-        
-
-        node = Node(name = hostname, mac = hostmac, network = network)
-        node.save()
-
-        host = Host(node = node)
-        host.save()
-
-
-        interface = Interface(name=hostname+"int", node=node)
-        interface.save()
-
-    def __saveSwitch(self, request, network):
-        NODE_TYPE = "host"
-        switchname = request.POST.get(NODE_TYPE+"name")
-        switchtype = request.POST.get(NODE_TYPE+"type")
-
-        node = Node(name = switchname, network = network)
-        node.save()
-
-        switch = Switch(type = switchtype, node = node )
-        switch.save()
-
-
-        interface = Interface(name=switchname+"int", node=node)
-        interface.save()
-
-
-    def __saveNetowrk(self, request):
-        network = Network()
-        network.save()
-
-        return network
-
+        return [attributesString]
     
-    def __saveNodes(self, request, network):
-        nodeSelected = request.POST.get('nodeselected')
-        nodetype = str(nodeSelected)
-
+    def __saveNode(self, request, network, nodeID):
+        type = request.POST.get(nodeID + "-" + "type")
 
         nodeTypeToSaverMap = {
-            "station": self.__saveStation,
-            "accesspoint": self.__saveAcessPoint,
-            "host": self.__saveHost,
-            "switch": self.__saveSwitch
+            "station": Station,
+            "accesspoint": AccessPoint,
+            "host": Host,
+            "switch": Switch
         }
 
-        saver = nodeTypeToSaverMap[nodetype]
-        saver(request, network)
+        nodeClass = nodeTypeToSaverMap[type]
+
+        specificAttributeString = request.POST.get(type+"_specific_attribute")
+        specificAttributes = self.__parseAttributes(specificAttributeString)
             
+        nodeAttributeString = request.POST.get(type+"_node_attribute")
+        nodeAttributes = self.__parseAttributes(nodeAttributeString)
 
-    def __saveLink(self, request):
-        conn = request.POST.get("conn")
-        delay = request.POST.get("delay")
-        loss = request.POST.get("loss")
-        maxqueue= request.POST.get("maxqueue")
-        jitter= request.POST.get("jitter")
-        speedup= request.POST.get("speedup")
+        interfaceAttributeString = request.POST.get(type+"_interface_attribute")
+        interfaceAttributes = self.__parseAttributes(interfaceAttributeString)
 
-        link = Link(connection=conn, delay=delay,loss=loss, max_queue_size=maxqueue, jitter=jitter, speedup=speedup)
+        nodeParams = {}
+        for attr in nodeAttributes:
+            nodeParams[attr] = request.POST.get(nodeID + "-" + attr)
+        node = Node(network = network, type = type, **nodeParams)
+        node.save()
+
+        specParams = {}
+        for attr in specificAttributes:
+            specParams[attr] = request.POST.get(nodeID + "-" + attr)
+        spec = nodeClass(node = node, **specParams)
+        spec.save()
+
+        interfaceParams = {}
+        for attr in interfaceAttributes:
+            interfaceParams[attr] = request.POST.get(nodeID + "-" + attr)
+        interface = Interface(name=node.name + "int", node=node, **interfaceParams)
+        interface.save()
+
+        return node.name, interface.id
+
+    def __saveNodes(self, request, network):
+        nodesString = request.POST.get('nodes')
+        nodes = nodesString.split(",")
+
+        nodeToInterfaceMap = {}
+
+        for nodeID in nodes:
+            nodeName, interfaceID = self.__saveNode(request, network, nodeID)
+            nodeToInterfaceMap[nodeName] = interfaceID
+
+        return nodeToInterfaceMap
+            
+    def __saveLink(self, request, linkID, nodeToInterfaceMap):
+        node1 = request.POST.get(linkID + "-" + "node1")
+        node2 = request.POST.get(linkID + "-" + "node2")
+
+        linkAttributes = ["bw", "delay", "loss", "max_queue_size", "jitter"]
+        linkObj = {}
+        for attr in linkAttributes:
+            linkObj[attr] = request.POST.get(linkID + "-" + attr)
+
+        int1 = nodeToInterfaceMap[node1]
+        int2 = nodeToInterfaceMap[node2]
+
+        link = Link(int1_id = int1, int2_id = int2, **linkObj)
         link.save()
+    
+    def __saveLinks(self, request, nodeToInterfaceMap):
+        linksString = request.POST.get('links')
+        links = linksString.split(",")
 
+        for linkID in links:
+            self.__saveLink(request, linkID, nodeToInterfaceMap)
+
+    def __saveNetwork(self, request):
+        adhoc = request.POST.get('adhoc') == 'on'
+        fading_cof = request.POST.get('fading_cof')
+        noise_th = request.POST.get('noise_th')
+
+        network = Network(adhoc=adhoc, fading_cof=fading_cof, noise_th=noise_th)
+        network.save()
+        return network
+    
     def __savePropagationModel(self, request):
         pmodelSelected = request.POST.get('propagationmodel')
         pmodel = PModelCatalog.objects.get(name=pmodelSelected)
         propagationmodel = PropagationModel(model=pmodel)
         propagationmodel.save()
 
-        propagationParams = request.POST.get("{}attribute".format(pmodelSelected)).split(",")
+        propagationParamsString = request.POST.get("{}attribute".format(pmodelSelected))
+        propagationParams = []
+        if propagationParamsString:
+            propagationParams = propagationParamsString.split(",")
         for param in propagationParams:
             value = request.POST.get(param)
             propagationparam = PropagationParam(name=param, value=value, propagationmodel=propagationmodel)
@@ -147,7 +158,10 @@ class ConfigurationView():
         mobilitymodel=MobilityModel(model=mmodel)
         mobilitymodel.save()
 
-        mobilityParams = request.POST.get("{}attribute".format(mmodelSelected)).split(",")
+        mobilityParamsString = request.POST.get("{}attribute".format(mmodelSelected))
+        mobilityParams = []
+        if mobilityParamsString:
+            mobilityParams = mobilityParamsString.split(",")
         for param in mobilityParams:
             value=request.POST.get(param)
             mobilityparam = MobilityParam(name=param, value=value, mobilitymodel=mobilitymodel)
@@ -158,11 +172,11 @@ class ConfigurationView():
     def postHelper(self, request):
         propagationmodel = self.__savePropagationModel(request)
         mobilitymodel = self.__saveMobilityModel(request)
-        network = self.__saveNetowrk(request)
-        self.__saveNodes(network)
-        self.__saveLink()
+        network = self.__saveNetwork(request)
+        nodeToInterfaceMap = self.__saveNodes(request, network)
+        self.__saveLinks(request, nodeToInterfaceMap)
 
-        configuration = Configuration(medicao_schema='xml_schema', propagationmodel=propagationmodel, mobilitymodel=mobilitymodel)
+        configuration = Configuration(medicao_schema='xml_schema', propagationmodel=propagationmodel, mobilitymodel=mobilitymodel, network=network)
         configuration.save()
 
         configuration.medicao_schema = self.__saveMeasurements(request, configuration)
@@ -231,11 +245,7 @@ class TestPlansView(View):
 class ExportVersionView(View):
     def get(self, request, version_id):
         version = Version.objects.get(id=version_id)
-        configurationObj = {
-            "radioFrequencyMeasurements": version.configuration.getMeasurements(), 
-            "propagationModel": version.configuration.getPropagationModel(),
-            "mobilityModel": version.configuration.getMobilityModel()
-        }
+        configurationObj = version.configuration.getConfigurationObj()
 
         jsonString = json.dumps(configurationObj, default=lambda o: o.__dict__, indent=4)
         response = HttpResponse(jsonString, content_type="application/json")
