@@ -10,7 +10,7 @@
 <div id="logDistance"  class="hidde-element form-group">
   <div class="form-group">
     <input type="hidden" name="logDistanceattribute" value="exponent">
-    <label id="exponent" value="exponent" for="ifprop">Exponent</label>
+    <label value="exponent" for="exponent">Exponent</label>
     <input type="number" name="exponent" class="form-control" id="exponent">
   </div>
 </div>
@@ -41,7 +41,14 @@ function changePropagationModelForm(newPropagationModel) {
 }
 
 function fillPropagationModel(propagationModel){
-    console.log(propagationModel);
+  var model = propagationModel.model;
+  document.getElementById("PropagationModel").value = model;
+  currentPropagationModelName = model;
+  changePropagationModelForm(model);
+
+  for(var arg in propagationModel.args){
+    document.getElementsByName(arg)[0].value = propagationModel.args[arg];
+  }
 }
 
 </script>

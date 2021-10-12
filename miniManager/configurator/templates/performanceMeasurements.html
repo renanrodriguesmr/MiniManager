@@ -15,12 +15,43 @@
 
 <script>
 document.getElementById('performancemeasure').onchange = function() {
-  document.getElementById('performancemeasuresource').disabled = !this.checked;
-  document.getElementById('performancemeasuredestination').disabled = !this.checked;
-  document.getElementById('performanceperiod').disabled = !this.checked;
+  changeAvailabilityPerformance(this.checked);
 };
 
+function changeAvailabilityPerformance(checked){
+  document.getElementById('performancemeasuresource').disabled = !checked;
+  document.getElementById('performancemeasuredestination').disabled = !checked;
+  document.getElementById('performanceperiod').disabled = !checked;
+}
+
 function fillPerformanceMeasurements(performanceMeasurements){
-  console.log(performanceMeasurements);
+  resetPerformance();
+  if(performanceMeasurements.length == 0){
+    return;
+  }
+
+  var performancemeasureElement = document.getElementById("performancemeasure");
+  performancemeasureElement.value = "on";
+  performancemeasureElement.checked = true;
+  changeAvailabilityPerformance(true);
+
+  var measurement = performanceMeasurements[0];
+
+  document.getElementById("performancemeasuresource").value = measurement.source;
+  document.getElementById("performancemeasuredestination").value = measurement.destination;
+  document.getElementById("performanceperiod").value = measurement.period;
+  document.getElementById("performancemeasure_name").value = measurement.measure.name;
+}
+
+function resetPerformance(){
+  var performancemeasureElement = document.getElementById("performancemeasure");
+  performancemeasureElement.value = "off";
+  performancemeasureElement.checked = false;
+  changeAvailabilityPerformance(false);
+  
+  document.getElementById("performancemeasuresource").value = "";
+  document.getElementById("performancemeasuredestination").value = "";
+  document.getElementById("performanceperiod").value = "";
+  document.getElementById("performancemeasure_name").value = "";
 }
 </script>

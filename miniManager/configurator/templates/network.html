@@ -16,6 +16,10 @@
 
 <script>
 function fillNetwork(network){
-    console.log(network);
+    var adhocElement = document.getElementById("adhoc")
+    adhocElement.value = network.adhoc ? "on" : "off";
+    adhocElement.checked = network.adhoc;
+    document.getElementById("fading_cof").value = network.args.fading_cof;
+    document.getElementById("noise_th").value = network.args.noise_th;
 }
 </script>

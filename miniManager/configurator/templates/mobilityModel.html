@@ -75,7 +75,14 @@ function changemobilityModelForm(newmobilityModel) {
 }
 
 function fillMobilityModel(mobilityModel){
-    console.log(mobilityModel);
+  var model = mobilityModel.model;
+  document.getElementById("mobilityModel").value = model;
+  currentmobilityModelName = model;
+  changemobilityModelForm(model);
+
+  for(var arg in mobilityModel.args){
+    document.getElementsByName(arg)[0].value = mobilityModel.args[arg];
+  }
 }
 
 </script>

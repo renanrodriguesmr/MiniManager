@@ -11,7 +11,7 @@
       </select>
     </div>
     <div class="add-button col">
-      <button type="button" onclick="addNode()" class="btn btn-primary">Adicionar Nó</button>
+      <button type="button" onclick="addNodeByForm()" class="btn btn-primary">Adicionar Nó</button>
     </div>
   </div>
   <div id="station"  class="hidde-element form-group" style="display: none;">
@@ -115,11 +115,46 @@ function changeNodeForm(newNodeType) {
   newElement.style.display = "inline-block";
 }
 
-function addNode(){
-  nodesCounter++;
-  var nodeID = "node-"+nodesCounter;
+function addNodeByForm(){
   var nodeType = document.getElementById("node").value;
+  var attributes = getAttributes(nodeType);
+  var nodeAttributes = attributes[0];
+  var specificAttributes = attributes[1];
+  var interfaceAttributes = attributes[2];
 
+  var nodeObj = {}
+  for(var nodeattr of [...nodeAttributes, ...specificAttributes, ...interfaceAttributes]){
+    nodeObj[nodeattr] = document.getElementById(nodeType+"_"+nodeattr).value;
+  }
+
+  addNode({type: nodeType, props: nodeObj});
+}
+
+function addNodeByObj(node){
+  var nodeType = node.type;
+  var attributes = getAttributes(nodeType);
+  var nodeAttributes = attributes[0];
+  var specificAttributes = attributes[1];
+  var interfaceAttributes = attributes[2];
+  var nodeObj = {};
+
+  for(var attr of nodeAttributes){
+    nodeObj[attr] = node[attr];
+  }
+
+  for(var attr of specificAttributes){
+    nodeObj[attr] = node.args[attr];
+  }
+
+  for(var attr of interfaceAttributes){
+    nodeObj[attr] = node.interface.args[attr];
+  }
+
+  addNode({type: nodeType, props: nodeObj});
+
+}
+
+function getAttributes(nodeType){
   var nodeAttributesString = document.getElementById(nodeType + "_node_attribute").value;
   var specificAttributesString = document.getElementById(nodeType + "_specific_attribute").value;
   var interfaceAttributesString = document.getElementById(nodeType + "_interface_attribute").value;
@@ -128,15 +163,15 @@ function addNode(){
   var specificAttributes = !specificAttributesString ? [] : specificAttributesString.split(',');
   var interfaceAttributes = !interfaceAttributesString ? [] : interfaceAttributesString.split(',');
 
-  var nodeObj = {}
-  for(var nodeattr of [...nodeAttributes, ...specificAttributes, ...interfaceAttributes]){
-    nodeObj[nodeattr] = document.getElementById(nodeType+"_"+nodeattr).value;
-  }
+  return [nodeAttributes, specificAttributes, interfaceAttributes]
+}
 
-  var node = {id: nodeID, type: nodeType, props: nodeObj}
-
-  currentNodes[nodeID] = node
-  renderNode(node)
+function addNode(node){
+  nodesCounter++;
+  var nodeID = "node-"+nodesCounter;
+  node["id"] = nodeID;
+  currentNodes[nodeID] = node;
+  renderNode(node);
 }
 
 function renderNode(node) {
@@ -183,8 +218,18 @@ function removeNode(nodeID) {
   delete currentNodes[nodeID];
 }
 
+function resetNodes(){
+    for(var nodeID in currentNodes){
+      removeNode(nodeID);
+    }
+  }
+
 function fillNodes(nodes){
-  console.log(nodes);
+  resetNodes();
+
+  for(var node of nodes){
+    addNodeByObj(node);
+  }
 }
 
 </script>

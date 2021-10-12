@@ -11,7 +11,7 @@
         <input type="text" name="node2" class="form-control" id="node2">
       </div>
       <div class="add-link col-1">
-        <button type="button" onclick="addLink()" class="btn btn-primary">Adicionar Link</button>
+        <button type="button" onclick="addLinkByForm()" class="btn btn-primary">Adicionar Link</button>
       </div>
     </div>
     <div class="row">
@@ -45,9 +45,7 @@
   var linksCounter = 0;
   var currentLinks = {};
   
-  function addLink(){
-    linksCounter++;
-    var linkID = "link-"+linksCounter;
+  function addLinkByForm(){
     var node1 = document.getElementById("node1").value;
     var node2 = document.getElementById("node2").value;
     var bw = document.getElementById("bw").value;
@@ -57,11 +55,15 @@
     var jitter = document.getElementById("jitter").value;
 
     var props = { bw: bw, delay: delay, loss: loss, max_queue_size: max_queue_size, jitter: jitter};
-  
-    var link = {id: linkID, node1: node1, node2: node2, props: props}
-  
-    currentLinks[linkID] = link
-    renderLink(link)
+    addLink({node1: node1, node2: node2, props: props});
+  }
+
+  function addLink(link){
+    linksCounter++;
+    var linkID = "link-"+linksCounter;
+    link["id"] = linkID;
+    currentLinks[linkID] = link;
+    renderLink(link);
   }
   
   function renderLink(link) {
@@ -108,8 +110,17 @@
     delete currentLinks[linkID];
   }
 
+  function resetLinks(){
+    for(var linkID in currentLinks){
+      removeLink(linkID);
+    }
+  }
+
   function fillLinks(links){
-    console.log(links);
+    resetLinks();
+    for(var link of links){
+      addLink({node1: link.node1, node2: link.node2, props: link.args});
+    }
   }
   </script>
   
