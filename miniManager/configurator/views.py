@@ -230,8 +230,12 @@ class TestPlanView(View):
         testPlanDescription = request.POST.get('test-plan_description')
         testplanAuthor = request.POST.get('test-plan_author')
 
-        testPlan = TestPlan(name=testPlanName, author = testplanAuthor, description = testPlanDescription)
-        testPlan.save()
+        try:
+            testPlan = TestPlan(name=testPlanName, author = testplanAuthor, description = testPlanDescription)
+            testPlan.save()
+        except:
+            args = {"error": True, "errorMessage": "Ocorreu um erro ao salvar o plano de teste, verifique os dados inseridos"}
+            return render(request, 'test-plan.html', args)
 
         url = reverse('test-plans')
         return HttpResponseRedirect(url)
