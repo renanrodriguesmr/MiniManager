@@ -247,4 +247,13 @@ function fillNodes(nodes){
   }
 }
 
+function getNodes(){
+  nodeList = []
+  for(var nodeID in currentNodes){
+    nodeList.push(currentNodes[nodeID].props.name);
+  }
+
+  return nodeList;
+}
+
 </script>

@@ -11,11 +11,11 @@
       <div class="form-group">
         <div class="row">
           <div class="col-3">
-            <label for="node1">Node 1</label>
+            <label for="node1">Nó 1</label>
             <input type="text" name="node1" class="form-control" id="node1">
           </div>
           <div class="col-3">
-            <label for="node2">Node 2</label>
+            <label for="node2">Nó 2</label>
             <input type="text" name="node2" class="form-control" id="node2">
           </div>
           <div class="add-link col-1">
@@ -63,6 +63,23 @@
     var loss = document.getElementById("loss").value;
     var max_queue_size = document.getElementById("max_queue_size").value;
     var jitter = document.getElementById("jitter").value;
+
+    if(!node1 || !node2 || !bw|| !delay|| !loss|| !max_queue_size|| !jitter){
+      alert("Insira todos os atributos de um novo link");
+      return;
+    }
+
+    var nodes = getNodes();
+
+    if(!(nodes.includes(node1))){
+      alert("Nó 1 inválido");
+      return;
+    }
+
+    if(!(nodes.includes(node2))){
+      alert("Nó 2 inválido");
+      return;
+    }
 
     var props = { bw: bw, delay: delay, loss: loss, max_queue_size: max_queue_size, jitter: jitter};
     addLink({node1: node1, node2: node2, props: props});
