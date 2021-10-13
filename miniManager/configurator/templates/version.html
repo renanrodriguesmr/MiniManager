@@ -24,7 +24,7 @@
   <form id="version-form" action="/version/" method="POST" onsubmit="return processForm();">
     {% csrf_token %}
     <div class="form-group">
-      <label for="version_name" class="form-label">Nome*</label>
+      <label for="version_name" class="form-label">Nome</label>
       <input type="text" class="form-control" id="version_name" name="version_name" placeholder="Versão 1">
     </div>
     <input type="hidden" name="test-plan" value="{{testPlan.id}}">
@@ -153,7 +153,7 @@
         return false;
       }
 
-      return validateNetwork() && validatePropagationModel();
+      return validateNetwork() && validatePropagationModel() && validateMobilityModel();
     }
   </script>
 {% endblock %}

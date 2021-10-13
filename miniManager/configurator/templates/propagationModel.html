@@ -4,9 +4,9 @@
 {% endblock %}
 
 <div class="card propagationModel-form">
-  <h5 class="card-header">Modelo de propagação</h5>
+  <h5 class="card-header">Modelo de Propagação</h5>
   <div class="card-body">
-    <label for="PropagationModel">Selecione o Modelo de propagação*</label>
+    <label for="PropagationModel">Selecione o Modelo de Propagação</label>
     <select class="form-control" onchange="onPropagationModelSelect(this)" name="propagationmodel" id="PropagationModel">
       {% for model in pmodels %}
       <option value="{{model.name}}">{{model.displayname}}</option>
@@ -15,7 +15,7 @@
     <div id="logDistance"  class="hidde-element form-group">
       <div class="form-group">
         <input type="hidden" name="logDistanceattribute" value="exponent" id="logDistanceattribute">
-        <label for="exponent">Exponent*</label>
+        <label for="exponent">Expoente</label>
         <input type="number" name="exponent" class="form-control" id="exponent">
       </div>
     </div>

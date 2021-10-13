@@ -199,6 +199,7 @@ class VersionView(ConfigurationView, View):
         if Version.objects.filter(name=versionName, test_plan_id=testPlanID).exists():
             testPlan = TestPlan.objects.get(id=testPlanID)
             args = {"error": True, "errorMessage": "Já existe uma versão com esse nome", "testPlan": testPlan}
+            args.update(self.getHelper())
             return render(request, 'version.html', args)
 
         try:
@@ -206,8 +207,10 @@ class VersionView(ConfigurationView, View):
             version = Version(name=versionName, test_plan_id = testPlanID, configuration=configuration)
             version.save()
         except:
-            args = {"error": True, "errorMessage": "Ocorreu um erro ao salvar a versão, verifique os dados inseridos"}
-            return render(request, 'test-plan.html', args)
+            testPlan = TestPlan.objects.get(id=testPlanID)
+            args = {"error": True, "errorMessage": "Ocorreu um erro ao salvar a versão, verifique os dados inseridos", "testPlan": testPlan}
+            args.update(self.getHelper())
+            return render(request, 'version.html', args)
 
         url = reverse('versions', kwargs={ 'test_plan_id': testPlanID })
         return HttpResponseRedirect(url)
