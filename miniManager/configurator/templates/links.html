@@ -1,46 +1,56 @@
-<h3>Criar Links</h3>
-<div id="new-link">
-  <div class="form-group">
-    <div class="row">
-      <div class="col-3">
-        <label for="node1">Node 1</label>
-        <input type="text" name="node1" class="form-control" id="node1">
-      </div>
-      <div class="col-3">
-        <label for="node2">Node 2</label>
-        <input type="text" name="node2" class="form-control" id="node2">
-      </div>
-      <div class="add-link col-1">
-        <button type="button" onclick="addLinkByForm()" class="btn btn-primary">Adicionar Link</button>
+{% load static %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static 'links.css' %}">
+{% endblock %}
+
+<div class="card link-form">
+  <h5 class="card-header">Criar Links</h5>
+  <div class="card-body">
+    <div id="new-link">
+      <div class="form-group">
+        <div class="row">
+          <div class="col-3">
+            <label for="node1">Node 1</label>
+            <input type="text" name="node1" class="form-control" id="node1">
+          </div>
+          <div class="col-3">
+            <label for="node2">Node 2</label>
+            <input type="text" name="node2" class="form-control" id="node2">
+          </div>
+          <div class="add-link col-1">
+            <button type="button" onclick="addLinkByForm()" class="btn btn-primary">Adicionar Link</button>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <label for="bw">Largura de Banda (b/s)</label>
+            <input type="number" name="bw" class="form-control" id="bw" placeholder="10">
+          </div>
+          <div class="col">
+            <label for="delay">Delay (ms)</label>
+            <input type="number" name="delay" class="form-control" id="delay" placeholder="1">
+          </div>
+          <div class="col">
+            <label for="loss">Loss (%)</label>
+            <input type="number" name="loss" class="form-control" id="loss" placeholder="1">
+          </div>
+          <div class="col">
+            <label for="max_queue_size">Máximo tamanho da fila</label>
+            <input type="number" name="max_queue_size" class="form-control" id="max_queue_size" placeholder="100">
+          </div>
+          <div class="col">
+            <label for="jitter">Jitter (ms)</label>
+            <input type="number" name="jitter" class="form-control" id="jitter">
+          </div>
+        </div>
       </div>
     </div>
-    <div class="row">
-      <div class="col">
-        <label for="bw">Largura de Banda (b/s)</label>
-        <input type="number" name="bw" class="form-control" id="bw" placeholder="10">
-      </div>
-      <div class="col">
-        <label for="delay">Delay (ms)</label>
-        <input type="number" name="delay" class="form-control" id="delay" placeholder="1">
-      </div>
-      <div class="col">
-        <label for="loss">Loss (%)</label>
-        <input type="number" name="loss" class="form-control" id="loss" placeholder="1">
-      </div>
-      <div class="col">
-        <label for="max_queue_size">Máximo tamanho da fila</label>
-        <input type="number" name="max_queue_size" class="form-control" id="max_queue_size" placeholder="100">
-      </div>
-      <div class="col">
-        <label for="jitter">Jitter (ms)</label>
-        <input type="number" name="jitter" class="form-control" id="jitter">
-      </div>
+    <div id="current-links" class="current-links">
     </div>
   </div>
 </div>
-<div id="current-links">
-  
-</div>
+
 <script>
   var linksCounter = 0;
   var currentLinks = {};
@@ -70,6 +80,7 @@
     var div = document.createElement("div");
     div.id = link.id;
     div.className = "card";
+    div.style.marginRight = "5px";
   
     var h5 = document.createElement("h5");
     h5.className = "card-header";

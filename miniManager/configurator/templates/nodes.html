@@ -4,7 +4,7 @@
   <link rel="stylesheet" href="{% static 'nodes.css' %}">
 {% endblock %}
 
-<div class="card propagationModel-form">
+<div class="card nodes-form">
   <h5 class="card-header">Nós da Rede</h5>
   <div class="card-body">
     <div class="new-node">
@@ -191,7 +191,7 @@ function addNode(node){
 function renderNode(node) {
   var div = document.createElement("div");
   div.id = node.id;
-  div.classList = ["card"];
+  div.className = "card";
   div.style.marginRight = "5px";
 
   var h5 = document.createElement("h5");

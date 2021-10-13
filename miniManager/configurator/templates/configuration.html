@@ -1,9 +1,5 @@
 {% load static %}
 
-{% block head %}
-  <link rel="stylesheet" href="{% static 'links.css' %}">
-{% endblock %}
-
 {% block content %}
   {% include "network.html" %}
   {% include "propagationModel.html" with pmodels=pmodels only %}
