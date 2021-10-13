@@ -17,6 +17,16 @@
     <form action="/version/{{testPlan.id}}" method="get">
       <button class="btn btn-primary">Criar Versão</button>
     </form>
+    <form action="/compare-rounds/" method="post">
+      <div class="input-group">
+        {% csrf_token %}
+        <span class="input-group-text">Insira as duas rodadas que deseja comparar</span>
+        <input type="hidden" name="test-plan" id="test-plan" value="{{testPlan.id}}">
+        <input type="text" aria-label="rodada1" class="form-control" name="round1" id="round1">
+        <input type="text" aria-label="rodada2" class="form-control" name="round2"  id="round2">
+        <button class="btn btn-primary">Comparar Versão</button>
+      </div>
+    </form>
   </div>
   <table class="styled-table">
     <thead>
