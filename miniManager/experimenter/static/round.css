@@ -3,6 +3,12 @@
     margin-bottom: 20px;
 }
 
+.title-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
 .btn {
     margin-right: 20px;
 }
@@ -13,13 +19,13 @@
 }
 
 .radio-frequency-table tbody {
-    overflow: scroll;
+    overflow-y: scroll;
     max-height: 400px;
 }
 
 .performance-table {
-    overflow: scroll;
-    max-height: 450px;
+    overflow-y: scroll;
+    height: 450px;
 }
 
 .round-result {
@@ -28,7 +34,7 @@
 
 .result {
     height: 70vh;
-    overflow: scroll;
+    overflow-y: scroll;
 }
 
 .round-graph {

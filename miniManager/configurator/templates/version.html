@@ -6,13 +6,24 @@
 {% endblock %}
 
 {% block content %}
-  <h1>Criar Versão para {{testPlan.name}}</h1>
-  <form action="/versions/{{testPlan.id}}" method="get">
-    <button class="btn btn-primary">Voltar para Versões</button>
-  </form>
-  <form id="network-form" action="/version/" method="POST" onsubmit="return processForm();">
+  <div class="title-bar">
+    <h1>Criar Versão para {{testPlan.name}}</h1>
+    <div class="input-file input-group">
+      <input type="file" class="form-control" id="inputGroupFile" aria-describedby="inputGroupFileAddon" aria-label="Upload">
+      <button class="btn btn-outline-secondary" type="button" id="inputGroupFileAddon" onclick="importFile()">Importar Versão</button>
+    </div>
+    <form action="/versions/{{testPlan.id}}" method="get">
+      <button class="btn btn-secondary">Voltar para Versões</button>
+    </form>
+  </div>
+  {% if error %}
+  <div id="status-bar" class="alert alert-primary" role="alert">{{ errorMessage }}</div>
+  {% endif %}
+  <div class="row">
+  </div>
+  <form id="version-form" action="/version/" method="POST" onsubmit="return processForm();">
     {% csrf_token %}
-    <div class="form-group row">
+    <div class="form-group">
       <label for="version_name" class="form-label">Nome</label>
       <input type="text" class="form-control" id="version_name" name="version_name" placeholder="Versão 1">
     </div>
@@ -22,11 +33,7 @@
 
     <div class="submit-button d-grid gap-2">
       <button type="submit" class="btn btn-primary">Submit</button>
-      <button type="button" class="btn btn-primary" onclick="processForm()">teste</button>
     </div>
-    {% if error %}
-      <div id="status-bar" class="alert alert-primary" role="alert">{{ errorMessage }}</div>
-    {% endif %}
   </form>
 
   <script>
@@ -70,7 +77,7 @@
     }
 
     function processNodes(){
-      var parent = document.getElementById("network-form");
+      var parent = document.getElementById("version-form");
       var nodes = [];
 
       if(currentNodes == {}){
@@ -92,7 +99,7 @@
     }
 
     function processLinks(){
-      var parent = document.getElementById("network-form");
+      var parent = document.getElementById("version-form");
       var links = [];
 
       if(currentLinks == {}){
@@ -114,7 +121,39 @@
     }
 
     function processForm(){
+      if(!validateForm()){
+        return false;
+      }
       return processNodes() && processLinks();
+    }
+
+    function importFile(){
+      var file = document.getElementById("inputGroupFile").files[0];
+      if (file) {
+        var reader = new FileReader();
+        reader.readAsText(file, "UTF-8");
+        reader.onload = function (evt) {
+          try {
+            jsonOBJ = JSON.parse(evt.target.result);
+            fillForm(jsonOBJ);
+          } catch {
+            alert("Arquivo inválido. Verifique o arquivo e tente novamente.");
+          }
+        }
+        reader.onerror = function (evt) {
+          alert("Erro ao fazer o upload do arquivo. Verifique o arquivo e tente novamente.");
+        }
+      }
+    }
+
+    function validateForm(){
+      name = document.getElementById("version_name").value;
+      if(!name){
+        alert("Insira um nome único para sua versão.")
+        return false;
+      }
+
+      return validateNetwork() && validatePropagationModel() && validateMobilityModel();
     }
   </script>
 {% endblock %}

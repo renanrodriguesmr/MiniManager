@@ -199,11 +199,18 @@ class VersionView(ConfigurationView, View):
         if Version.objects.filter(name=versionName, test_plan_id=testPlanID).exists():
             testPlan = TestPlan.objects.get(id=testPlanID)
             args = {"error": True, "errorMessage": "Já existe uma versão com esse nome", "testPlan": testPlan}
+            args.update(self.getHelper())
             return render(request, 'version.html', args)
 
-        configuration = self.postHelper(request)
-        version = Version(name=versionName, test_plan_id = testPlanID, configuration=configuration)
-        version.save()
+        try:
+            configuration = self.postHelper(request)
+            version = Version(name=versionName, test_plan_id = testPlanID, configuration=configuration)
+            version.save()
+        except:
+            testPlan = TestPlan.objects.get(id=testPlanID)
+            args = {"error": True, "errorMessage": "Ocorreu um erro ao salvar a versão, verifique os dados inseridos", "testPlan": testPlan}
+            args.update(self.getHelper())
+            return render(request, 'version.html', args)
 
         url = reverse('versions', kwargs={ 'test_plan_id': testPlanID })
         return HttpResponseRedirect(url)
@@ -230,8 +237,12 @@ class TestPlanView(View):
         testPlanDescription = request.POST.get('test-plan_description')
         testplanAuthor = request.POST.get('test-plan_author')
 
-        testPlan = TestPlan(name=testPlanName, author = testplanAuthor, description = testPlanDescription)
-        testPlan.save()
+        try:
+            testPlan = TestPlan(name=testPlanName, author = testplanAuthor, description = testPlanDescription)
+            testPlan.save()
+        except:
+            args = {"error": True, "errorMessage": "Ocorreu um erro ao salvar o plano de teste, verifique os dados inseridos"}
+            return render(request, 'test-plan.html', args)
 
         url = reverse('test-plans')
         return HttpResponseRedirect(url)

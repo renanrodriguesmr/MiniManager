@@ -1,17 +1,23 @@
 {% load static %}
 
-{% block head %}
-  <link rel="stylesheet" href="{% static 'modelpropagation.css' %}">
-  <link rel="stylesheet" href="{% static 'nodes.css' %}">
-  <link rel="stylesheet" href="{% static 'link.css' %}">
-{% endblock %}
-
 {% block content %}
   {% include "network.html" %}
+  {% include "propagationModel.html" with pmodels=pmodels only %}
+  {% include "mobilityModel.html" with mmodels=mmodels only %}
   {% include "nodes.html" %}
-  {% include "link.html" %}
-  {% include "modelpropagation.html" with pmodels=pmodels only %}
-  {% include "modelmobility.html" with mmodels=mmodels only %}
-  {% include "measures.html" with measures=measures only %}
-  {% include "performancemeasure.html" with measures=pmeasures only %}
+  {% include "links.html" %}
+  {% include "radioFrequencyMeasurements.html" with measures=measures only %}
+  {% include "performanceMeasurements.html" with measures=pmeasures only %}
+
+  <script>
+    function fillForm(jsonOBJ){
+      fillNetwork(jsonOBJ["network"]);
+      fillNodes(jsonOBJ["nodes"]);
+      fillLinks(jsonOBJ["links"]);
+      fillPropagationModel(jsonOBJ["propagationModel"]);
+      fillMobilityModel(jsonOBJ["mobilityModel"]);
+      fillRadioFrequencyMeasurements(jsonOBJ["radioFrequencyMeasurements"]);
+      fillPerformanceMeasurements(jsonOBJ["performanceMeasurements"]);
+    }
+  </script>
 {% endblock %}
