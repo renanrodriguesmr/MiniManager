@@ -128,6 +128,9 @@ class NetworkStarterDecorator(MininetBaseDecorator):
         for link in self.__links:
             network.addLink(link["node1"], link["node2"], **link["args"])
 
+        network.telemetry(nodes=network.stations, single=True)
+        network.build()
+
         if self.__isAdhoc:
             for station in network.stations:
                 network.addLink(station, cls=adhoc, intf=station.wintfs[0].name, ssid='adhocNet')
@@ -138,5 +141,3 @@ class NetworkStarterDecorator(MininetBaseDecorator):
 
             for s in network.switches:
                 network.get(s.name).start([network.get("c1")])
-
-        network.build()
