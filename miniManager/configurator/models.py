@@ -1,7 +1,7 @@
 from django.db import models
 
 class TestPlan(models.Model):
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=60)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     description = models.TextField(null = True)
@@ -126,14 +126,13 @@ class Host(models.Model):
         return {}
 
 class Switch(models.Model):
-    type = models.CharField(max_length=30)
     node = models.OneToOneField(Node,on_delete=models.CASCADE, unique=True)
     
     class Meta:
         db_table="Switch"
 
     def serialize(self):
-        return {"type": self.type}
+        return {}
 
 class AccessPoint(models.Model):
     ssid = models.CharField(max_length=30)
