@@ -126,14 +126,13 @@ class Host(models.Model):
         return {}
 
 class Switch(models.Model):
-    type = models.CharField(max_length=30)
     node = models.OneToOneField(Node,on_delete=models.CASCADE, unique=True)
     
     class Meta:
         db_table="Switch"
 
     def serialize(self):
-        return {"type": self.type}
+        return {}
 
 class AccessPoint(models.Model):
     ssid = models.CharField(max_length=30)

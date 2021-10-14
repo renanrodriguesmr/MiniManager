@@ -32,18 +32,17 @@ class MininetNetwork(MininetDecoratorComponent):
         else:
             self.__network = Mininet_wifi(controller=Controller, **self.__networkAttributes)
             self.__network.addController('c1')
-
-
-        nodeTypeToAdder = {
-            "station": self.__network.addStation,
-            "accesspoint": self.__network.addAccessPoint,
-            "host": self.__network.addHost,
-            "switch": self.__network.addSwitch
-        }
-
+        
         info("*** Creating nodes\n")
         for node in self.__nodes:
-            nodeTypeToAdder[node["type"]](node["name"], **node["args"], **node["interface"]["args"])
+            if node["type"] == "station":
+                self.__network.addStation(node["name"], **node["args"], **node["interface"]["args"])
+            if node["type"] == "accesspoint":
+                self.__network.addAccessPoint(node["name"], **node["args"], **node["interface"]["args"])
+            if node["type"] == "host":
+                self.__network.addHost(node["name"], **node["args"], **node["interface"]["args"])
+            if node["type"] == "switch":
+                self.__network.addSwitch(node["name"], **node["args"], **node["interface"]["args"])
 
         info("*** Configuring wifi nodes\n")
         self.__network.configureWifiNodes()
@@ -126,6 +125,9 @@ class NetworkStarterDecorator(MininetBaseDecorator):
         info("*** Starting network\n")
         network = self.getNetwork()
 
+        for link in self.__links:
+            network.addLink(link["node1"], link["node2"], **link["args"])
+
         if self.__isAdhoc:
             for station in network.stations:
                 network.addLink(station, cls=adhoc, intf=station.wintfs[0].name, ssid='adhocNet')
@@ -134,7 +136,7 @@ class NetworkStarterDecorator(MininetBaseDecorator):
             for ap in network.aps:
                 network.get(ap.name).start([network.get("c1")])
 
-        for link in self.__links:
-            network.addLink(link["node1"], link["node2"], **link["args"])
+            for s in network.switches:
+                network.get(s.name).start([network.get("c1")])
 
         network.build()
