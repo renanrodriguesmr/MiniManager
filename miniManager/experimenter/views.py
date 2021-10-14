@@ -57,11 +57,7 @@ class RoundView(View):
         notifier = ResultNotifier()
         notifier.attach(experimentListener)
         
-        configurationObj = {
-            "radioFrequencyMeasurements": configuration.getMeasurements(), 
-            "propagationModel": configuration.getPropagationModel(),
-            "mobilityModel": configuration.getMobilityModel()
-        }
+        configurationObj = configuration.getConfigurationObj()
         
         mininetWifiExp = MininetWifiExp(notifier, configurationObj)
         queue = ExperimentsQueue.instance()
@@ -117,6 +113,19 @@ class CompareRoundsView(View):
             args["errorMessage"] = ExperimenterConstants.COMPARE_ROUNDS_ERROR
         finally:
             return render(request, 'compare-rounds.html', args)
+
+    def post(self, request):
+        roundName1 = request.POST.get('round1')
+        roundName2 = request.POST.get('round2')
+        try:
+            round1 = Round.objects.filter(name=roundName1).first()
+            round2 = Round.objects.filter(name=roundName2).first()
+            round1ID = round1.id
+            round2ID = round2.id
+            return HttpResponseRedirect('/compare-rounds?round1='+str(round1ID)+'&round2='+str(round2ID))
+        except:
+            testPlanID = request.POST.get('test-plan')
+            return HttpResponseRedirect('/versions/'+str(testPlanID))
 
 
 @register.filter(name='dict_key')

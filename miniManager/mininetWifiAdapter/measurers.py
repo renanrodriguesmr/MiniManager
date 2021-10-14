@@ -114,7 +114,7 @@ class PerformanceMeasurer(IMeasurer):
 
     def __collectMeasurement(self, measurement):
         while True:
-            result = self.__getMeasure(measurement["measure"])
+            result = self.__getMeasure(measurement["measure"], measurement["source"], measurement["destination"])
             currentTime = math.floor(time.time() - self.__start)
             print({
                 constants.MininetConstants.TIME_KEY: currentTime,
@@ -122,10 +122,8 @@ class PerformanceMeasurer(IMeasurer):
             })
             time.sleep(measurement["period"])
 
-    def __getMeasure(self, measure):
+    def __getMeasure(self, measure, sourceName, destinationName):
         name = measure["name"]
-        sourceName = measure["source"]
-        destinationName = measure["destination"]
 
         value = []
         source = self.__net.get(sourceName)
